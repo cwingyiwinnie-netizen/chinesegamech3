@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>詞語雙雄大對決 - 多款小遊戲大集合</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', 'Fredoka', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .btn-bounce {
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        .btn-bounce:active {
+            transform: scale(0.92) translateY(2px);
+        }
+
+        .shadow-fun-blue {
+            box-shadow: 0 6px 0 #1d4ed8;
+        }
+
+        .shadow-fun-rose {
+            box-shadow: 0 6px 0 #be123c;
+        }
+
+        .shadow-fun-amber {
+            box-shadow: 0 6px 0 #b45309;
+        }
+
+        .shadow-fun-emerald {
+            box-shadow: 0 6px 0 #047857;
+        }
+
+        /* Canvas line writing effect */
+        canvas {
+            touch-action: none;
+            background-color: #ffffff;
+            cursor: crosshair;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        .rope-container {
+            transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .car-lane-transition {
+            transition: bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.6)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(234, 179, 8, 0.9)); }
+        }
+
+        .animate-pulse-glow {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between min-h-screen p-2 md:p-4">
+
+    <!-- Top Header / Bar -->
+    <header class="w-full max-w-6xl bg-slate-900/90 backdrop-blur-md rounded-2xl p-2.5 md:p-3 mb-2 shadow-xl border border-indigo-500/30 flex items-center justify-between z-20">
+        <div class="flex items-center space-x-2">
+            <span class="text-2xl md:text-3xl animate-bounce">🏆</span>
+            <div>
+                <h1 class="text-base md:text-xl font-black text-amber-400 tracking-wide flex items-center gap-1.5">
+                    詞語雙雄大對決 <span class="bg-indigo-600 text-white text-[10px] md:text-xs px-2 py-0.5 rounded-full font-bold">小二雙人版</span>
+                </h1>
+                <p id="game-stage-indicator" class="text-xs font-bold text-slate-300">選擇你想玩的對決遊戲</p>
+            </div>
+        </div>
+
+        <!-- Stage Progress Indicator -->
+        <div id="progress-badge" class="hidden flex items-center bg-indigo-950/80 px-3 py-1.5 rounded-xl border border-indigo-500/40">
+            <span id="question-count" class="text-xs md:text-sm font-bold text-indigo-300">題目：1 / 5</span>
+        </div>
+
+        <!-- Return Menu Button -->
+        <button onclick="returnToMainMenu()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl font-bold text-xs md:text-sm border border-slate-600 btn-bounce flex items-center gap-1">
+            <i class="fas fa-house"></i> <span class="hidden sm:inline">主選單</span>
+        </button>
+    </header>
+
+    <!-- Main Interactive Area -->
+    <main class="w-full max-w-6xl flex-1 flex flex-col justify-center items-center relative my-1">
+        
+        <!-- MAIN MENU / GAME SELECTOR -->
+        <div id="screen-menu" class="w-full bg-slate-900/95 rounded-3xl p-5 md:p-8 shadow-2xl border-2 border-indigo-500/40 text-center flex flex-col items-center max-w-3xl">
+            <div class="text-5xl md:text-6xl mb-2 animate-pulse-glow">👦🏻 ⚔️ 👦🏽</div>
+            <h2 class="text-2xl md:text-4xl font-black text-amber-400 mb-1">小學二年級：詞語對決大擂台</h2>
+            <p class="text-slate-300 mb-5 font-medium text-xs md:text-sm">
+                重點詞語：
+                <span class="inline-block bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-md font-bold mx-0.5">農夫</span>
+                <span class="inline-block bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-md font-bold mx-0.5">樹榦</span>
+                <span class="inline-block bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-md font-bold mx-0.5">幹活</span>
+                <span class="inline-block bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-md font-bold mx-0.5">澆水</span>
+                <span class="inline-block bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-md font-bold mx-0.5">專心</span>
+            </p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full mb-6">
+                <!-- Game Option 1: Classic Tug of War & Feast -->
+                <button onclick="launchGame('tug')" class="bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-500 hover:to-blue-600 p-4 rounded-2xl text-left border-2 border-sky-400/50 shadow-fun-blue btn-bounce flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-sky-200 font-bold uppercase tracking-wider">模式一</div>
+                        <div class="text-lg font-black text-white">🪢 拔河美食雙重賽</div>
+                        <div class="text-xs text-sky-100 opacity-90 mt-1">看圖搶答拔河 + 聽音手寫吃美食</div>
+                    </div>
+                    <span class="text-3xl">🍔</span>
+                </button>
+
+                <!-- Game Option 2: Car Speed Racing -->
+                <button onclick="launchGame('race')" class="bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 p-4 rounded-2xl text-left border-2 border-purple-400/50 shadow-fun-emerald btn-bounce flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-purple-200 font-bold uppercase tracking-wider">模式二</div>
+                        <div class="text-lg font-black text-white">🏎️ 粵語飛車大競速</div>
+                        <div class="text-xs text-purple-100 opacity-90 mt-1">聽廣東話發音，搶答正確發動氮氣加速！</div>
+                    </div>
+                    <span class="text-3xl">🏁</span>
+                </button>
+
+                <!-- Game Option 3: Whack a Mole -->
+                <button onclick="launchGame('mole')" class="bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-500 hover:to-orange-600 p-4 rounded-2xl text-left border-2 border-amber-400/50 shadow-fun-amber btn-bounce flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-amber-200 font-bold uppercase tracking-wider">模式三</div>
+                        <div class="text-lg font-black text-white">🔨 地鼠詞語搶答王</div>
+                        <div class="text-xs text-amber-100 opacity-90 mt-1">眼疾手快！快速捶打正確詞語地鼠！</div>
+                    </div>
+                    <span class="text-3xl">🐹</span>
+                </button>
+
+                <!-- Game Option 4: Sentence Fill-in -->
+                <button onclick="launchGame('sentence')" class="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 p-4 rounded-2xl text-left border-2 border-emerald-400/50 shadow-fun-emerald btn-bounce flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-emerald-200 font-bold uppercase tracking-wider">模式四</div>
+                        <div class="text-lg font-black text-white">📝 句子填空大擂台</div>
+                        <div class="text-xs text-emerald-100 opacity-90 mt-1">結合小二語文情境句子，快速選詞填空！</div>
+                    </div>
+                    <span class="text-3xl">✏️</span>
+                </button>
+            </div>
+
+            <!-- Grand Tournament Mode -->
+            <button onclick="launchGrandTournament()" class="w-full py-3.5 bg-gradient-to-r from-yellow-500 via-amber-500 to-red-500 hover:brightness-110 text-slate-950 font-black text-lg md:text-xl rounded-2xl shadow-xl border-2 border-amber-300 btn-bounce flex items-center justify-center gap-2">
+                <span>🏆 開啟「全能大滿貫」總對決（依次挑戰所有遊戲）</span>
+            </button>
+        </div>
+
+        <!-- GAME MODE 1: TUG OF WAR & EATING -->
+        <div id="game-tug-container" class="hidden w-full flex-col items-center">
+            
+            <!-- STAGE 1: TUG OF WAR -->
+            <div id="tug-stage1" class="w-full flex flex-col items-center">
+                <div class="bg-sky-500 text-white px-5 py-1 rounded-full font-black text-xs md:text-sm shadow-md mb-2">
+                    第一階段：拔河大作戰 🪢
+                </div>
+
+                <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch my-auto">
+                    <!-- P1 Left -->
+                    <div class="md:col-span-3 bg-blue-950/90 border-2 border-blue-500 p-3 rounded-2xl flex flex-col justify-between items-center shadow-lg">
+                        <span class="text-blue-300 font-black text-sm mb-2">👦🏻 玩家 1 (藍隊)</span>
+                        <div id="p1-tug-options" class="w-full flex flex-col gap-2 my-auto"></div>
+                        <span class="text-[11px] font-bold text-blue-400 mt-2">⬅️ 點選正確詞語</span>
+                    </div>
+
+                    <!-- Center Rope & Canvas -->
+                    <div class="md:col-span-6 bg-slate-900 border-2 border-slate-700 rounded-2xl p-3 shadow-inner flex flex-col items-center justify-between min-h-[220px]">
+                        <div class="bg-slate-800 p-2 rounded-2xl border border-slate-600 z-10 flex flex-col items-center mb-2 w-full max-w-xs">
+                            <div id="tug-image-container" class="w-28 h-28 md:w-32 md:h-32 flex items-center justify-center"></div>
+                            <span class="text-xs text-slate-300 font-bold mt-1">請看圖搶答詞語</span>
+                        </div>
+
+                        <div class="w-full bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+                            <div class="w-full flex items-center justify-between relative px-2">
+                                <div class="text-2xl transform -scale-x-100">👦🏻</div>
+                                <div class="flex-1 mx-2 relative h-8 flex items-center justify-center">
+                                    <div class="w-full h-3 bg-amber-800 rounded-full border border-amber-900 relative flex items-center justify-center">
+                                        <div id="rope-marker" class="rope-container absolute w-7 h-7 bg-rose-600 border-2 border-white rounded-full flex items-center justify-center shadow-md text-white text-xs" style="left: calc(50% - 14px);">
+                                            🎀
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-2xl">👦🏽</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- P2 Right -->
+                    <div class="md:col-span-3 bg-rose-950/90 border-2 border-rose-500 p-3 rounded-2xl flex flex-col justify-between items-center shadow-lg">
+                        <span class="text-rose-300 font-black text-sm mb-2">玩家 2 (紅隊) 👦🏽</span>
+                        <div id="p2-tug-options" class="w-full flex flex-col gap-2 my-auto"></div>
+                        <span class="text-[11px] font-bold text-rose-400 mt-2">點選正確詞語 ➡️</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TUG OF WAR RESULT INTERMEDIATE SCREEN -->
+            <div id="tug-stage1-result" class="hidden w-full bg-slate-900/95 rounded-3xl p-6 shadow-2xl border-2 border-sky-500 text-center flex flex-col items-center max-w-lg">
+                <div class="text-5xl mb-2 animate-bounce">🪢🏆</div>
+                <h3 class="text-2xl font-black text-sky-400 mb-2">第一階段：拔河大作戰小結</h3>
+                <div id="tug-result-detail" class="w-full bg-slate-800 rounded-2xl p-4 mb-5 border border-slate-700 text-slate-200"></div>
+                <button onclick="startTugStage2()" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-lg rounded-2xl shadow-fun-amber btn-bounce">
+                    🚀 進入第二階段：美食大胃王！
+                </button>
+            </div>
+
+            <!-- STAGE 2: EATING CONTEST (Handwriting) -->
+            <div id="tug-stage2" class="hidden w-full flex-col items-center">
+                <div class="bg-amber-500 text-slate-950 px-5 py-1 rounded-full font-black text-xs md:text-sm shadow-md mb-2">
+                    第二階段：美食大胃王 🍔
+                </div>
+
+                <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch my-auto">
+                    <!-- P1 Canvas Left -->
+                    <div class="md:col-span-4 bg-blue-950/90 border-2 border-blue-500 p-3 rounded-2xl flex flex-col items-center justify-between shadow-lg">
+                        <div class="w-full flex justify-between items-center mb-1">
+                            <span class="font-black text-blue-300 text-xs md:text-sm">👦🏻 藍隊手寫板</span>
+                        </div>
+                        <div class="relative border-2 border-blue-400 rounded-xl overflow-hidden bg-white mb-2 shadow-inner w-full flex justify-center">
+                            <canvas id="canvas-p1" width="280" height="130" class="w-full h-[120px]"></canvas>
+                        </div>
+                        <div class="flex w-full gap-2">
+                            <button onclick="clearCanvas('p1')" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl btn-bounce">重寫</button>
+                            <button onclick="submitHandwriting('p1')" class="flex-2 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-xl btn-bounce">完成提交</button>
+                        </div>
+                    </div>
+
+                    <!-- Center Audio & Food Bar -->
+                    <div class="md:col-span-4 bg-slate-900 border-2 border-amber-500/50 rounded-2xl p-3 shadow-inner flex flex-col items-center justify-center space-y-3">
+                        <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 flex flex-col items-center text-center w-full">
+                            <button onclick="playCantoneseAudioCurrent()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg btn-bounce mb-1">
+                                <i class="fas fa-volume-high"></i>
+                            </button>
+                            <div class="text-amber-400 font-black text-xs md:text-sm">聽粵語發音</div>
+                            <div class="text-slate-400 text-[10px]">點擊重播聽寫詞語</div>
+                        </div>
+
+                        <div class="w-full bg-slate-800 border border-amber-500/30 rounded-2xl p-2 text-center">
+                            <div class="font-bold text-amber-300 text-xs mb-1">🍽️ 剩餘美食 🍽️</div>
+                            <div class="flex justify-between items-center px-2">
+                                <div class="text-left">
+                                    <span class="text-[10px] font-bold text-blue-400 block">藍隊</span>
+                                    <div id="p1-food-bar" class="text-base md:text-lg">🍔🍔🍔🍔🍔</div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[10px] font-bold text-rose-400 block">紅隊</span>
+                                    <div id="p2-food-bar" class="text-base md:text-lg">🍔🍔🍔🍔🍔</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- P2 Canvas Right -->
+                    <div class="md:col-span-4 bg-rose-950/90 border-2 border-rose-500 p-3 rounded-2xl flex flex-col items-center justify-between shadow-lg">
+                        <div class="w-full flex justify-between items-center mb-1">
+                            <span class="font-black text-rose-300 text-xs md:text-sm">紅隊手寫板 👦🏽</span>
+                        </div>
+                        <div class="relative border-2 border-rose-400 rounded-xl overflow-hidden bg-white mb-2 shadow-inner w-full flex justify-center">
+                            <canvas id="canvas-p2" width="280" height="130" class="w-full h-[120px]"></canvas>
+                        </div>
+                        <div class="flex w-full gap-2">
+                            <button onclick="clearCanvas('p2')" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl btn-bounce">重寫</button>
+                            <button onclick="submitHandwriting('p2')" class="flex-2 py-1.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-black rounded-xl btn-bounce">完成提交</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME MODE 2: CAR RACING DUEL -->
+        <div id="game-race-container" class="hidden w-full flex-col items-center">
+            <div class="bg-purple-600 text-white px-5 py-1 rounded-full font-black text-xs md:text-sm shadow-md mb-2">
+                🏎️ 廣東話飛車大競速
+            </div>
+
+            <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch my-auto">
+                <!-- P1 Options Left -->
+                <div class="md:col-span-3 bg-blue-950/90 border-2 border-blue-500 p-3 rounded-2xl flex flex-col justify-between items-center shadow-lg">
+                    <span class="text-blue-300 font-black text-sm mb-2">👦🏻 藍隊車手</span>
+                    <div id="p1-race-options" class="w-full flex flex-col gap-2 my-auto"></div>
+                </div>
+
+                <!-- Race Track Center -->
+                <div class="md:col-span-6 bg-slate-900 border-2 border-purple-500/50 rounded-2xl p-3 shadow-inner flex flex-col items-center justify-between min-h-[260px] relative overflow-hidden">
+                    <!-- Target Speaker/Prompt -->
+                    <div class="bg-slate-800/90 p-2.5 rounded-2xl border border-purple-400/40 flex items-center justify-center gap-3 w-full max-w-sm z-10 shadow-md">
+                        <button onclick="playCantoneseAudioCurrent()" class="bg-purple-500 hover:bg-purple-400 text-white p-2.5 rounded-xl shadow-md btn-bounce flex items-center gap-1.5 font-bold text-xs">
+                            <i class="fas fa-volume-high text-base"></i> 聽語音發音
+                        </button>
+                        <span class="text-xs text-purple-200 font-bold">聽詞語搶答發動氮氣！</span>
+                    </div>
+
+                    <!-- Horizontal Race Tracks (Top: P1 Lane, Bottom: P2 Lane) -->
+                    <div class="w-full h-44 bg-slate-950 border-y-2 border-purple-500/30 relative flex flex-col justify-around px-4 overflow-hidden rounded-xl my-2">
+                        <!-- Finish Line on the Left -->
+                        <div class="absolute top-0 bottom-0 left-4 w-4 bg-yellow-400 border-r-2 border-dashed border-black flex flex-col justify-between py-1 text-[8px] font-black text-black items-center z-10">
+                            <span>🏁</span><span>🏁</span><span>🏁</span><span>🏁</span>
+                        </div>
+
+                        <!-- Track 1: P1 Blue Car (Top Lane) -->
+                        <div class="w-full h-1/2 border-b border-dashed border-slate-700 relative flex items-center">
+                            <div id="p1-car" class="car-lane-transition absolute text-3xl transform -rotate-90 transition-all duration-500" style="right: 10px;">
+                                🏎️ <span class="text-[9px] bg-blue-600 text-white px-1 rounded absolute -top-3 left-0 whitespace-nowrap">藍車</span>
+                            </div>
+                        </div>
+
+                        <!-- Track 2: P2 Red Car (Bottom Lane) -->
+                        <div class="w-full h-1/2 relative flex items-center">
+                            <div id="p2-car" class="car-lane-transition absolute text-3xl transform -rotate-90 transition-all duration-500" style="right: 10px;">
+                                🏎️ <span class="text-[9px] bg-rose-600 text-white px-1 rounded absolute -top-3 left-0 whitespace-nowrap">紅車</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P2 Options Right -->
+                <div class="md:col-span-3 bg-rose-950/90 border-2 border-rose-500 p-3 rounded-2xl flex flex-col justify-between items-center shadow-lg">
+                    <span class="text-rose-300 font-black text-sm mb-2">紅隊車手 👦🏽</span>
+                    <div id="p2-race-options" class="w-full flex flex-col gap-2 my-auto"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME MODE 3: WHACK-A-MOLE DUEL -->
+        <div id="game-mole-container" class="hidden w-full flex-col items-center">
+            <div class="bg-amber-600 text-slate-950 px-5 py-1 rounded-full font-black text-xs md:text-sm shadow-md mb-2">
+                🔨 地鼠詞語搶答王
+            </div>
+
+            <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch my-auto">
+                <!-- P1 Moles Left -->
+                <div class="md:col-span-5 bg-blue-950/90 border-2 border-blue-500 p-3 rounded-2xl flex flex-col items-center justify-between shadow-lg">
+                    <span class="text-blue-300 font-black text-xs md:text-sm mb-1">👦🏻 藍隊打地鼠區 (得分: <span id="p1-mole-score">0</span>)</span>
+                    <div id="p1-mole-grid" class="grid grid-cols-2 gap-2 w-full my-auto"></div>
+                </div>
+
+                <!-- Target Prompt Center -->
+                <div class="md:col-span-2 bg-slate-900 border-2 border-amber-500/50 rounded-2xl p-2 shadow-inner flex flex-col items-center justify-center text-center">
+                    <button onclick="playCantoneseAudioCurrent()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 p-3 rounded-2xl shadow-lg btn-bounce mb-2">
+                        <i class="fas fa-volume-high text-xl"></i>
+                    </button>
+                    <div class="text-xs font-bold text-amber-300">聽發音</div>
+                    <div class="text-[10px] text-slate-400 mt-1">捶打正確的詞語地鼠！</div>
+                </div>
+
+                <!-- P2 Moles Right -->
+                <div class="md:col-span-5 bg-rose-950/90 border-2 border-rose-500 p-3 rounded-2xl flex flex-col items-center justify-between shadow-lg">
+                    <span class="text-rose-300 font-black text-xs md:text-sm mb-1">紅隊打地鼠區 (得分: <span id="p2-mole-score">0</span>) 👦🏽</span>
+                    <div id="p2-mole-grid" class="grid grid-cols-2 gap-2 w-full my-auto"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME MODE 4: SENTENCE FILL-IN -->
+        <div id="game-sentence-container" class="hidden w-full flex-col items-center">
+            <div class="bg-emerald-600 text-white px-5 py-1 rounded-full font-black text-xs md:text-sm shadow-md mb-2">
+                📝 句子填空大擂台
+            </div>
+
+            <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch my-auto">
+                <!-- P1 Options Left -->
+                <div class="md:col-span-3 bg-blue-950/90 border-2 border-blue-500 p-3 rounded-2xl flex flex-col justify-between items-center shadow-lg">
+                    <span class="text-blue-300 font-black text-sm mb-2">👦🏻 藍隊答題區</span>
+                    <div id="p1-sentence-options" class="w-full flex flex-col gap-2 my-auto"></div>
+                </div>
+
+                <!-- Sentence Display Center -->
+                <div class="md:col-span-6 bg-slate-900 border-2 border-emerald-500/50 rounded-2xl p-4 shadow-inner flex flex-col items-center justify-between min-h-[240px]">
+                    <div class="bg-slate-800 p-3 rounded-2xl border border-emerald-500/30 flex items-center justify-center gap-3 w-full max-w-sm mb-2 shadow-md">
+                        <button onclick="playCantoneseAudioCurrent()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 p-2.5 rounded-xl shadow-md btn-bounce flex items-center gap-1.5 font-bold text-xs">
+                            <i class="fas fa-volume-high text-base"></i> 朗讀句子
+                        </button>
+                        <span class="text-xs text-emerald-200 font-bold">請選擇正確的詞語填入括號</span>
+                    </div>
+
+                    <div class="w-full bg-emerald-950/60 border-2 border-emerald-500/40 rounded-2xl p-6 text-center my-auto flex items-center justify-center">
+                        <p id="sentence-text-display" class="text-lg md:text-2xl font-black text-amber-300 leading-relaxed">
+                            微風吹過，辛勤的（ _____ ）在田裏耕作。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- P2 Options Right -->
+                <div class="md:col-span-3 bg-rose-950/90 border-2 border-rose-500 p-3 rounded-2xl flex flex-col justify-between items-center shadow-lg">
+                    <span class="text-rose-300 font-black text-sm mb-2">答題區 👦🏽 紅隊</span>
+                    <div id="p2-sentence-options" class="w-full flex flex-col gap-2 my-auto"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INTERMEDIATE STAGE SUMMARY SCREEN -->
+        <div id="screen-stage-summary" class="hidden w-full bg-slate-900/95 rounded-3xl p-6 shadow-2xl border-2 border-indigo-500/50 text-center flex flex-col items-center max-w-xl">
+            <div id="stage-icon" class="text-5xl mb-2 animate-bounce">📊</div>
+            <h2 id="stage-title-text" class="text-2xl md:text-3xl font-black text-amber-400 mb-2">遊戲階段小結</h2>
+            <p id="stage-sub-text" class="text-slate-300 text-sm md:text-base font-bold mb-4">本關卡表現統計</p>
+
+            <div class="w-full bg-slate-800 rounded-2xl p-4 mb-5 border border-slate-700 flex justify-around">
+                <div class="text-center">
+                    <div class="text-blue-400 font-bold text-xs md:text-sm">👦🏻 藍隊本關得分</div>
+                    <div id="stage-p1-score" class="text-3xl font-black text-blue-400">0</div>
+                </div>
+                <div class="w-px bg-slate-700"></div>
+                <div class="text-center">
+                    <div class="text-rose-400 font-bold text-sm">👦🏽 紅隊本關得分</div>
+                    <div id="stage-p2-score" class="text-3xl font-black text-rose-400">0</div>
+                </div>
+            </div>
+
+            <div id="tournament-total-box" class="hidden w-full bg-indigo-950/80 border border-indigo-500/40 rounded-xl p-3 mb-5 text-xs text-indigo-200">
+                🏆 大滿貫目前累積總分：藍隊 <span id="tour-p1-total" class="font-bold text-amber-300 text-sm">0</span> 分 vs 紅隊 <span id="tour-p2-total" class="font-bold text-amber-300 text-sm">0</span> 分
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 w-full">
+                <button id="btn-next-action" onclick="proceedAfterStageSummary()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-base rounded-2xl shadow-fun-amber btn-bounce">
+                    🚀 進入下一個遊戲
+                </button>
+            </div>
+        </div>
+
+        <!-- FINAL OVERALL SCORE / RESULT SCREEN -->
+        <div id="screen-result" class="hidden w-full bg-slate-900/95 rounded-3xl p-6 shadow-2xl border-2 border-amber-500/50 text-center flex flex-col items-center max-w-xl">
+            <div id="result-emoji" class="text-6xl mb-2 animate-bounce">🏆</div>
+            <h2 id="result-winner-text" class="text-2xl md:text-4xl font-black text-amber-400 mb-2">玩家 1 獲得最終勝利！</h2>
+            <p id="result-detail-text" class="text-slate-300 font-bold mb-6 text-sm md:text-base">總得分：藍隊 12 分 vs 紅隊 8 分</p>
+
+            <div class="w-full bg-slate-800 rounded-2xl p-4 mb-6 border border-slate-700 flex justify-around">
+                <div class="text-center">
+                    <div class="text-blue-400 font-bold text-sm">👦🏻 藍隊總分</div>
+                    <div id="final-p1-score" class="text-3xl font-black text-blue-400">0</div>
+                </div>
+                <div class="w-px bg-slate-700"></div>
+                <div class="text-center">
+                    <div class="text-rose-400 font-bold text-sm">👦🏽 紅隊總分</div>
+                    <div id="final-p2-score" class="text-3xl font-black text-rose-400">0</div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 w-full">
+                <button onclick="returnToMainMenu()" class="flex-1 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-black rounded-2xl border border-slate-600 btn-bounce">
+                    🏠 返回主選單
+                </button>
+                <button onclick="restartCurrentGame()" class="flex-1 py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-2xl shadow-fun-amber btn-bounce">
+                    🔄 再玩一次
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Toast Overlay -->
+    <div id="toast-overlay" class="fixed top-16 left-1/2 transform -translate-x-1/2 bg-slate-900/95 text-white font-bold px-6 py-3 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-50 text-center flex items-center gap-2 border border-amber-400/40">
+        <span id="toast-icon" class="text-2xl">✨</span>
+        <span id="toast-msg" class="text-sm md:text-base">消息提示</span>
+    </div>
+
+    <script>
+        // Core Target Words with SVGs and Cantonese Sentence Contexts
+        const WORDS_DATA = [
+            {
+                id: 'farmer',
+                word: '農夫',
+                cantoneseAudioText: '農夫',
+                sentence: '微風吹過，辛勤的（ _____ ）在田裏耕作。',
+                svg: `<svg viewBox="0 0 200 200" class="w-full h-full">
+                    <rect x="0" y="0" width="200" height="200" fill="none"/>
+                    <path d="M50 40 L50 180" stroke="#78350f" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M35 40 L35 70 Q35 85 50 85 Q65 85 65 70 L65 40" fill="none" stroke="#94a3b8" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M50 40 L50 85" stroke="#94a3b8" stroke-width="5"/>
+                    <rect x="95" y="105" width="50" height="65" fill="#2563eb" rx="10"/>
+                    <rect x="102" y="85" width="36" height="30" fill="#dc2626" rx="5"/>
+                    <circle cx="120" cy="65" r="22" fill="#fde047"/>
+                    <path d="M85 55 Q120 25 155 55 Z" fill="#d97706"/>
+                    <ellipse cx="120" cy="55" rx="42" ry="10" fill="#b45309"/>
+                    <path d="M110 63 Q114 58 118 63" fill="none" stroke="#451a03" stroke-width="3"/>
+                    <path d="M122 63 Q126 58 130 63" fill="none" stroke="#451a03" stroke-width="3"/>
+                    <path d="M113 72 Q120 79 127 72" fill="none" stroke="#dc2626" stroke-width="3"/>
+                </svg>`
+            },
+            {
+                id: 'trunk',
+                word: '樹榦',
+                cantoneseAudioText: '樹幹',
+                sentence: '小松鼠爬上了粗壯的（ _____ ）尋找鬆果。',
+                svg: `<svg viewBox="0 0 200 200" class="w-full h-full">
+                    <path d="M50 80 C40 130 30 150 45 170 C60 175 140 175 155 170 C170 150 160 130 150 80 Z" fill="#78350f" stroke="#451a03" stroke-width="4"/>
+                    <ellipse cx="100" cy="80" rx="52" ry="30" fill="#fde68a" stroke="#451a03" stroke-width="4"/>
+                    <ellipse cx="100" cy="80" rx="40" ry="22" fill="none" stroke="#d97706" stroke-width="3"/>
+                    <ellipse cx="100" cy="80" rx="26" ry="14" fill="none" stroke="#d97706" stroke-width="2.5"/>
+                    <path d="M70 110 L72 150 M100 115 L98 160 M130 110 L128 152" stroke="#451a03" stroke-width="3" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                id: 'work',
+                word: '幹活',
+                cantoneseAudioText: '幹活',
+                sentence: '爸爸和媽媽正在廚房裏忙着（ _____ ）。',
+                svg: `<svg viewBox="0 0 200 200" class="w-full h-full">
+                    <rect x="25" y="125" width="150" height="15" fill="#64748b" rx="3"/>
+                    <rect x="35" y="140" width="130" height="40" fill="#94a3b8"/>
+                    <path d="M60 125 L70 95 L130 95 L140 125 Z" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>
+                    <circle cx="100" cy="52" r="20" fill="#fde047"/>
+                    <path d="M75 95 L85 72 Q100 68 115 72 L125 95 Z" fill="#2563eb"/>
+                </svg>`
+            },
+            {
+                id: 'water',
+                word: '澆水',
+                cantoneseAudioText: '澆水',
+                sentence: '妹妹拿著小水壺給花園裏的花朵（ _____ ）。',
+                svg: `<svg viewBox="0 0 200 200" class="w-full h-full">
+                    <path d="M80 80 L140 90 A35 35 0 0 1 140 160 L80 150 A35 35 0 0 1 80 80 Z" fill="#0284c7" stroke="#0369a1" stroke-width="4"/>
+                    <path d="M140 100 Q180 90 170 145 Q160 160 140 150" fill="none" stroke="#0284c7" stroke-width="10" stroke-linecap="round"/>
+                    <path d="M80 120 L40 135" stroke="#0284c7" stroke-width="12" stroke-linecap="round"/>
+                    <path d="M22 145 Q15 160 12 175 M27 150 Q20 165 18 180" stroke="#38bdf8" stroke-width="3" stroke-dasharray="4 4" fill="none"/>
+                </svg>`
+            },
+            {
+                id: 'focused',
+                word: '專心',
+                cantoneseAudioText: '專心',
+                sentence: '課堂上，同學們都在（ _____ ）聽老師講課。',
+                svg: `<svg viewBox="0 0 200 200" class="w-full h-full">
+                    <rect x="20" y="135" width="160" height="15" fill="#b45309" rx="2"/>
+                    <rect x="30" y="150" width="140" height="35" fill="#d97706"/>
+                    <polygon points="50,135 95,130 95,115 55,118" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+                    <polygon points="100,130 145,135 140,118 100,115" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+                    <circle cx="100" cy="55" r="26" fill="#fde047"/>
+                    <path d="M75 125 L82 85 Q100 80 118 85 L125 125 Z" fill="#0284c7"/>
+                </svg>`
+            }
+        ];
+
+        // Global Game State
+        let activeGameMode = null; // 'tug', 'race', 'mole', 'sentence'
+        let isGrandTournament = false;
+        let tournamentQueue = [];
+
+        let currentQuestionIdx = 0;
+        let p1Score = 0;
+        let p2Score = 0;
+        let p1StageScore = 0;
+        let p2StageScore = 0;
+        let isQuestionActive = false;
+
+        // Mode specific variables
+        let ropePosition = 0;
+        let p1FoodCount = 5, p2FoodCount = 5;
+        let p1CarPos = 10, p2CarPos = 10;
+        let moleInterval = null;
+
+        // Canvas contexts
+        let canvasP1, ctxP1, canvasP2, ctxP2;
+        let isDrawingP1 = false, isDrawingP2 = false;
+        let p1HasDrawn = false, p2HasDrawn = false;
+
+        // Audio Effects via Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSoundEffect(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.35);
+            } else if (type === 'vroom') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            }
+        }
+
+        function playCantoneseAudio(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                const voices = window.speechSynthesis.getVoices();
+                const hkVoice = voices.find(v => v.lang.includes('HK') || v.lang.includes('yue') || v.lang.includes('zh-HK'));
+                if (hkVoice) utterance.voice = hkVoice;
+                utterance.lang = 'zh-HK';
+                utterance.rate = 0.85;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast("🔊 你的瀏覽器不支援發音", "⚠️");
+            }
+        }
+
+        function playCantoneseAudioCurrent() {
+            const currentObj = WORDS_DATA[currentQuestionIdx];
+            if (currentObj) {
+                if (activeGameMode === 'sentence') {
+                    playCantoneseAudio(currentObj.sentence.replace('（ _____ ）', currentObj.word));
+                } else {
+                    playCantoneseAudio(currentObj.cantoneseAudioText);
+                }
+            }
+        }
+
+        function showToast(msg, icon = "✨") {
+            const toast = document.getElementById("toast-overlay");
+            document.getElementById("toast-msg").innerText = msg;
+            document.getElementById("toast-icon").innerText = icon;
+            toast.classList.remove("opacity-0", "pointer-events-none");
+            toast.classList.add("opacity-100");
+            setTimeout(() => {
+                toast.classList.remove("opacity-100");
+                toast.classList.add("opacity-0", "pointer-events-none");
+            }, 1800);
+        }
+
+        function returnToMainMenu() {
+            if (moleInterval) clearInterval(moleInterval);
+            document.getElementById('screen-menu').classList.remove('hidden');
+            document.getElementById('game-tug-container').classList.add('hidden');
+            document.getElementById('game-race-container').classList.add('hidden');
+            document.getElementById('game-mole-container').classList.add('hidden');
+            document.getElementById('game-sentence-container').classList.add('hidden');
+            document.getElementById('screen-stage-summary').classList.add('hidden');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('progress-badge').classList.add('hidden');
+            document.getElementById('game-stage-indicator').innerText = "選擇你想玩的對決遊戲";
+            activeGameMode = null;
+            isGrandTournament = false;
+        }
+
+        function launchGame(mode) {
+            activeGameMode = mode;
+            currentQuestionIdx = 0;
+            p1StageScore = 0;
+            p2StageScore = 0;
+            document.getElementById('screen-menu').classList.add('hidden');
+            document.getElementById('screen-stage-summary').classList.add('hidden');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('progress-badge').classList.remove('hidden');
+
+            if (mode === 'tug') setupTugGame();
+            else if (mode === 'race') setupRaceGame();
+            else if (mode === 'mole') setupMoleGame();
+            else if (mode === 'sentence') setupSentenceGame();
+        }
+
+        function launchGrandTournament() {
+            isGrandTournament = true;
+            tournamentQueue = ['tug', 'race', 'mole', 'sentence'];
+            p1Score = 0;
+            p2Score = 0;
+            showToast("🏆 開始全能大滿貫總對決！", "🔥");
+            nextTournamentGame();
+        }
+
+        function nextTournamentGame() {
+            if (tournamentQueue.length === 0) {
+                showFinalResults();
+                return;
+            }
+            const mode = tournamentQueue.shift();
+            launchGame(mode);
+        }
+
+        function restartCurrentGame() {
+            if (isGrandTournament) {
+                launchGrandTournament();
+            } else if (activeGameMode) {
+                p1Score = 0; p2Score = 0;
+                launchGame(activeGameMode);
+            }
+        }
+
+        function setupTugGame() {
+            document.getElementById('game-tug-container').classList.remove('hidden');
+            document.getElementById('tug-stage1').classList.remove('hidden');
+            document.getElementById('tug-stage1-result').classList.add('hidden');
+            document.getElementById('tug-stage2').classList.add('hidden');
+            document.getElementById('game-stage-indicator').innerText = "拔河美食雙重賽";
+
+            ropePosition = 0;
+            updateRopeVisual();
+            loadTugQuestion();
+        }
+
+        function loadTugQuestion() {
+            if (currentQuestionIdx >= WORDS_DATA.length) {
+                showTugStage1Result();
+                return;
+            }
+            isQuestionActive = true;
+            document.getElementById('question-count').innerText = `拔河：${currentQuestionIdx + 1} / 5`;
+            const item = WORDS_DATA[currentQuestionIdx];
+            document.getElementById('tug-image-container').innerHTML = item.svg;
+
+            renderOptions('p1-tug-options', 'p2-tug-options', (player, word, btn) => {
+                if (!isQuestionActive) return;
+                if (word === item.word) {
+                    isQuestionActive = false;
+                    playSoundEffect('correct');
+                    if (player === 'p1') { p1Score++; ropePosition -= 20; showToast("👏 藍隊答對！繩子往左拉！", "👦🏻"); }
+                    else { p2Score++; ropePosition += 20; showToast("👏 紅隊答對！繩子往右拉！", "👦🏽"); }
+                    updateRopeVisual();
+                    setTimeout(() => { currentQuestionIdx++; loadTugQuestion(); }, 1400);
+                } else {
+                    playSoundEffect('wrong');
+                    btn.disabled = true; btn.classList.add('opacity-40');
+                }
+            });
+        }
+
+        function updateRopeVisual() {
+            const marker = document.getElementById('rope-marker');
+            marker.style.left = `calc(${50 + ropePosition}% - 14px)`;
+        }
+
+        function showTugStage1Result() {
+            document.getElementById('tug-stage1').classList.add('hidden');
+            document.getElementById('tug-stage1-result').classList.remove('hidden');
+            const detail = document.getElementById('tug-result-detail');
+            detail.innerHTML = `<div class="text-xl font-bold mb-1">拔河小結：藍隊 ${p1Score} 分 vs 紅隊 ${p2Score} 分</div>
+                                <p class="text-xs text-slate-300">先答對題目拉動繩子，表現太棒了！</p>`;
+            playSoundEffect('correct');
+        }
+
+        function startTugStage2() {
+            document.getElementById('tug-stage1-result').classList.add('hidden');
+            document.getElementById('tug-stage2').classList.remove('hidden');
+            currentQuestionIdx = 0;
+            p1FoodCount = 5; p2FoodCount = 5;
+            updateFoodDisplay();
+            initCanvases();
+            loadTugStage2Question();
+        }
+
+        function loadTugStage2Question() {
+            if (currentQuestionIdx >= WORDS_DATA.length) {
+                showStageSummary("拔河美食雙重賽", "🍔");
+                return;
+            }
+            isQuestionActive = true;
+            document.getElementById('question-count').innerText = `聽寫：${currentQuestionIdx + 1} / 5`;
+            clearCanvas('p1'); clearCanvas('p2');
+            setTimeout(() => playCantoneseAudioCurrent(), 400);
+        }
+
+        function updateFoodDisplay() {
+            document.getElementById('p1-food-bar').innerText = '🍔'.repeat(p1FoodCount) || '😋 已吃光';
+            document.getElementById('p2-food-bar').innerText = '🍔'.repeat(p2FoodCount) || '😋 已吃光';
+        }
+
+        function initCanvases() {
+            const c1 = document.getElementById('canvas-p1');
+            const c2 = document.getElementById('canvas-p2');
+            ctxP1 = c1.getContext('2d'); ctxP2 = c2.getContext('2d');
+            setupCanvasEvents(c1, ctxP1, 'p1'); setupCanvasEvents(c2, ctxP2, 'p2');
+        }
+
+        function setupCanvasEvents(canvas, ctx, player) {
+            ctx.lineWidth = 6; ctx.lineCap = 'round';
+            ctx.strokeStyle = player === 'p1' ? '#2563eb' : '#dc2626';
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: (clientX - rect.left) * (canvas.width / rect.width), y: (clientY - rect.top) * (canvas.height / rect.height) };
+            }
+
+            function startDraw(e) {
+                e.preventDefault();
+                if (player === 'p1') isDrawingP1 = true; else isDrawingP2 = true;
+                const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+            }
+
+            function draw(e) {
+                e.preventDefault();
+                const isDrawing = player === 'p1' ? isDrawingP1 : isDrawingP2;
+                if (!isDrawing) return;
+                const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke();
+                if (player === 'p1') p1HasDrawn = true; else p2HasDrawn = true;
+            }
+
+            function stopDraw(e) {
+                e.preventDefault();
+                if (player === 'p1') isDrawingP1 = false; else isDrawingP2 = false;
+            }
+
+            canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDraw); canvas.addEventListener('touchstart', startDraw, {passive:false});
+            canvas.addEventListener('touchmove', draw, {passive:false}); canvas.addEventListener('touchend', stopDraw, {passive:false});
+        }
+
+        function clearCanvas(player) {
+            if (player === 'p1') { ctxP1.clearRect(0,0,280,130); p1HasDrawn = false; }
+            else { ctxP2.clearRect(0,0,280,130); p2HasDrawn = false; }
+        }
+
+        function submitHandwriting(player) {
+            if (!isQuestionActive) return;
+            const hasDrawn = player === 'p1' ? p1HasDrawn : p2HasDrawn;
+            if (!hasDrawn) { showToast("✍️ 請先在手寫板上寫字喔", "✏️"); return; }
+
+            isQuestionActive = false;
+            playSoundEffect('correct');
+            const currentObj = WORDS_DATA[currentQuestionIdx];
+
+            if (player === 'p1') { p1Score++; p1StageScore++; if (p1FoodCount > 0) p1FoodCount--; showToast(`🎉 藍隊率先寫出「${currentObj.word}」！`, "👦🏻"); }
+            else { p2Score++; p2StageScore++; if (p2FoodCount > 0) p2FoodCount--; showToast(`🎉 紅隊率先寫出「${currentObj.word}」！`, "👦🏽"); }
+
+            updateFoodDisplay();
+            setTimeout(() => { currentQuestionIdx++; loadTugStage2Question(); }, 1600);
+        }
+
+        function setupRaceGame() {
+            document.getElementById('game-race-container').classList.remove('hidden');
+            document.getElementById('game-stage-indicator').innerText = "粵語飛車大競速";
+            p1CarPos = 10; p2CarPos = 10;
+            updateCarPositions();
+            loadRaceQuestion();
+        }
+
+        function loadRaceQuestion() {
+            if (currentQuestionIdx >= WORDS_DATA.length) {
+                showStageSummary("廣東話飛車大競速", "🏎️");
+                return;
+            }
+            isQuestionActive = true;
+            document.getElementById('question-count').innerText = `飛車：${currentQuestionIdx + 1} / 5`;
+            const item = WORDS_DATA[currentQuestionIdx];
+
+            renderOptions('p1-race-options', 'p2-race-options', (player, word, btn) => {
+                if (!isQuestionActive) return;
+                if (word === item.word) {
+                    isQuestionActive = false;
+                    playSoundEffect('vroom');
+                    if (player === 'p1') { p1Score++; p1StageScore++; p1CarPos += 18; showToast("🏎️ 藍車發動氮氣加速！", "👦🏻"); }
+                    else { p2Score++; p2StageScore++; p2CarPos += 18; showToast("🏎️ 紅車發動氮氣加速！", "👦🏽"); }
+                    updateCarPositions();
+                    setTimeout(() => { currentQuestionIdx++; loadRaceQuestion(); }, 1400);
+                } else {
+                    playSoundEffect('wrong'); btn.disabled = true; btn.classList.add('opacity-40');
+                }
+            });
+
+            setTimeout(() => playCantoneseAudioCurrent(), 300);
+        }
+
+        function updateCarPositions() {
+            document.getElementById('p1-car').style.right = `${p1CarPos}%`;
+            document.getElementById('p2-car').style.right = `${p2CarPos}%`;
+        }
+
+        function setupMoleGame() {
+            document.getElementById('game-mole-container').classList.remove('hidden');
+            document.getElementById('game-stage-indicator').innerText = "地鼠詞語搶答王";
+            loadMoleQuestion();
+        }
+
+        function loadMoleQuestion() {
+            if (currentQuestionIdx >= WORDS_DATA.length) {
+                showStageSummary("地鼠詞語搶答王", "🔨");
+                return;
+            }
+            isQuestionActive = true;
+            document.getElementById('question-count').innerText = `地鼠：${currentQuestionIdx + 1} / 5`;
+            const targetItem = WORDS_DATA[currentQuestionIdx];
+
+            document.getElementById('p1-mole-score').innerText = p1Score;
+            document.getElementById('p2-mole-score').innerText = p2Score;
+
+            // 確保選項中必有正確答案，再隨機補齊3個干擾詞
+            const otherWords = WORDS_DATA.map(d => d.word).filter(w => w !== targetItem.word);
+            const distractors = shuffleArray(otherWords).slice(0, 3);
+            const moleOptions = [targetItem.word, ...distractors];
+
+            // 兩隊共享相同的4個詞語組合，各自隨機打亂位置
+            renderMoles('p1-mole-grid', 'p1', targetItem.word, moleOptions);
+            renderMoles('p2-mole-grid', 'p2', targetItem.word, moleOptions);
+
+            setTimeout(() => playCantoneseAudioCurrent(), 300);
+        }
+
+        function renderMoles(containerId, player, targetWord, moleOptions) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const words = shuffleArray([...moleOptions]);
+
+            words.forEach((word) => {
+                const moleBtn = document.createElement('button');
+                moleBtn.className = "h-20 bg-amber-800/80 hover:bg-amber-700 border-2 border-amber-600 rounded-2xl flex flex-col items-center justify-center btn-bounce p-1 shadow-md";
+                moleBtn.innerHTML = `<span class="text-2xl">🐹</span><span class="text-xs font-black text-amber-200 mt-0.5">${word}</span>`;
+                moleBtn.onclick = () => {
+                    if (!isQuestionActive) return;
+                    if (word === targetWord) {
+                        isQuestionActive = false;
+                        playSoundEffect('correct');
+                        if (player === 'p1') { p1Score++; p1StageScore++; } else { p2Score++; p2StageScore++; }
+                        showToast(player === 'p1' ? "👏 藍隊成功捶打地鼠！" : "👏 紅隊成功捶打地鼠！", "🔨");
+                        setTimeout(() => { currentQuestionIdx++; loadMoleQuestion(); }, 1200);
+                    } else {
+                        playSoundEffect('wrong'); moleBtn.classList.add('opacity-30');
+                    }
+                };
+                container.appendChild(moleBtn);
+            });
+        }
+
+        function setupSentenceGame() {
+            document.getElementById('game-sentence-container').classList.remove('hidden');
+            document.getElementById('game-stage-indicator').innerText = "句子填空大擂台";
+            loadSentenceQuestion();
+        }
+
+        function loadSentenceQuestion() {
+            if (currentQuestionIdx >= WORDS_DATA.length) {
+                showStageSummary("句子填空大擂台", "📝");
+                return;
+            }
+            isQuestionActive = true;
+            document.getElementById('question-count').innerText = `句子：${currentQuestionIdx + 1} / 5`;
+            const item = WORDS_DATA[currentQuestionIdx];
+
+            document.getElementById('sentence-text-display').innerText = item.sentence;
+
+            renderOptions('p1-sentence-options', 'p2-sentence-options', (player, word, btn) => {
+                if (!isQuestionActive) return;
+                if (word === item.word) {
+                    isQuestionActive = false;
+                    playSoundEffect('correct');
+                    if (player === 'p1') { p1Score++; p1StageScore++; } else { p2Score++; p2StageScore++; }
+                    showToast(player === 'p1' ? "👏 藍隊句子填空正確！" : "👏 紅隊句子填空正確！", "📝");
+                    setTimeout(() => { currentQuestionIdx++; loadSentenceQuestion(); }, 1400);
+                } else {
+                    playSoundEffect('wrong'); btn.disabled = true; btn.classList.add('opacity-40');
+                }
+            });
+
+            setTimeout(() => playCantoneseAudioCurrent(), 400);
+        }
+
+        // Show Stage Summary Screen after completing a mini-game
+        function showStageSummary(gameTitle, icon) {
+            document.getElementById('game-tug-container').classList.add('hidden');
+            document.getElementById('game-race-container').classList.add('hidden');
+            document.getElementById('game-mole-container').classList.add('hidden');
+            document.getElementById('game-sentence-container').classList.add('hidden');
+
+            document.getElementById('screen-stage-summary').classList.remove('hidden');
+            document.getElementById('stage-icon').innerText = icon;
+            document.getElementById('stage-title-text').innerText = `${gameTitle} - 階段小結`;
+            document.getElementById('stage-p1-score').innerText = p1StageScore;
+            document.getElementById('stage-p2-score').innerText = p2StageScore;
+
+            const btnNext = document.getElementById('btn-next-action');
+            const totalBox = document.getElementById('tournament-total-box');
+
+            if (isGrandTournament) {
+                totalBox.classList.remove('hidden');
+                document.getElementById('tour-p1-total').innerText = p1Score;
+                document.getElementById('tour-p2-total').innerText = p2Score;
+
+                if (tournamentQueue.length > 0) {
+                    btnNext.innerText = "🚀 進入下一個小遊戲";
+                } else {
+                    btnNext.innerText = "🏆 查看全能大滿貫總成績";
+                }
+            } else {
+                totalBox.classList.add('hidden');
+                btnNext.innerText = "🏆 查看最終統計結果";
+            }
+            playSoundEffect('correct');
+        }
+
+        function proceedAfterStageSummary() {
+            document.getElementById('screen-stage-summary').classList.add('hidden');
+            if (isGrandTournament) {
+                if (tournamentQueue.length > 0) {
+                    nextTournamentGame();
+                } else {
+                    showFinalResults();
+                }
+            } else {
+                showFinalResults();
+            }
+        }
+
+        function renderOptions(p1BoxId, p2BoxId, onClickCallback) {
+            const allWords = WORDS_DATA.map(d => d.word);
+
+            const p1Box = document.getElementById(p1BoxId);
+            p1Box.innerHTML = '';
+            shuffleArray([...allWords]).forEach(word => {
+                const btn = document.createElement('button');
+                btn.className = "w-full py-2.5 px-3 bg-blue-900/80 hover:bg-blue-800 text-blue-100 border border-blue-400/50 rounded-xl font-bold text-sm shadow-md btn-bounce";
+                btn.innerText = word;
+                btn.onclick = () => onClickCallback('p1', word, btn);
+                p1Box.appendChild(btn);
+            });
+
+            const p2Box = document.getElementById(p2BoxId);
+            p2Box.innerHTML = '';
+            shuffleArray([...allWords]).forEach(word => {
+                const btn = document.createElement('button');
+                btn.className = "w-full py-2.5 px-3 bg-rose-900/80 hover:bg-rose-800 text-rose-100 border border-rose-400/50 rounded-xl font-bold text-sm shadow-md btn-bounce";
+                btn.innerText = word;
+                btn.onclick = () => onClickCallback('p2', word, btn);
+                p2Box.appendChild(btn);
+            });
+        }
+
+        function showFinalResults() {
+            document.getElementById('game-tug-container').classList.add('hidden');
+            document.getElementById('game-race-container').classList.add('hidden');
+            document.getElementById('game-mole-container').classList.add('hidden');
+            document.getElementById('game-sentence-container').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+
+            document.getElementById('final-p1-score').innerText = p1Score;
+            document.getElementById('final-p2-score').innerText = p2Score;
+
+            const winnerText = document.getElementById('result-winner-text');
+            const detailText = document.getElementById('result-detail-text');
+
+            if (p1Score > p2Score) {
+                winnerText.innerText = "🎉 藍隊 玩家 1 獲勝！";
+                winnerText.className = "text-2xl md:text-4xl font-black text-blue-400 mb-2";
+                detailText.innerText = `總得分：藍隊 ${p1Score} 分 vs 紅隊 ${p2Score} 分！非常出色的對決！`;
+            } else if (p2Score > p1Score) {
+                winnerText.innerText = "🎉 紅隊 玩家 2 獲勝！";
+                winnerText.className = "text-2xl md:text-4xl font-black text-rose-400 mb-2";
+                detailText.innerText = `總得分：紅隊 ${p2Score} 分 vs 藍隊 ${p1Score} 分！非常出色的對決！`;
+            } else {
+                winnerText.innerText = "🎉 雙方打成平手！";
+                winnerText.className = "text-2xl md:text-4xl font-black text-amber-400 mb-2";
+                detailText.innerText = `得分均為 ${p1Score} 分！兩位都是詞語小達人！`;
+            }
+            playSoundEffect('correct');
+        }
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        window.addEventListener('load', () => {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+            }
+        });
+    </script>
+</body>
+</html>
