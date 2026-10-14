@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>悟空の農夫大冒險 完整版 | 龍珠中文遊戲</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+    
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    
+    body {
+      font-family: 'Noto Sans TC', 'PingFang HK', sans-serif;
+      background: linear-gradient(180deg, #87CEEB 0%, #E8D5B7 40%, #C4A574 70%, #8B6914 100%);
+      color: #1a1a2e;
+      min-height: 100vh;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+    
+    #game-container {
+      max-width: 920px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: rgba(255,255,255,0.15);
+    }
+    
+    /* Header */
+    .header {
+      background: linear-gradient(90deg, #1a1a2e, #2d1b4e);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #ffd700;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { font-size: 1.15rem; font-weight: 900; color: #ffd700; }
+    .header-right { display:flex; align-items:center; gap:12px; }
+    .db-count { background:#ffd700; color:#1a1a2e; padding:4px 10px; border-radius:20px; font-weight:700; font-size:0.95rem; }
+    .part-badge { background:#ff6b00; color:white; padding:4px 10px; border-radius:12px; font-size:0.85rem; font-weight:700; }
+    
+    /* Screens */
+    .screen { display:none; flex:1; flex-direction:column; padding:16px; animation:fadeIn 0.4s ease; }
+    .screen.active { display:flex; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    
+    /* ===== TITLE ===== */
+    .title-hero {
+      text-align:center;
+      padding: 20px 10px 10px;
+    }
+    .title-hero h1 {
+      font-size: 2rem;
+      background: linear-gradient(90deg, #ff6b00, #ffd700, #ff6b00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 10px 0;
+      text-shadow: none;
+    }
+    .team-banner {
+      background: linear-gradient(180deg, #87CEEB 0%, #E8D5B7 60%, #C4A574 100%);
+      border-radius: 16px;
+      border: 4px solid #ffd700;
+      padding: 16px;
+      margin: 12px 0;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .team-row {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 6px;
+      flex-wrap: wrap;
+      min-height: 140px;
+    }
+    .char-card {
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    .char-card:hover { transform: scale(1.08); }
+    .char-avatar {
+      width: 90px;
+      height: 115px;
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-size: 2.8rem;
+      margin: 0 auto 4px;
+      border: none;
+      box-shadow: none;
+      position: relative;
+      overflow: hidden;
+      background: transparent;
+    }
+    /* 真正角色圖的樣式 */
+    .char-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      border-radius: 10px 10px 4px 4px;
+      display: block;
+    }
+    /* 完全隱藏所有 emoji 後備 */
+    .fallback-emoji,
+    .fallback {
+      display: none !important;
+    }
+    .char-name { font-size: 0.75rem; font-weight: 700; color: #1a1a2e; margin-top: 2px; }
+    
+    /* 唔再使用色塊背景，角色直接顯示圖片 */
+    .goku, .gohan, .goten, .vegeta, .trunks, .piccolo, .farmer {
+      background: transparent !important;
+    }
+    
+    .btn {
+      background: linear-gradient(135deg, #ff6b00, #ffd700);
+      color: #1a1a2e;
+      border: none;
+      padding: 14px 28px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(255,107,0,0.4);
+      font-family: inherit;
+      transition: transform 0.2s;
+      margin: 8px;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-blue { background: linear-gradient(135deg, #2563eb, #60a5fa); color:white; }
+    .btn-green { background: linear-gradient(135deg, #16a34a, #4ade80); color:white; }
+    .btn-purple { background: linear-gradient(135deg, #7c3aed, #a78bfa); color:white; }
+    
+    /* ===== MAP / PART SELECT ===== */
+    .map-title { text-align:center; font-size:1.4rem; font-weight:900; color:#1a1a2e; margin:10px 0; }
+    .part-cards { display:flex; flex-direction:column; gap:14px; margin:16px 0; }
+    .part-card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      border: 3px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .part-card:active { transform: scale(0.98); }
+    .part-card.locked { opacity: 0.55; filter: grayscale(0.6); }
+    .part-card.completed { border-color: #16a34a; background: #f0fdf4; }
+    .part-icon {
+      width: 64px; height: 64px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+    .part-info h3 { font-size: 1.15rem; margin-bottom: 4px; }
+    .part-info p { font-size: 0.9rem; color: #4b5563; }
+    .part-status { margin-left: auto; font-size: 1.5rem; }
+    
+    /* ===== STORY / QUIZ (Part 1) ===== */
+    .story-box {
+      background: white;
+      border-radius: 16px;
+      padding: 18px;
+      margin: 10px 0;
+      border: 3px solid #ffd700;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    .speaker { font-weight: 900; color: #ff6b00; font-size: 1.05rem; margin-bottom: 6px; }
+    .dialogue { font-size: 1.15rem; line-height: 1.65; color: #1a1a2e; min-height: 60px; }
+    
+    .scene-box {
+      height: 260px;
+      background: linear-gradient(180deg, #87CEEB 0%, #E8D5B7 55%, #C4A574 100%);
+      border-radius: 14px;
+      border: 3px solid #d4a017;
+      margin: 10px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .scene-ground {
+      position: absolute; bottom:0; left:0; right:0; height:30%;
+      background: linear-gradient(180deg, #C4A574, #8B6914);
+    }
+    .scene-char {
+      position: absolute; bottom: 5%;
+      width: 130px;
+      height: 165px;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35));
+      transition: all 0.4s;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .scene-char img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: bottom;
+    }
+    .scene-goku { right: 2%; width: 150px; height: 190px; z-index: 5; }
+    .scene-farmer { left: 1%; width: 140px; height: 175px; z-index: 4; }
+    .scene-friend1 { left: 24%; width: 100px; height: 130px; opacity: 0.95; z-index: 3; }
+    .scene-friend2 { right: 26%; width: 100px; height: 130px; opacity: 0.95; z-index: 3; }
+    .scene-object {
+      position: absolute;
+      bottom: 6%;
+      left: 44%;
+      width: 110px;
+      height: 120px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 2;
+    }
+    .scene-object img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .word-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .word-btn {
+      background: white;
+      border: 3px solid #ffd700;
+      color: #1a1a2e;
+      padding: 16px 8px;
+      font-size: 1.35rem;
+      font-weight: 700;
+      border-radius: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      min-height: 64px;
+    }
+    .word-btn:active { transform: scale(0.96); }
+    .word-btn.correct { background: #16a34a; color:white; border-color:#16a34a; }
+    .word-btn.wrong { background: #dc2626; color:white; border-color:#dc2626; animation:shake 0.4s; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    
+    .feedback {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      min-height: 32px;
+      margin: 8px 0;
+    }
+    .feedback.ok { color: #16a34a; }
+    .feedback.no { color: #dc2626; }
+    
+    .audio-btn {
+      background: #ffd700;
+      border: none;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      margin: 8px auto 0;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    }
+    
+    /* ===== MATCHING (Part 2) ===== */
+    .match-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .match-card {
+      aspect-ratio: 1;
+      background: linear-gradient(145deg, #1e3a8a, #3b82f6);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      border: 3px solid #1e40af;
+      transition: all 0.3s;
+      position: relative;
+      transform-style: preserve-3d;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .match-card.flipped {
+      background: white;
+      color: #1a1a2e;
+      border-color: #ffd700;
+      transform: rotateY(180deg);
+    }
+    .match-card.matched {
+      background: #16a34a;
+      color: white;
+      border-color: #16a34a;
+      opacity: 0.85;
+      pointer-events: none;
+    }
+    .match-card .front, .match-card .back {
+      position: absolute;
+      backface-visibility: hidden;
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; height: 100%;
+      border-radius: 10px;
+    }
+    .match-card .back { transform: rotateY(180deg); font-size: 1.1rem; padding: 4px; text-align: center; }
+    
+    .match-info {
+      text-align: center;
+      background: white;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 2px solid #ffd700;
+      font-weight: 700;
+    }
+    
+    /* ===== DRAG & DROP (Part 3) ===== */
+    .action-area {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .drop-zones {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .drop-zone {
+      background: white;
+      border: 3px dashed #94a3b8;
+      border-radius: 14px;
+      padding: 12px;
+      min-height: 130px;
+      text-align: center;
+      transition: all 0.25s;
+      position: relative;
+    }
+    .drop-zone.over { border-color: #ffd700; background: #fffbeb; transform: scale(1.03); }
+    .drop-zone.correct { border-color: #16a34a; background: #f0fdf4; border-style: solid; }
+    .drop-zone-icon { 
+      font-size: 2.8rem; 
+      margin-bottom: 6px; 
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .drop-zone-icon img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+    }
+    .drop-zone-label { font-size: 0.95rem; font-weight: 700; color: #475569; }
+    .drop-zone-word {
+      position: absolute;
+      bottom: 8px; left: 50%; transform: translateX(-50%);
+      background: #ffd700;
+      color: #1a1a2e;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: none;
+    }
+    .drop-zone.correct .drop-zone-word { display: block; }
+    
+    .drag-words {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 12px;
+      min-height: 70px;
+    }
+    .drag-word {
+      background: linear-gradient(135deg, #ff6b00, #ffd700);
+      color: #1a1a2e;
+      padding: 12px 18px;
+      border-radius: 30px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      cursor: grab;
+      box-shadow: 0 4px 12px rgba(255,107,0,0.35);
+      user-select: none;
+      touch-action: none;
+    }
+    .drag-word.dragging { opacity: 0.5; transform: scale(1.1); }
+    .drag-word.used { opacity: 0.3; pointer-events: none; }
+    
+    /* Progress & DB */
+    .progress-bar {
+      height: 10px;
+      background: rgba(0,0,0,0.15);
+      border-radius: 10px;
+      margin: 8px 0 12px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6b00, #ffd700);
+      border-radius: 10px;
+      transition: width 0.4s;
+      width: 0%;
+    }
+    
+    .db-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 8px 0;
+    }
+    .db-ball {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffd700, #e65c00);
+      border: 2px solid #fff;
+      opacity: 0.35;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 900; color: #1a1a2e;
+      transition: all 0.4s;
+    }
+    .db-ball.on {
+      opacity: 1;
+      transform: scale(1.15);
+      box-shadow: 0 0 12px #ffd700;
+    }
+    
+    /* Complete screens */
+    .complete-box {
+      text-align: center;
+      background: white;
+      border-radius: 20px;
+      padding: 28px 20px;
+      border: 4px solid #ffd700;
+      margin: 20px 0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    .complete-box h2 { font-size: 1.8rem; color: #ff6b00; margin-bottom: 10px; }
+    
+    /* Final */
+    .final-box {
+      text-align: center;
+      padding: 20px 10px;
+    }
+    .shenron { font-size: 5.5rem; animation: appear 1s ease; filter: drop-shadow(0 0 20px #22c55e); }
+    @keyframes appear { from{transform:scale(0) rotate(-15deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
+    
+    /* Utility */
+    .btn-group { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:14px; }
+    .hint { font-size: 0.9rem; color: #64748b; text-align:center; margin: 6px 0; }
+    
+    @media (max-width: 500px) {
+      .match-grid { grid-template-columns: repeat(3, 1fr); }
+      .char-avatar { width: 70px; height: 90px; }
+      .char-avatar.goku { width: 85px; height: 110px; }
+      .drop-zones { grid-template-columns: 1fr; }
+      .word-btn { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">🐉 悟空の農夫大冒險</div>
+      <div class="header-right">
+        <div class="part-badge" id="partBadge">準備中</div>
+        <div class="db-count">🐉 <span id="totalDB">0</span>/21</div>
+      </div>
+    </div>
+    
+    <!-- ========== TITLE ========== -->
+    <div class="screen active" id="screen-title">
+      <div class="title-hero">
+        <div style="font-size:3.5rem;">🐉</div>
+        <h1>悟空の農夫大冒險</h1>
+        <p style="font-size:1.1rem; color:#1a1a2e; margin-bottom:8px;">完整三關卡 · 粵語版</p>
+        
+        <div class="team-banner">
+          <div class="team-row">
+            <!-- ===== 角色圖預留位置 ===== -->
+            <!-- 將 src 換成你的圖片路徑即可，例如 images/piccolo.png 或完整網址 -->
+            
+            <div class="char-card">
+              <div class="char-avatar piccolo">
+                <img src="images/piccolo.png" alt="比克" onerror="this.style.display='none'">
+                
+              </div>
+              <div class="char-name">比克</div>
+            </div>
+            
+            <div class="char-card">
+              <div class="char-avatar gohan">
+                <img src="images/gohan.png" alt="悟飯" onerror="this.style.display='none'">
+                
+              </div>
+              <div class="char-name">悟飯</div>
+            </div>
+            
+            <div class="char-card">
+              <div class="char-avatar goku" style="width:110px;height:140px;">
+                <img src="images/goku.png" alt="悟空" onerror="this.style.display='none'">
+              </div>
+              <div class="char-name">悟空</div>
+            </div>
+            
+            <div class="char-card">
+              <div class="char-avatar goten">
+                <img src="images/goten.png" alt="悟天" onerror="this.style.display='none'">
+                
+              </div>
+              <div class="char-name">悟天</div>
+            </div>
+            
+            <div class="char-card">
+              <div class="char-avatar vegeta">
+                <img src="images/vegeta.png" alt="比達" onerror="this.style.display='none'">
+                
+              </div>
+              <div class="char-name">比達</div>
+            </div>
+            
+            <div class="char-card">
+              <div class="char-avatar trunks">
+                <img src="images/trunks.png" alt="特南克斯" onerror="this.style.display='none'">
+                
+              </div>
+              <div class="char-name">特南克斯</div>
+            </div>
+          </div>
+          <p style="text-align:center; font-size:0.85rem; margin-top:8px; color:#1a1a2e;">Z戰士齊集！幫農夫拯救龍珠樹</p>
+        </div>
+        
+        <p style="font-size:0.95rem; color:#334155; margin:12px 0;">
+          目標詞語：農夫 · 甘心 · 幹活 · 運氣 · 草叢 · 突然 · 乾脆 · 澆水 · 費勁 · 繼續 · 專心 · 撿起 · 樹榦
+        </p>
+        
+        <button class="btn" onclick="goToMap()">開始冒險！</button>
+      </div>
+    </div>
+    
+    <!-- ========== MAP ========== -->
+    <div class="screen" id="screen-map">
+      <div class="map-title">🗺️ 選擇關卡</div>
+      <div class="db-row" id="mapDBs"></div>
+      
+      <div class="part-cards">
+        <div class="part-card" id="card-part1" onclick="startPart(1)">
+          <div class="part-icon" style="background:#ffedd5;">📖</div>
+          <div class="part-info">
+            <h3>第一關 · 故事冒險</h3>
+            <p>聽故事、揀正確詞語，幫農夫同悟空一齊出發！</p>
+          </div>
+          <div class="part-status" id="status1">▶️</div>
+        </div>
+        
+        <div class="part-card locked" id="card-part2" onclick="startPart(2)">
+          <div class="part-icon" style="background:#dbeafe;">🃏</div>
+          <div class="part-info">
+            <h3>第二關 · 龍珠配對</h3>
+            <p>將詞語同意思圖配對，成功就儲龍珠！</p>
+          </div>
+          <div class="part-status" id="status2">🔒</div>
+        </div>
+        
+        <div class="part-card locked" id="card-part3" onclick="startPart(3)">
+          <div class="part-icon" style="background:#dcfce7;">💪</div>
+          <div class="part-info">
+            <h3>第三關 · 動作大挑戰</h3>
+            <p>拖曳詞語到正確動作，幫農夫幹活！</p>
+          </div>
+          <div class="part-status" id="status3">🔒</div>
+        </div>
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn btn-blue" onclick="showScreen('screen-title')">返回標題</button>
+      </div>
+    </div>
+    
+    <!-- ========== PART 1: STORY QUIZ ========== -->
+    <div class="screen" id="screen-part1">
+      <div class="progress-bar"><div class="progress-fill" id="p1-progress"></div></div>
+      <div class="db-row" id="p1-dbs"></div>
+      
+      <div class="scene-box" id="p1-scene">
+        <div class="scene-ground"></div>
+        <!-- 農夫 -->
+        <div class="scene-char scene-farmer" id="p1-farmer">
+          <img src="images/farmer.png" alt="農夫" onerror="this.style.display='none'">
+          
+        </div>
+        <!-- 支援角色1（悟飯 / 比克） -->
+        <div class="scene-char scene-friend1" id="p1-friend1">
+          <img src="images/gohan.png" alt="悟飯" onerror="this.style.display='none'">
+          
+        </div>
+        <!-- 中間物件（草叢 / 樹榦 / 水等） -->
+        <div class="scene-object" id="p1-object">
+          <img src="images/bush.png" alt="物件" onerror="this.style.display='none'">
+          
+        </div>
+        <!-- 支援角色2（比達） -->
+        <div class="scene-char scene-friend2" id="p1-friend2">
+          <img src="images/vegeta.png" alt="比達" onerror="this.style.display='none'">
+          
+        </div>
+        <!-- 悟空 -->
+        <div class="scene-char scene-goku" id="p1-goku">
+          <img src="images/goku.png" alt="悟空" onerror="this.style.display='none'">
+          
+        </div>
+      </div>
+      
+      <div class="story-box">
+        <div class="speaker" id="p1-speaker">悟空</div>
+        <div class="dialogue" id="p1-dialogue">準備好未？</div>
+        <button class="audio-btn" onclick="speakP1()">🔊</button>
+      </div>
+      
+      <div class="feedback" id="p1-feedback"></div>
+      <div class="word-options" id="p1-options"></div>
+      
+      <div class="btn-group" id="p1-next-btn" style="display:none;">
+        <button class="btn" onclick="nextP1()">繼續 →</button>
+      </div>
+    </div>
+    
+    <!-- ========== PART 1 COMPLETE ========== -->
+    <div class="screen" id="screen-p1-complete">
+      <div class="complete-box">
+        <div style="font-size:3.5rem; margin-bottom:8px;">🎉🥇</div>
+        <h2>第一關完成！獎勵時間！</h2>
+        <p style="font-size:1.2rem; margin:12px 0; line-height:1.6;">
+          太棒啦！你同悟空一齊幫農夫解決咗好多問題！<br>
+          <strong style="color:#ff6b00;">獲得 7 粒龍珠！</strong>
+        </p>
+        <!-- 獎勵角色展示 -->
+        <div style="display:flex;justify-content:center;gap:10px;margin:16px 0;">
+          <div class="char-avatar farmer" style="width:70px;height:90px;">
+            <img src="images/farmer.png" alt="農夫" onerror="this.style.display='none'">
+          </div>
+          <div class="char-avatar goku" style="width:80px;height:100px;">
+            <img src="images/goku.png" alt="悟空" onerror="this.style.display='none'">
+          </div>
+          <div class="char-avatar gohan" style="width:70px;height:90px;">
+            <img src="images/gohan.png" alt="悟飯" onerror="this.style.display='none'">
+          </div>
+        </div>
+        <div class="db-row" id="p1c-dbs"></div>
+        <p style="margin:14px 0; color:#16a34a; font-weight:700; font-size:1.1rem;">✅ 已解鎖第二關 · 龍珠配對</p>
+        <div class="btn-group">
+          <button class="btn" onclick="goToMap()">返回地圖</button>
+          <button class="btn btn-green" onclick="startPart(2)">立即挑戰第二關 →</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ========== PART 2: MATCHING ========== -->
+    <div class="screen" id="screen-part2">
+      <div class="progress-bar"><div class="progress-fill" id="p2-progress"></div></div>
+      <div class="db-row" id="p2-dbs"></div>
+      
+      <!-- 小角色列 -->
+      <div style="display:flex;justify-content:center;gap:8px;margin:8px 0;">
+        <div class="char-avatar goku" style="width:58px;height:72px;">
+          <img src="images/goku.png" alt="悟空" onerror="this.style.display='none'">
+          
+        </div>
+        <div class="char-avatar gohan" style="width:58px;height:72px;">
+          <img src="images/gohan.png" alt="悟飯" onerror="this.style.display='none'">
+          
+        </div>
+        <div class="char-avatar vegeta" style="width:58px;height:72px;">
+          <img src="images/vegeta.png" alt="比達" onerror="this.style.display='none'">
+          
+        </div>
+        <div class="char-avatar piccolo" style="width:58px;height:72px;">
+          <img src="images/piccolo.png" alt="比克" onerror="this.style.display='none'">
+          
+        </div>
+      </div>
+      
+      <div class="match-info">
+        <span id="p2-info">撳兩張卡，將「詞語」同「意思」配對！悟空同大家一齊幫你！</span>
+      </div>
+      
+      <div class="match-grid" id="match-grid"></div>
+      
+      <div class="hint">成功配對會即時儲龍珠 🐉</div>
+      
+      <div class="btn-group">
+        <button class="btn btn-blue" onclick="goToMap()">返回地圖</button>
+      </div>
+    </div>
+    
+    <!-- ========== PART 2 COMPLETE ========== -->
+    <div class="screen" id="screen-p2-complete">
+      <div class="complete-box">
+        <div style="font-size:3.5rem; margin-bottom:8px;">🃏✨🥈</div>
+        <h2>第二關完成！獎勵時間！</h2>
+        <p style="font-size:1.2rem; margin:12px 0; line-height:1.6;">
+          配對成功！你已經好熟悉呢啲詞語啦！<br>
+          <strong style="color:#ff6b00;">再獲得 7 粒龍珠！而家總共有 14 粒！</strong>
+        </p>
+        <div style="display:flex;justify-content:center;gap:10px;margin:16px 0;">
+          <div class="char-avatar goku" style="width:75px;height:95px;">
+            <img src="images/goku.png" alt="悟空" onerror="this.style.display='none'">
+          </div>
+          <div class="char-avatar vegeta" style="width:70px;height:90px;">
+            <img src="images/vegeta.png" alt="比達" onerror="this.style.display='none'">
+          </div>
+          <div class="char-avatar piccolo" style="width:70px;height:90px;">
+            <img src="images/piccolo.png" alt="比克" onerror="this.style.display='none'">
+          </div>
+        </div>
+        <div class="db-row" id="p2c-dbs"></div>
+        <p style="margin:14px 0; color:#16a34a; font-weight:700; font-size:1.1rem;">✅ 已解鎖第三關 · 動作大挑戰</p>
+        <div class="btn-group">
+          <button class="btn" onclick="goToMap()">返回地圖</button>
+          <button class="btn btn-green" onclick="startPart(3)">立即挑戰第三關 →</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ========== PART 3: DRAG & DROP ========== -->
+    <div class="screen" id="screen-part3">
+      <div class="progress-bar"><div class="progress-fill" id="p3-progress"></div></div>
+      <div class="db-row" id="p3-dbs"></div>
+      
+      <!-- 小角色列 -->
+      <div style="display:flex;justify-content:center;gap:8px;margin:8px 0;">
+        <div class="char-avatar" style="width:58px;height:72px;">
+          <img src="images/farmer.png" alt="農夫" onerror="this.style.display='none'">
+          
+        </div>
+        <div class="char-avatar goku" style="width:58px;height:72px;">
+          <img src="images/goku.png" alt="悟空" onerror="this.style.display='none'">
+          
+        </div>
+        <div class="char-avatar gohan" style="width:58px;height:72px;">
+          <img src="images/gohan.png" alt="悟飯" onerror="this.style.display='none'">
+          
+        </div>
+        <div class="char-avatar vegeta" style="width:58px;height:72px;">
+          <img src="images/vegeta.png" alt="比達" onerror="this.style.display='none'">
+          
+        </div>
+      </div>
+      
+      <div class="story-box" style="margin-bottom:12px;">
+        <div class="speaker">農夫 + 悟空</div>
+        <div class="dialogue" id="p3-dialogue">快啲幫我！將正確嘅詞語拖去正確嘅動作度！悟空同大家都會幫你！</div>
+      </div>
+      
+      <div class="action-area">
+        <div class="drop-zones" id="drop-zones">
+          <!-- dynamic -->
+        </div>
+        
+        <div class="drag-words" id="drag-words">
+          <!-- dynamic -->
+        </div>
+      </div>
+      
+      <div class="feedback" id="p3-feedback"></div>
+      
+      <div class="btn-group" id="p3-check-area">
+        <button class="btn btn-green" onclick="checkAllDrops()" id="p3-check-btn">檢查答案</button>
+      </div>
+    </div>
+    
+    <!-- ========== FINAL ========== -->
+    <div class="screen" id="screen-final">
+      <div class="final-box">
+        <div class="shenron">🐲</div>
+        <h2 style="font-size:2rem; color:#ff6b00; margin:16px 0;">🏆 全部關卡完成！神龍出現啦！！</h2>
+        <p style="font-size:1.25rem; line-height:1.7; margin-bottom:12px;">
+          你收集晒 <strong style="color:#ff6b00;">21 粒龍珠</strong>！<br>
+          三段獎勵全部獲得！
+        </p>
+        
+        <!-- 三段獎勵總結 -->
+        <div style="background:white; border-radius:14px; padding:14px; margin:14px 0; border:3px solid #ffd700; text-align:left;">
+          <p style="margin:6px 0;"><strong>🥇 第一關獎勵：</strong> 7 粒龍珠 + 故事通關</p>
+          <p style="margin:6px 0;"><strong>🥈 第二關獎勵：</strong> 7 粒龍珠 + 配對達人</p>
+          <p style="margin:6px 0;"><strong>🥉 第三關獎勵：</strong> 7 粒龍珠 + 動作高手</p>
+        </div>
+        
+        <p style="background:#f0fdf4; border-radius:12px; padding:14px; border:3px solid #16a34a; font-size:1.15rem; font-weight:700; color:#166534; margin:14px 0;">
+          農夫叔叔：「多謝你同悟空！我而家好甘心繼續幹活，照顧呢棵龍珠樹！」
+        </p>
+        
+        <!-- 全角色慶祝 -->
+        <div style="display:flex;justify-content:center;gap:8px;margin:16px 0;flex-wrap:wrap;">
+          <div class="char-avatar" style="width:60px;height:78px;">
+            <img src="images/farmer.png" alt="農夫" onerror="this.style.display='none'">
+          </div>
+          <div class="char-avatar goku" style="width:70px;height:90px;">
+            <img src="images/goku.png" alt="悟空" onerror="this.style.display='none'">
+          </div>
+          <div class="char-avatar gohan" style="width:60px;height:78px;">
+            <img src="images/gohan.png" alt="悟飯" onerror="this.style.display='none'">
+          </div>
+          <div class="char-avatar vegeta" style="width:60px;height:78px;">
+            <img src="images/vegeta.png" alt="比達" onerror="this.style.display='none'">
+          </div>
+          <div class="char-avatar piccolo" style="width:60px;height:78px;">
+            <img src="images/piccolo.png" alt="比克" onerror="this.style.display='none'">
+          </div>
+        </div>
+        
+        <p style="margin:14px 0; font-size:1rem; color:#334155;">
+          你已經學識晒呢 13 個詞語：<br>
+          農夫 · 甘心 · 幹活 · 運氣 · 草叢 · 突然 · 乾脆 · 澆水 · 費勁 · 繼續 · 專心 · 撿起 · 樹榦
+        </p>
+        <div class="db-row" id="final-dbs"></div>
+        <div class="btn-group">
+          <button class="btn" onclick="restartAll()">再玩一次！</button>
+          <button class="btn btn-blue" onclick="goToMap()">返回地圖</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===================== DATA =====================
+    const words = [
+      { word:"農夫", meaning:"種田嘅人", icon:"👨‍🌾" },
+      { word:"甘心", meaning:"心甘情願", icon:"😊" },
+      { word:"幹活", meaning:"做工作", icon:"💪" },
+      { word:"運氣", meaning:"好運氣", icon:"🍀" },
+      { word:"草叢", meaning:"一堆草", icon:"🌿" },
+      { word:"突然", meaning:"忽然之間", icon:"⚡" },
+      { word:"乾脆", meaning:"爽快地做", icon:"✨" },
+      { word:"澆水", meaning:"畀植物淋水", icon:"💧" },
+      { word:"費勁", meaning:"好辛苦", icon:"😓" },
+      { word:"繼續", meaning:"唔停咁做", icon:"➡️" },
+      { word:"專心", meaning:"集中精神", icon:"🧘" },
+      { word:"撿起", meaning:"拾起嚟", icon:"🤲" },
+      { word:"樹榦", meaning:"樹嘅主幹", icon:"🌴" }
+    ];
+    
+    // Part 1 story steps
+    const p1Steps = [
+      { type:"story", speaker:"悟空", text:"喂！我係悟空！今日我同Z戰士嚟到呢個農場，見到農夫叔叔好辛苦喎！", scene:"intro" },
+      { type:"story", speaker:"農夫", text:"哎呀，我係呢度嘅農夫。呢棵龍珠樹快要枯死，我要甘心幹活去救佢，但真係好費勁...", scene:"tired" },
+      { type:"story", speaker:"悟空", text:"唔使怕！我哋一齊用氣去救呢棵樹！準備好未？", scene:"ready" },
+      
+      { type:"quiz", speaker:"農夫", text:"我每日都要______，但真係好辛苦。", correct:"幹活", options:["幹活","運氣","草叢","突然"], scene:"work", ok:"啱啦！農夫要幹活先有收成！", no:"再諗諗：做工作就係「幹活」呀！" },
+      { type:"quiz", speaker:"悟空", text:"農夫叔叔話雖然好______，但佢都要繼續！", correct:"費勁", options:["費勁","甘心","澆水","樹榦"], scene:"tired", ok:"正！好費勁即係好辛苦、要用好多力！", no:"「費勁」即係好辛苦、要用好多力。" },
+      { type:"quiz", speaker:"農夫", text:"只要我______去做，就一定有好結果！", correct:"甘心", options:["甘心","突然","撿起","草叢"], scene:"happy", ok:"好野！甘心即係心甘情願、樂意去做！", no:"「甘心」即係心甘情願、樂意去做。" },
+      { type:"quiz", speaker:"悟空", text:"小心！前面有______，可能有嘢匿埋喺入面！", correct:"草叢", options:["草叢","樹榦","運氣","澆水"], scene:"bush", ok:"醒目！草叢就係一堆草嘅地方！", no:"「草叢」即係一堆草生喺一齊嘅地方。" },
+      { type:"quiz", speaker:"農夫", text:"______！有隻小怪獸跳咗出嚟！", correct:"突然", options:["突然","乾脆","專心","繼續"], scene:"surprise", ok:"吓一跳！「突然」即係忽然之間發生！", no:"「突然」即係忽然之間、冇預先知道。" },
+      { type:"quiz", speaker:"悟空", text:"我哋______一擊打走佢！唔使猶豫！", correct:"乾脆", options:["乾脆","費勁","撿起","農夫"], scene:"fight", ok:"夠爽快！「乾脆」即係爽快咁做，唔拖泥帶水！", no:"「乾脆」即係好爽快、唔猶豫咁去做。" },
+      { type:"quiz", speaker:"農夫", text:"龍珠樹好口渴，快啲幫我______啦！", correct:"澆水", options:["澆水","幹活","運氣","樹榦"], scene:"water", ok:"做得好！澆水即係畀植物淋水！", no:"「澆水」即係用清水淋喺植物上面。" },
+      { type:"quiz", speaker:"悟空", text:"雖然好辛苦，但我哋要______努力，唔可以放棄！", correct:"繼續", options:["繼續","突然","草叢","乾脆"], scene:"continue", ok:"正能量！「繼續」即係唔停咁做落去！", no:"「繼續」即係唔停、再做落去。" },
+      { type:"quiz", speaker:"農夫", text:"而家要好______先可以睇清楚邊啲龍珠碎片。", correct:"專心", options:["專心","費勁","甘心","運氣"], scene:"focus", ok:"好專注！「專心」即係集中精神去做！", no:"「專心」即係集中精神、唔分心。" },
+      { type:"quiz", speaker:"悟空", text:"快啲______地下嗰粒龍珠碎片！", correct:"撿起", options:["撿起","澆水","幹活","突然"], scene:"pick", ok:"靚嘢！「撿起」即係拾起嚟！", no:"「撿起」即係將嘢由地下拾起嚟。" },
+      { type:"quiz", speaker:"農夫", text:"最後一粒龍珠就喺______上面！小心爬上去！", correct:"樹榦", options:["樹榦","草叢","運氣","農夫"], scene:"tree", ok:"搵到啦！「樹榦」就係樹嘅主幹部分！", no:"「樹榦」即係樹嘅主要支柱部分。" },
+      { type:"quiz", speaker:"悟空", text:"我哋今日好有______，成功救返龍珠樹！", correct:"運氣", options:["運氣","費勁","乾脆","繼續"], scene:"lucky", ok:"恭喜！「運氣」即係好運氣、好彩！", no:"「運氣」即係好運氣、好彩發生嘅事。" },
+      { type:"quiz", speaker:"農夫", text:"多謝你同悟空！我而家更加______去照顧呢棵樹！", correct:"甘心", options:["甘心","突然","撿起","草叢"], scene:"end", ok:"完美！農夫而家好甘心繼續幹活啦！", no:"最後再溫習：「甘心」即係心甘情願。" }
+    ];
+    
+    // Part 3 drop data
+    const p3Drops = [
+      { id:"water", icon:"💧🪴", img:"images/water.png", label:"畀植物淋水", correct:"澆水" },
+      { id:"pick", icon:"🤲✨", img:"images/pick.png", label:"拾起地下嘅嘢", correct:"撿起" },
+      { id:"focus", icon:"🧘‍♂️", img:"images/focus.png", label:"集中精神做事", correct:"專心" },
+      { id:"heavy", icon:"🪨💪", img:"images/heavy.png", label:"好辛苦用力搬", correct:"費勁" },
+      { id:"work", icon:"👨‍🌾⚒️", img:"images/work.png", label:"做農務工作", correct:"幹活" },
+      { id:"continue", icon:"➡️🔥", img:"images/continue.png", label:"唔停繼續做", correct:"繼續" }
+    ];
+    
+    // ===================== STATE =====================
+    let totalDB = 0;
+    let part1Done = false, part2Done = false, part3Done = false;
+    let p1Index = 0;
+    let p1DB = 0;
+    let p2Matched = 0;
+    let p2First = null;
+    let p2Lock = false;
+    let p3Placed = {};
+    
+    // ===================== UTILS =====================
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+    
+    function updateHeader(part) {
+      document.getElementById('partBadge').textContent = part || '準備中';
+      document.getElementById('totalDB').textContent = totalDB;
+    }
+    
+    function renderDBs(containerId, count, max=7) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      el.innerHTML = '';
+      for (let i=1; i<=max; i++) {
+        const d = document.createElement('div');
+        d.className = 'db-ball' + (i <= count ? ' on' : '');
+        d.textContent = i;
+        el.appendChild(d);
+      }
+    }
+    
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'zh-HK';
+        u.rate = 0.9;
+        speechSynthesis.speak(u);
+      }
+    }
+    
+    // ===================== MAP =====================
+    function goToMap() {
+      showScreen('screen-map');
+      updateHeader('地圖');
+      renderDBs('mapDBs', totalDB, 21);
+      
+      // Update cards
+      const c1 = document.getElementById('card-part1');
+      const c2 = document.getElementById('card-part2');
+      const c3 = document.getElementById('card-part3');
+      
+      c1.classList.toggle('completed', part1Done);
+      c2.classList.toggle('locked', !part1Done);
+      c2.classList.toggle('completed', part2Done);
+      c3.classList.toggle('locked', !part2Done);
+      c3.classList.toggle('completed', part3Done);
+      
+      document.getElementById('status1').textContent = part1Done ? '✅' : '▶️';
+      document.getElementById('status2').textContent = part2Done ? '✅' : (part1Done ? '▶️' : '🔒');
+      document.getElementById('status3').textContent = part3Done ? '✅' : (part2Done ? '▶️' : '🔒');
+    }
+    
+    function startPart(n) {
+      if (n===2 && !part1Done) return;
+      if (n===3 && !part2Done) return;
+      
+      if (n===1) {
+        p1Index = 0; p1DB = 0;
+        showScreen('screen-part1');
+        updateHeader('第一關');
+        playP1();
+      } else if (n===2) {
+        p2Matched = 0; p2First = null; p2Lock = false;
+        showScreen('screen-part2');
+        updateHeader('第二關');
+        initMatching();
+      } else if (n===3) {
+        p3Placed = {};
+        showScreen('screen-part3');
+        updateHeader('第三關');
+        initDragDrop();
+      }
+    }
+    
+    // ===================== PART 1 =====================
+    function playP1() {
+      const step = p1Steps[p1Index];
+      if (!step) {
+        // finished
+        part1Done = true;
+        totalDB = Math.max(totalDB, 7);
+        showScreen('screen-p1-complete');
+        renderDBs('p1c-dbs', 7);
+        updateHeader('第一關完成');
+        playRewardMusic(1);
+        return;
+      }
+      
+      document.getElementById('p1-speaker').textContent = step.speaker;
+      document.getElementById('p1-dialogue').textContent = step.text;
+      document.getElementById('p1-feedback').textContent = '';
+      document.getElementById('p1-feedback').className = 'feedback';
+      document.getElementById('p1-next-btn').style.display = step.type==='story' ? 'flex' : 'none';
+      document.getElementById('p1-options').innerHTML = '';
+      
+      // progress
+      const pct = Math.min(100, (p1Index / p1Steps.length) * 100);
+      document.getElementById('p1-progress').style.width = pct + '%';
+      renderDBs('p1-dbs', p1DB);
+      
+      // scene
+      updateP1Scene(step.scene || 'intro');
+      
+      if (step.type === 'quiz') {
+        const opts = [...step.options].sort(() => Math.random()-0.5);
+        opts.forEach(w => {
+          const b = document.createElement('button');
+          b.className = 'word-btn';
+          b.textContent = w;
+          b.onclick = () => checkP1(w, step);
+          document.getElementById('p1-options').appendChild(b);
+        });
+      }
+      
+      setTimeout(() => speak(step.text.replace('______','邊個詞')), 300);
+    }
+    
+    function updateP1Scene(type) {
+      const obj = document.getElementById('p1-object');
+      const objImg = obj.querySelector('img');
+      const objFallback = obj.querySelector('.fallback');
+      
+      // 預設物件
+      let objSrc = 'images/bush.png';
+      let objEmoji = '🌿';
+      
+      if (type === 'bush' || type === 'surprise') {
+        objSrc = 'images/bush.png';
+        objEmoji = '🌿👾';
+      } else if (type === 'water') {
+        objSrc = 'images/water.png';
+        objEmoji = '💧🪴';
+      } else if (type === 'tree') {
+        objSrc = 'images/tree.png';
+        objEmoji = '🌴';
+      } else if (type === 'pick') {
+        objSrc = 'images/dragonball.png';
+        objEmoji = '🐉✨';
+      } else if (type === 'fight') {
+        objSrc = 'images/energy.png';
+        objEmoji = '💥';
+      } else if (type === 'lucky' || type === 'end') {
+        objSrc = 'images/dragonball.png';
+        objEmoji = '✨🐉✨';
+      } else {
+        objSrc = 'images/bush.png';
+        objEmoji = '🌿';
+      }
+      
+      if (objImg) {
+        objImg.src = objSrc;
+        objImg.style.display = '';
+        objImg.onerror = function() { this.style.display = 'none'; };
+      }
+      if (objFallback) objFallback.textContent = objEmoji;
+    }
+    
+    function checkP1(selected, step) {
+      const btns = document.querySelectorAll('#p1-options .word-btn');
+      btns.forEach(b => b.onclick = null);
+      
+      const fb = document.getElementById('p1-feedback');
+      if (selected === step.correct) {
+        btns.forEach(b => { if (b.textContent===selected) b.classList.add('correct'); });
+        fb.textContent = '✅ ' + step.ok;
+        fb.className = 'feedback ok';
+        p1DB = Math.min(p1DB+1, 7);
+        totalDB = Math.max(totalDB, p1DB);
+        renderDBs('p1-dbs', p1DB);
+        updateHeader('第一關');
+        speak(step.ok);
+        setTimeout(() => { p1Index++; playP1(); }, 1600);
+      } else {
+        btns.forEach(b => { if (b.textContent===selected) b.classList.add('wrong'); });
+        fb.textContent = '❌ ' + step.no;
+        fb.className = 'feedback no';
+        speak(step.no);
+        setTimeout(() => {
+          btns.forEach(b => {
+            b.classList.remove('wrong');
+            b.onclick = () => checkP1(b.textContent, step);
+          });
+          fb.textContent = '再試一次！';
+          fb.className = 'feedback';
+        }, 1400);
+      }
+    }
+    
+    function nextP1() {
+      p1Index++;
+      playP1();
+    }
+    
+    function speakP1() {
+      speak(document.getElementById('p1-dialogue').textContent);
+    }
+    
+    // ===================== PART 2: MATCHING =====================
+    function initMatching() {
+      const grid = document.getElementById('match-grid');
+      grid.innerHTML = '';
+      p2Matched = 0;
+      p2First = null;
+      p2Lock = false;
+      
+      // Create pairs: word + meaning icon
+      let cards = [];
+      // Use 6 pairs for good length
+      const selected = words.slice(0, 6);
+      selected.forEach((w, i) => {
+        cards.push({ id:i, type:'word', content:w.word, pair:i });
+        cards.push({ id:i+100, type:'meaning', content:w.icon + '<br><small>' + w.meaning + '</small>', pair:i });
+      });
+      // shuffle
+      cards = cards.sort(() => Math.random()-0.5);
+      
+      cards.forEach((c, idx) => {
+        const div = document.createElement('div');
+        div.className = 'match-card';
+        div.dataset.pair = c.pair;
+        div.dataset.idx = idx;
+        div.innerHTML = `<div class="front">🐉</div><div class="back">${c.content}</div>`;
+        div.onclick = () => flipCard(div, c);
+        grid.appendChild(div);
+      });
+      
+      document.getElementById('p2-info').textContent = `已配對 ${p2Matched}/6　再搵多啲龍珠！`;
+      document.getElementById('p2-progress').style.width = '0%';
+      renderDBs('p2-dbs', 0);
+    }
+    
+    function flipCard(div, data) {
+      if (p2Lock || div.classList.contains('flipped') || div.classList.contains('matched')) return;
+      
+      div.classList.add('flipped');
+      
+      if (!p2First) {
+        p2First = { div, data };
+        return;
+      }
+      
+      // second card
+      p2Lock = true;
+      const first = p2First;
+      
+      if (first.data.pair === data.pair && first.div !== div) {
+        // match!
+        setTimeout(() => {
+          first.div.classList.add('matched');
+          div.classList.add('matched');
+          p2Matched++;
+          totalDB = Math.min(21, totalDB + 1);
+          document.getElementById('p2-info').textContent = `已配對 ${p2Matched}/6　再搵多啲龍珠！`;
+          document.getElementById('p2-progress').style.width = (p2Matched/6*100) + '%';
+          renderDBs('p2-dbs', p2Matched);
+          updateHeader('第二關');
+          p2First = null;
+          p2Lock = false;
+          
+          if (p2Matched >= 6) {
+            setTimeout(() => {
+              part2Done = true;
+              totalDB = Math.max(totalDB, 14);
+              showScreen('screen-p2-complete');
+              renderDBs('p2c-dbs', 7);
+              updateHeader('第二關完成');
+              playRewardMusic(2);
+            }, 800);
+          }
+        }, 400);
+      } else {
+        // no match
+        setTimeout(() => {
+          first.div.classList.remove('flipped');
+          div.classList.remove('flipped');
+          p2First = null;
+          p2Lock = false;
+        }, 900);
+      }
+    }
+    
+    // ===================== PART 3: DRAG DROP =====================
+    function initDragDrop() {
+      const zones = document.getElementById('drop-zones');
+      const wordsEl = document.getElementById('drag-words');
+      zones.innerHTML = '';
+      wordsEl.innerHTML = '';
+      p3Placed = {};
+      
+      // create drop zones
+      p3Drops.forEach(d => {
+        const z = document.createElement('div');
+        z.className = 'drop-zone';
+        z.dataset.id = d.id;
+        z.dataset.correct = d.correct;
+        z.innerHTML = `
+          <div class="drop-zone-icon">
+            <img src="${d.img}" alt="${d.correct}" style="width:64px;height:64px;object-fit:contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span style="display:none;font-size:2.5rem;">${d.icon}</span>
+          </div>
+          <div class="drop-zone-label">${d.label}</div>
+          <div class="drop-zone-word"></div>
+        `;
+        
+        // touch / mouse drop support
+        z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('over'); });
+        z.addEventListener('dragleave', () => z.classList.remove('over'));
+        z.addEventListener('drop', e => {
+          e.preventDefault();
+          z.classList.remove('over');
+          const word = e.dataTransfer.getData('text/plain');
+          placeWord(z, word);
+        });
+        
+        // also click-to-place for iPad ease
+        z.onclick = () => {
+          if (window._selectedWord) {
+            placeWord(z, window._selectedWord);
+            window._selectedWord = null;
+            document.querySelectorAll('.drag-word').forEach(w => w.style.outline = '');
+          }
+        };
+        
+        zones.appendChild(z);
+      });
+      
+      // create draggable words (shuffle)
+      const wordList = p3Drops.map(d => d.correct).sort(() => Math.random()-0.5);
+      wordList.forEach(w => {
+        const el = document.createElement('div');
+        el.className = 'drag-word';
+        el.textContent = w;
+        el.draggable = true;
+        el.dataset.word = w;
+        
+        el.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', w);
+          el.classList.add('dragging');
+        });
+        el.addEventListener('dragend', () => el.classList.remove('dragging'));
+        
+        // touch / click select for iPad
+        el.onclick = () => {
+          document.querySelectorAll('.drag-word').forEach(x => x.style.outline = '');
+          if (el.classList.contains('used')) return;
+          el.style.outline = '3px solid #2563eb';
+          window._selectedWord = w;
+        };
+        
+        wordsEl.appendChild(el);
+      });
+      
+      document.getElementById('p3-progress').style.width = '0%';
+      document.getElementById('p3-feedback').textContent = '';
+      renderDBs('p3-dbs', 0);
+      document.getElementById('p3-check-btn').style.display = 'inline-block';
+    }
+    
+    function placeWord(zone, word) {
+      if (zone.classList.contains('correct')) return;
+      
+      // remove from previous if any
+      Object.keys(p3Placed).forEach(k => {
+        if (p3Placed[k] === word) delete p3Placed[k];
+      });
+      
+      // clear other zones that had this word
+      document.querySelectorAll('.drop-zone').forEach(z => {
+        if (z.querySelector('.drop-zone-word').textContent === word) {
+          z.querySelector('.drop-zone-word').textContent = '';
+          z.classList.remove('correct');
+        }
+      });
+      
+      p3Placed[zone.dataset.id] = word;
+      zone.querySelector('.drop-zone-word').textContent = word;
+      zone.querySelector('.drop-zone-word').style.display = 'block';
+      
+      // mark used
+      document.querySelectorAll('.drag-word').forEach(el => {
+        if (el.dataset.word === word) el.classList.add('used');
+      });
+      
+      // progress visual
+      const placedCount = Object.keys(p3Placed).length;
+      document.getElementById('p3-progress').style.width = (placedCount / 6 * 100) + '%';
+    }
+    
+    function checkAllDrops() {
+      let correct = 0;
+      document.querySelectorAll('.drop-zone').forEach(z => {
+        const placed = p3Placed[z.dataset.id];
+        if (placed === z.dataset.correct) {
+          z.classList.add('correct');
+          correct++;
+        } else {
+          z.classList.remove('correct');
+          if (placed) {
+            // shake
+            z.style.animation = 'shake 0.4s';
+            setTimeout(() => z.style.animation = '', 400);
+          }
+        }
+      });
+      
+      const fb = document.getElementById('p3-feedback');
+      if (correct === 6) {
+        fb.textContent = '✅ 全部啱！農夫好開心！';
+        fb.className = 'feedback ok';
+        totalDB = 21;
+        part3Done = true;
+        renderDBs('p3-dbs', 7);
+        updateHeader('第三關完成');
+        speak('全部啱！你好棒！神龍快出現啦！');
+        setTimeout(() => {
+          showScreen('screen-final');
+          renderDBs('final-dbs', 21, 21);
+          updateHeader('通關！');
+          playRewardMusic('final');
+          speak('恭喜你！你成功收集晒所有龍珠！農夫叔叔好甘心繼續幹活！');
+        }, 1800);
+      } else {
+        fb.textContent = `仲有 ${6-correct} 個未啱，再檢查吓！`;
+        fb.className = 'feedback no';
+        speak(`仲有 ${6-correct} 個未啱，再試吓！`);
+      }
+    }
+    
+    // ===================== AUDIO =====================
+    // 將音樂檔案放入 audio/ 資料夾即可自動播放
+    // 建議檔名：reward1.mp3, reward2.mp3, reward-final.mp3
+    function playRewardMusic(level) {
+      // 停止之前的音樂
+      document.querySelectorAll('audio').forEach(a => {
+        a.pause();
+        a.currentTime = 0;
+      });
+      
+      let audioId = '';
+      if (level === 1) audioId = 'audio-reward1';
+      else if (level === 2) audioId = 'audio-reward2';
+      else if (level === 'final') audioId = 'audio-final';
+      
+      const audio = document.getElementById(audioId);
+      if (audio) {
+        audio.volume = 0.6;
+        audio.play().catch(e => {
+          // 瀏覽器可能需要用戶先互動先可以播放
+          console.log('音樂播放需要用戶互動:', e);
+        });
+      }
+    }
+    
+    // ===================== GLOBAL =====================
+    function restartAll() {
+      totalDB = 0;
+      part1Done = part2Done = part3Done = false;
+      p1Index = 0; p1DB = 0;
+      // 停止音樂
+      document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
+      showScreen('screen-title');
+      updateHeader('準備中');
+    }
+    
+    // init
+    updateHeader('準備中');
+  </script>
+  
+  <!-- 獎勵音樂（請將 mp3 放入 audio/ 資料夾） -->
+  <audio id="audio-reward1" preload="auto">
+    <source src="audio/reward1.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="audio-reward2" preload="auto">
+    <source src="audio/reward2.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="audio-final" preload="auto">
+    <source src="audio/reward-final.mp3" type="audio/mpeg">
+  </audio>
+</body>
+</html>
