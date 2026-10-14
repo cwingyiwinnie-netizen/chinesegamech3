@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>悟空默書大冒險 | 字卡組詞</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { font-family:'Noto Sans TC','PingFang HK',sans-serif; background:#F7F3EB; color:#2c3e50; min-height:100vh; }
+    #app { max-width:920px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; }
+    
+    .header {
+      background:#fff; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;
+      border-bottom:1px solid #e8e4dc; position:sticky; top:0; z-index:40;
+    }
+    .logo { display:flex; align-items:center; gap:8px; font-weight:700; color:#1a4a6e; font-size:1.05rem; }
+    .logo-i { width:28px; height:28px; background:linear-gradient(135deg,#ff6b00,#ffd700); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.9rem; }
+    .h-btn { background:#f0f4f8; border:none; padding:6px 14px; border-radius:20px; font-size:0.85rem; color:#4a5568; cursor:pointer; font-family:inherit; }
+    
+    .screen { display:none; flex:1; flex-direction:column; padding:16px; animation:fadeIn .35s ease; }
+    .screen.active { display:flex; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    
+    /* Hero */
+    .hero {
+      background:#fff;
+      border-radius:24px; padding:0; box-shadow:0 8px 30px rgba(0,0,0,.08);
+      border:1px solid #f0e6d8; overflow:hidden;
+      display:flex; flex-direction:column;
+    }
+    @media(min-width:640px){
+      .hero { flex-direction:row; min-height:340px; }
+    }
+    .hero-left {
+      flex:1; padding:28px 22px; text-align:left;
+      display:flex; flex-direction:column; justify-content:center;
+      background:linear-gradient(145deg,#fff9f0,#fff 60%,#f8fbff);
+    }
+    .hero-right {
+      flex:1.15; min-height:220px; position:relative;
+      background:linear-gradient(180deg,#0a1628,#1a3a5c 50%,#0c4a6e);
+      display:flex; align-items:flex-end; justify-content:center;
+      overflow:hidden;
+    }
+    .hero-right .cover-img {
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; object-position:center bottom;
+    }
+    .hero-right .cover-fallback {
+      position:relative; z-index:1; padding:16px; text-align:center;
+      display:flex; gap:6px; flex-wrap:wrap; justify-content:center; align-items:flex-end;
+    }
+    .hero-tag { font-size:.85rem; color:#7a8a9a; margin-bottom:8px; }
+    .hero-title { font-size:1.9rem; font-weight:900; color:#1a4a6e; line-height:1.25; margin-bottom:10px; }
+    .hero-title span { color:#e65c00; }
+    .hero-desc { font-size:1.05rem; color:#5a6a7a; line-height:1.6; margin-bottom:14px; }
+    .pills { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+    .pill { background:#fff; border:1px solid #e0d8cc; padding:5px 12px; border-radius:20px; font-size:.8rem; color:#5a6a7a; }
+    .chars { display:flex; gap:8px; margin:12px 0 16px; flex-wrap:wrap; }
+    .ch {
+      width:70px; height:88px; border-radius:14px; overflow:hidden;
+      background:linear-gradient(180deg,#ffe8cc,#ffd4a0); display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 12px rgba(0,0,0,.08); position:relative; font-size:2rem;
+    }
+    .ch img { width:100%; height:100%; object-fit:cover; object-position:top; position:absolute; inset:0; }
+    .start-btn {
+      background:linear-gradient(135deg,#1a6b8a,#2a8aaa); color:#fff; border:none;
+      padding:14px 40px; font-size:1.15rem; font-weight:700; border-radius:14px; cursor:pointer;
+      font-family:inherit; box-shadow:0 6px 18px rgba(26,107,138,.3); align-self:flex-start;
+    }
+    
+    /* Level cards */
+    .levels { display:grid; grid-template-columns:1fr; gap:12px; margin-top:18px; }
+    @media(min-width:560px){ .levels{grid-template-columns:1fr 1fr;} }
+    .lv-card {
+      background:#fff; border-radius:18px; padding:16px; box-shadow:0 4px 16px rgba(0,0,0,.05);
+      border:1px solid #f0eae0; cursor:pointer; text-align:left;
+    }
+    .lv-card.locked { opacity:.5; }
+    .lv-card.done { border-color:#86efac; background:#f0fdf4; }
+    .lv-num { font-size:.8rem; color:#8a9aaa; margin-bottom:4px; }
+    .lv-card h3 { font-size:1.1rem; color:#1a4a6e; margin-bottom:6px; }
+    .lv-card p { font-size:.88rem; color:#6a7a8a; line-height:1.45; }
+    
+    /* Mission intro */
+    .mission-box {
+      display:flex; flex-direction:column; gap:16px;
+    }
+    @media(min-width:640px){ .mission-box{flex-direction:row;} }
+    .mission-art {
+      flex:1; background:linear-gradient(180deg,#87CEEB,#E8D5B7); border-radius:20px;
+      min-height:220px; display:flex; align-items:flex-end; justify-content:center;
+      position:relative; overflow:hidden; border:1px solid #e0d8cc;
+    }
+    .mission-art .theme-img {
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; object-position:center top; z-index:1;
+    }
+    .mission-art .chs {
+      display:flex; gap:8px; position:relative; z-index:2;
+      background:rgba(255,255,255,0.9); padding:8px 12px; border-radius:14px; margin-bottom:12px;
+    }
+    .mission-info {
+      flex:1; background:#fff; border-radius:20px; padding:22px; border:1px solid #f0eae0;
+      box-shadow:0 4px 16px rgba(0,0,0,.04);
+    }
+    .mission-info .tag { font-size:.8rem; color:#1a6b8a; font-weight:700; letter-spacing:1px; }
+    .mission-info h2 { font-size:1.6rem; color:#1a4a6e; margin:8px 0; }
+    .mission-info p { color:#5a6a7a; line-height:1.6; margin-bottom:12px; }
+    .mission-steps { background:#f0f7fa; border-left:3px solid #1a6b8a; padding:10px 14px; margin:12px 0; font-size:.95rem; color:#1a4a6e; }
+    .mission-meta { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; }
+    
+    /* Play - card assembly */
+    .play-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .back { background:#fff; border:1px solid #e0d8cc; padding:8px 14px; border-radius:20px; font-size:.9rem; cursor:pointer; font-family:inherit; color:#5a6a7a; }
+    .prog-wrap { flex:1; margin:0 12px; }
+    .prog-bar { height:8px; background:#e8e4dc; border-radius:8px; overflow:hidden; }
+    .prog-fill { height:100%; background:linear-gradient(90deg,#ff8c00,#ffd700); width:0%; transition:width .3s; border-radius:8px; }
+    
+    .play-layout {
+      display:flex; flex-direction:column; gap:14px;
+    }
+    @media(min-width:700px){
+      .play-layout { flex-direction:row; }
+      .play-side { width:200px; flex-shrink:0; }
+      .play-main { flex:1; }
+    }
+    .play-side {
+      background:#e8f4f8; border-radius:18px; padding:14px; text-align:center; border:1px solid #d0e8f0;
+    }
+    .play-side h4 { color:#1a4a6e; margin-bottom:8px; font-size:1rem; }
+    .play-side .mini-chars { display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin:8px 0; }
+    .play-side .stars { color:#e65c00; font-size:1.1rem; margin-top:8px; }
+    
+    .play-main { background:#fff; border-radius:20px; padding:20px 16px; border:1px solid #f0eae0; box-shadow:0 4px 16px rgba(0,0,0,.04); }
+    .q-label { font-size:.95rem; color:#5a6a7a; margin-bottom:10px; text-align:center; }
+    .target-word {
+      background:#e8f5f0; border-radius:14px; padding:16px; text-align:center;
+      font-size:2rem; font-weight:900; color:#1a4a6e; margin-bottom:18px; letter-spacing:4px;
+    }
+    
+    /* Answer slots */
+    .slots {
+      display:flex; justify-content:center; gap:10px; margin-bottom:20px; flex-wrap:wrap; min-height:64px;
+    }
+    .slot {
+      width:56px; height:56px; border:2px dashed #c5d0d8; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.6rem; font-weight:700; color:#1a4a6e; background:#f8fafb;
+    }
+    .slot.filled { border-style:solid; border-color:#1a6b8a; background:#e8f4f8; }
+    
+    /* Character tiles */
+    .tiles {
+      display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:18px;
+    }
+    .tile {
+      width:58px; height:58px; background:#fff; border:2px solid #c5d5e0; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.7rem; font-weight:700; color:#1a4a6e; cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,.06); transition:all .15s; font-family:inherit;
+    }
+    .tile:active { transform:scale(0.94); }
+    .tile.used { opacity:.3; pointer-events:none; }
+    .tile.hint { border-color:#ffd700; background:#fffbeb; box-shadow:0 0 0 3px rgba(255,215,0,.3); }
+    
+    .actions {
+      display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:12px;
+    }
+    .act-btn {
+      padding:10px 18px; border-radius:12px; border:none; font-size:.95rem; font-weight:700;
+      cursor:pointer; font-family:inherit;
+    }
+    .act-check { background:#1a6b8a; color:#fff; }
+    .act-undo { background:#e8eef2; color:#4a5a6a; }
+    .act-clear { background:#e8eef2; color:#4a5a6a; }
+    .act-hint { background:#fff3e0; color:#e65c00; }
+    
+    .tip-box {
+      background:#f0f7fa; border-radius:12px; padding:12px; text-align:center;
+      font-size:.9rem; color:#5a6a7a; margin-top:8px;
+    }
+    .fb { text-align:center; font-weight:700; min-height:28px; margin:8px 0; font-size:1.05rem; }
+    .fb.ok { color:#16a34a; }
+    .fb.no { color:#dc2626; }
+    
+    /* Other mode: pick full word */
+    .word-opts {
+      display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0;
+    }
+    .word-opt {
+      background:#fff; border:2px solid #d0dce4; border-radius:16px; padding:18px;
+      font-size:1.4rem; font-weight:700; color:#1a4a6e; cursor:pointer; font-family:inherit;
+      min-height:64px; box-shadow:0 2px 8px rgba(0,0,0,.04);
+    }
+    .word-opt.correct { background:#dcfce7; border-color:#16a34a; }
+    .word-opt.wrong { background:#fee2e2; border-color:#dc2626; }
+    
+    .result {
+      background:#fff; border-radius:24px; padding:32px 20px; text-align:center;
+      box-shadow:0 8px 30px rgba(0,0,0,.06); border:1px solid #f0eae0; margin:20px 0;
+    }
+    .result h2 { font-size:1.7rem; color:#1a4a6e; margin:12px 0; }
+    .btn {
+      background:linear-gradient(135deg,#1a6b8a,#2a8aaa); color:#fff; border:none;
+      padding:12px 26px; font-size:1.05rem; font-weight:700; border-radius:12px;
+      cursor:pointer; font-family:inherit; margin:6px;
+    }
+    .btn-orange { background:linear-gradient(135deg,#e65c00,#ff8c00); }
+    .btn-green { background:linear-gradient(135deg,#16a34a,#22c55e); }
+    .btn-group { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:14px; }
+    .footer { text-align:center; font-size:.85rem; color:#8a9aaa; margin-top:16px; padding-bottom:20px; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="logo"><div class="logo-i">🐉</div> 悟空默書大冒險</div>
+    <div>
+      <button class="h-btn" onclick="goMap()">地圖</button>
+      <button class="h-btn" id="sndBtn" onclick="toggleSnd()">♫ 音量</button>
+    </div>
+  </div>
+  
+  <!-- TITLE -->
+  <div class="screen active" id="sc-title">
+    <div class="hero">
+      <!-- 左邊：文字 -->
+      <div class="hero-left">
+        <div class="hero-tag">和悟空一起 · 收集勇氣星</div>
+        <div class="hero-title">悟空<br><span>默書大冒險</span></div>
+        <div class="hero-desc">看清字形，點選字卡，<br>把詞語一個一個組出嚟。</div>
+        <div class="pills">
+          <span class="pill">5 個關卡</span>
+          <span class="pill">字卡組詞</span>
+          <span class="pill">不用拼音</span>
+        </div>
+        <button class="start-btn" onclick="goMap()">START</button>
+        <div style="margin-top:14px;font-size:1.15rem;color:#d4a017;" id="totalStars">☆☆☆☆☆</div>
+        <div style="font-size:.9rem;color:#8a9aaa;margin-top:4px;">準備好就出發！</div>
+      </div>
+      <!-- 右邊：大封面圖（放 images/cover.png） -->
+      <div class="hero-right">
+        <img class="cover-img" src="images/cover.png" alt="龍珠封面"
+          onerror="this.style.display='none'; document.getElementById('coverFallback').style.display='flex';">
+        <div class="cover-fallback" id="coverFallback" style="display:none;">
+          <div class="ch" style="width:56px;height:72px;font-size:1.6rem;"><span>💥</span><img src="images/goku.png" onerror="this.style.display='none'"></div>
+          <div class="ch" style="width:56px;height:72px;font-size:1.6rem;"><span>🟠</span><img src="images/gohan.png" onerror="this.style.display='none'"></div>
+          <div class="ch" style="width:56px;height:72px;font-size:1.6rem;"><span>🔵</span><img src="images/vegeta.png" onerror="this.style.display='none'"></div>
+          <div class="ch" style="width:56px;height:72px;font-size:1.6rem;"><span>🟢</span><img src="images/piccolo.png" onerror="this.style.display='none'"></div>
+        </div>
+      </div>
+    </div>
+    <div class="levels">
+      <div class="lv-card" onclick="openMission(1)">
+        <div class="lv-num">01 · 房間尋字</div>
+        <h3>字卡組詞</h3>
+        <p>睇目標詞語，點選字卡，組出正確詞語。</p>
+        <div id="st1">▶️</div>
+      </div>
+      <div class="lv-card locked" id="c2" onclick="openMission(2)">
+        <div class="lv-num">02 · 聽詞選卡</div>
+        <h3>聽音選詞</h3>
+        <p>聽語音，揀出正確嘅完整詞語卡。</p>
+        <div id="st2">🔒</div>
+      </div>
+      <div class="lv-card locked" id="c3" onclick="openMission(3)">
+        <div class="lv-num">03 · 圖詞配對</div>
+        <h3>圖片配詞語</h3>
+        <p>將圖片同正確詞語配對。</p>
+        <div id="st3">🔒</div>
+      </div>
+      <div class="lv-card locked" id="c4" onclick="openMission(4)">
+        <div class="lv-num">04 · 情境填空</div>
+        <h3>聽句選詞</h3>
+        <p>喺句子入面揀正確詞語。</p>
+        <div id="st4">🔒</div>
+      </div>
+      <div class="lv-card locked" id="c5" onclick="openMission(5)">
+        <div class="lv-num">05 · 最終試煉</div>
+        <h3>綜合組詞</h3>
+        <p>全部詞語再組一次，收集勇氣星！</p>
+        <div id="st5">🔒</div>
+      </div>
+    </div>
+    <div class="footer">每次進步一點點，就很了不起。<br>進度會自動保存於此裝置。</div>
+  </div>
+  
+  <!-- MAP -->
+  <div class="screen" id="sc-map">
+    <h2 style="text-align:center;color:#1a4a6e;margin:8px 0 16px;">🗺️ 冒險地圖</h2>
+    <div class="levels" id="mapLevels"></div>
+    <div class="btn-group"><button class="btn" onclick="show('sc-title')">返回封面</button></div>
+  </div>
+  
+  <!-- MISSION INTRO -->
+  <div class="screen" id="sc-mission">
+    <div class="mission-box">
+      <div class="mission-art">
+        <div class="chs" id="missionChars"></div>
+      </div>
+      <div class="mission-info">
+        <div class="tag" id="mTag">MISSION 01 / 05</div>
+        <h2 id="mTitle">房間尋字</h2>
+        <p id="mDesc">悟空搵到幾張字卡！一齊看清字形，幫佢把詞語組好吧。</p>
+        <div class="mission-steps" id="mSteps">看詞語 → 點選字卡 → 檢查答案</div>
+        <div class="mission-meta">
+          <span class="pill" id="mCount">8 題</span>
+          <span class="pill">入門</span>
+          <span class="pill">答錯可以再試</span>
+        </div>
+        <button class="start-btn" style="margin-top:12px;" onclick="startPlay()">開始挑戰 →</button>
+        <button class="back" style="margin-top:10px;" onclick="goMap()">返回地圖</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- PLAY -->
+  <div class="screen" id="sc-play">
+    <div class="play-top">
+      <button class="back" onclick="goMap()">← 地圖</button>
+      <div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="prog"></div></div></div>
+      <div style="font-weight:700;color:#e65c00;">⭐ <span id="starN">0</span></div>
+    </div>
+    
+    <div class="play-layout">
+      <div class="play-side">
+        <h4 id="sideTitle">MISSION 01</h4>
+        <div style="font-size:.9rem;color:#5a6a7a;" id="sideName">房間尋字</div>
+        <div class="mini-chars" id="sideChars"></div>
+        <div class="stars" id="sideStars">☆☆☆☆☆</div>
+        <div style="font-size:.85rem;color:#8a9aaa;margin-top:6px;">累積 <span id="sideScore">0</span> 分</div>
+      </div>
+      
+      <div class="play-main">
+        <div class="q-label" id="qLabel">第 1 / 8 題 · 入門 · 不計時</div>
+        
+        <!-- MODE: assemble characters -->
+        <div id="mode-assemble">
+          <div class="q-label">看一看，再點選字卡，組出相同的詞語。</div>
+          <div class="target-word" id="target">農夫</div>
+          <div class="slots" id="slots"></div>
+          <div class="tiles" id="tiles"></div>
+          <div class="actions">
+            <button class="act-btn act-check" onclick="checkAssemble()">檢查答案</button>
+            <button class="act-btn act-undo" onclick="undoTile()">撤回一字</button>
+            <button class="act-btn act-clear" onclick="clearTiles()">清空</button>
+            <button class="act-btn act-hint" onclick="giveHint()">給我提示</button>
+          </div>
+          <div class="tip-box" id="tip">慢慢來，想清楚再作答。</div>
+        </div>
+        
+        <!-- MODE: pick full word -->
+        <div id="mode-pick" style="display:none;">
+          <div class="q-label" id="pickLabel">聽一聽，揀出正確嘅詞語卡。</div>
+          <button class="act-btn act-check" style="margin:10px auto;display:block;" onclick="speakCurrent()">🔊 再聽一次</button>
+          <div class="word-opts" id="wordOpts"></div>
+        </div>
+        
+        <!-- MODE: match -->
+        <div id="mode-match" style="display:none;">
+          <div class="q-label">左邊係圖片，右邊係詞語。點一張圖，再點對應詞語。</div>
+          <div id="matchArea" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+        </div>
+        
+        <!-- MODE: context -->
+        <div id="mode-ctx" style="display:none;">
+          <div class="q-label">睇句子，揀正確詞語填空。可以撳喇叭聽粵語朗讀。</div>
+          <div class="target-word" id="ctxSent" style="font-size:1.25rem;letter-spacing:1px;"></div>
+          <button class="act-btn act-check" style="display:block;margin:10px auto 14px;" onclick="speakCtx()">🔊 播放粵語朗讀</button>
+          <div class="word-opts" id="ctxOpts"></div>
+        </div>
+        
+        <div class="fb" id="fb"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- DONE -->
+  <div class="screen" id="sc-done">
+    <div class="result">
+      <div style="font-size:3.2rem;" id="doneEmo">⭐</div>
+      <h2 id="doneTitle">關卡完成！</h2>
+      <p id="doneMsg">你又進步咗！</p>
+      <div style="font-size:1.6rem;margin:12px 0;" id="doneStars">⭐⭐⭐</div>
+      <div class="btn-group">
+        <button class="btn" onclick="goMap()">返回地圖</button>
+        <button class="btn btn-green" id="nextBtn" onclick="nextMission()">下一關 →</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- FINAL + CERTIFICATE -->
+  <div class="screen" id="sc-final">
+    <div class="result" style="max-width:560px;margin:8px auto;padding:16px 12px;">
+      <div style="font-size:2.2rem;margin-bottom:4px;">🐉✨🏆</div>
+      <h2 style="margin-bottom:4px;font-size:1.5rem;">全部關卡完成！</h2>
+      <p style="color:#5a6a7a;margin-bottom:12px;font-size:0.95rem;">你同悟空一齊收集晒勇氣星！</p>
+      
+      <!-- 華麗證書 -->
+      <div id="cert" style="
+        background:
+          radial-gradient(ellipse at top, rgba(255,215,0,0.18), transparent 55%),
+          linear-gradient(165deg, #fff9e6 0%, #ffffff 35%, #eef6ff 100%);
+        border: 5px solid #d4a017;
+        border-radius: 20px;
+        padding: 22px 16px 18px;
+        margin: 8px 0 14px;
+        box-shadow:
+          0 0 0 3px #fff8e7,
+          0 0 0 6px rgba(212,160,23,0.35),
+          0 12px 36px rgba(212,160,23,0.3);
+        position: relative;
+        text-align: center;
+        overflow: hidden;
+      ">
+        <!-- 頂部彩帶感 -->
+        <div style="position:absolute;top:0;left:0;right:0;height:8px;
+          background:linear-gradient(90deg,#ff6b00,#ffd700,#ff6b00);"></div>
+        
+        <div style="position:absolute;top:14px;left:12px;font-size:1.6rem;">⭐</div>
+        <div style="position:absolute;top:14px;right:12px;font-size:1.6rem;">⭐</div>
+        <div style="position:absolute;bottom:12px;left:12px;font-size:1.5rem;">🐉</div>
+        <div style="position:absolute;bottom:12px;right:12px;font-size:1.5rem;">🐉</div>
+        
+        <div style="font-size:0.8rem;color:#b45309;letter-spacing:3px;font-weight:700;margin-top:6px;">悟空默書大冒險</div>
+        <div style="font-size:1.7rem;font-weight:900;color:#1a4a6e;margin:6px 0 2px;
+          text-shadow:0 1px 0 #fff, 0 2px 8px rgba(26,74,110,0.12);">龍珠中文勇氣證書</div>
+        <div style="display:inline-block;background:linear-gradient(135deg,#ff6b00,#ffd700);
+          color:#1a1a2e;font-size:0.85rem;font-weight:800;padding:3px 14px;border-radius:20px;margin-bottom:10px;">
+          Z戰士 · 詞語達人
+        </div>
+        
+        <!-- 大角色列（吸睛） -->
+        <div style="display:flex;justify-content:center;align-items:flex-end;gap:6px;margin:14px 0 10px;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div class="ch" style="width:88px;height:110px;font-size:2.4rem;border:3px solid #ffd700;box-shadow:0 6px 18px rgba(255,140,0,0.35);">
+              <span>💥</span><img src="images/goku.png" onerror="this.style.display='none'">
+            </div>
+            <div style="font-size:0.75rem;font-weight:700;color:#e65c00;margin-top:3px;">悟空</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="ch" style="width:78px;height:98px;font-size:2.1rem;border:2px solid #fbbf24;">
+              <span>🟠</span><img src="images/gohan.png" onerror="this.style.display='none'">
+            </div>
+            <div style="font-size:0.7rem;font-weight:700;color:#b45309;margin-top:3px;">悟飯</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="ch" style="width:78px;height:98px;font-size:2.1rem;border:2px solid #60a5fa;">
+              <span>🔵</span><img src="images/vegeta.png" onerror="this.style.display='none'">
+            </div>
+            <div style="font-size:0.7rem;font-weight:700;color:#1d4ed8;margin-top:3px;">比達</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="ch" style="width:78px;height:98px;font-size:2.1rem;border:2px solid #4ade80;">
+              <span>🟢</span><img src="images/piccolo.png" onerror="this.style.display='none'">
+            </div>
+            <div style="font-size:0.7rem;font-weight:700;color:#15803d;margin-top:3px;">比克</div>
+          </div>
+        </div>
+        
+        <div style="margin:8px 0 4px;">
+          <label style="font-size:0.85rem;color:#5a6a7a;">小朋友大名</label><br>
+          <input id="certName" type="text" placeholder="請輸入名字" maxlength="12"
+            style="border:none;border-bottom:3px solid #d4a017;background:transparent;text-align:center;
+                   font-size:1.35rem;font-weight:900;color:#1a4a6e;padding:6px 10px;width:180px;
+                   font-family:inherit;outline:none;margin-top:4px;"
+            oninput="updateCertName()">
+        </div>
+        
+        <div id="certNameDisplay" style="font-size:1.5rem;font-weight:900;color:#e65c00;min-height:36px;margin:4px 0 8px;
+          text-shadow:0 1px 0 rgba(255,255,255,0.8);">
+          ———
+        </div>
+        
+        <p style="font-size:0.98rem;color:#334155;line-height:1.65;margin:6px 0;">
+          已經成功完成全部關卡，學會晒<br>
+          <strong style="color:#e65c00;font-size:1.05rem;">13 個中文詞語</strong>
+        </p>
+        <p style="font-size:0.9rem;font-weight:700;color:#1a4a6e;line-height:1.8;margin:6px 0;
+          background:rgba(255,255,255,0.7);border-radius:10px;padding:8px 6px;">
+          農夫 · 甘心 · 幹活 · 運氣 · 草叢 · 突然 · 乾脆<br>
+          澆水 · 費勁 · 繼續 · 專心 · 撿起 · 樹榦
+        </p>
+        
+        <p style="font-size:1.05rem;color:#166534;font-weight:800;margin:12px 0 6px;
+          background:linear-gradient(90deg,transparent,#dcfce7,transparent);padding:8px 0;">
+          「你正式成為龍珠詞語戰士！」
+        </p>
+        
+        <div style="font-size:0.85rem;color:#78716c;margin-top:6px;" id="certDate"></div>
+      </div>
+      
+      <p style="font-size:0.9rem;color:#8a9aaa;margin-bottom:8px;">可以截圖保存呢張證書俾家長睇！</p>
+      
+      <div class="btn-group">
+        <button class="btn btn-orange" onclick="restart()">再玩一次</button>
+        <button class="btn" onclick="show('sc-title')">返回封面</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const WORDS = ["農夫","甘心","幹活","運氣","草叢","突然","乾脆","澆水","費勁","繼續","專心","撿起","樹榦"];
+const MEANINGS = {
+  "農夫":"種田嘅人","甘心":"心甘情願","幹活":"做工作","運氣":"好運氣",
+  "草叢":"一堆草","突然":"忽然之間","乾脆":"爽快地做","澆水":"畀植物淋水",
+  "費勁":"好辛苦","繼續":"唔停咁做","專心":"集中精神","撿起":"拾起嚟","樹榦":"樹嘅主幹"
+};
+const CONTEXTS = [
+  {s:"我係一個______，每日都要種田。", a:"農夫"},
+  {s:"雖然好辛苦，但我______去做。", a:"甘心"},
+  {s:"農夫每日都要______。", a:"幹活"},
+  {s:"今日好有______，搵到龍珠！", a:"運氣"},
+  {s:"小心！______入面可能有怪獸。", a:"草叢"},
+  {s:"______！有嘢跳咗出嚟！", a:"突然"},
+  {s:"我哋______一擊打走佢！", a:"乾脆"},
+  {s:"植物好口渴，快啲______。", a:"澆水"},
+  {s:"搬呢嚿大石真係好______。", a:"費勁"},
+  {s:"唔好放棄，要______努力！", a:"繼續"},
+  {s:"要______先可以睇清楚。", a:"專心"},
+  {s:"快啲______地下嗰粒龍珠！", a:"撿起"},
+  {s:"龍珠就喺______上面。", a:"樹榦"}
+];
+
+const WORD_IMGS = {
+  "農夫":"images/farmer.png", "甘心":"images/happy.png", "幹活":"images/work.png",
+  "運氣":"images/luck.png", "草叢":"images/bush.png", "突然":"images/sudden.png",
+  "乾脆":"images/decisive.png", "澆水":"images/water.png", "費勁":"images/heavy.png",
+  "繼續":"images/continue.png", "專心":"images/focus.png", "撿起":"images/pick.png",
+  "樹榦":"images/tree.png"
+};
+const MISSIONS = [
+  { id:1, title:"房間尋字", desc:"悟空搵到幾張字卡！一齊看清字形，幫佢把詞語組好吧。", steps:"看詞語 → 點選字卡 → 檢查答案", mode:"assemble", count:8, chars:[["💥","goku"],["🟠","goten"]], theme:"images/mission1.png" },
+  { id:2, title:"聽詞選卡", desc:"比達考你聽力！聽清楚語音，揀出正確嘅詞語卡。", steps:"聽語音 → 揀詞語卡 → 答啱就過", mode:"pick", count:8, chars:[["🔵","vegeta"],["🟢","trunks"]], theme:"images/mission2.png" },
+  { id:3, title:"圖詞配對", desc:"悟飯同比克一齊練習！將「圖片」同「詞語」配對。", steps:"點選圖片 → 再點對應詞語", mode:"match", count:6, chars:[["🟠","gohan"],["🟢","piccolo"]], theme:"images/mission3.png" },
+  { id:4, title:"情境填空", desc:"農夫講故事，你幫佢填正確詞語！可以撳喇叭聽粵語。", steps:"聽／睇句子 → 揀正確詞語", mode:"ctx", count:8, chars:[["💥","goku"],["🟠","gohan"]], theme:"images/mission4.png" },
+  { id:5, title:"最終試煉", desc:"最後一次用字卡組出所有詞語，收集勇氣星！", steps:"字卡組詞 · 全部詞語", mode:"assemble", count:13, chars:[["💥","goku"],["🟠","gohan"],["🔵","vegeta"],["🟢","piccolo"]], theme:"images/mission5.png" }
+];
+
+let soundOn = true;
+let done = JSON.parse(localStorage.getItem('moxie2_done')||'[]');
+let curM = 0, qIdx = 0, score = 0, queue = [];
+let selected = [], tileStates = [], curWord = "", lock = false;
+let matchSel = null, matchDone = 0;
+
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function speak(t){ if(!soundOn||!speechSynthesis)return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='zh-HK'; u.rate=.9; speechSynthesis.speak(u); }
+function toggleSnd(){ soundOn=!soundOn; document.getElementById('sndBtn').textContent=soundOn?'♫ 音量':'♫ 靜音'; }
+function shuffle(a){ return [...a].sort(()=>Math.random()-.5); }
+function randWrong(correct, n=3){
+  let pool = WORDS.filter(w=>w!==correct);
+  return shuffle(pool).slice(0,n);
+}
+function updateSideStars(){
+  const total = queue.length || 8;
+  // 用得分比例顯示最多 5 顆星，同時旁邊顯示實際分數
+  const starCount = Math.max(0, Math.min(5, Math.round((score / total) * 5)));
+  document.getElementById('sideStars').textContent = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
+  document.getElementById('sideScore').textContent = score + ' / ' + total + ' 分';
+}
+
+function updateProgress(){
+  for(let i=1;i<=5;i++){
+    const d=done.includes(i), u=i===1||done.includes(i-1);
+    const card=document.getElementById('c'+i);
+    if(card){ card.classList.toggle('locked',!u); card.classList.toggle('done',d); }
+    const st=document.getElementById('st'+i);
+    if(st) st.textContent=d?'✅':(u?'▶️':'🔒');
+  }
+  document.getElementById('totalStars').textContent='★'.repeat(done.length)+'☆'.repeat(5-done.length);
+}
+
+function goMap(){
+  updateProgress();
+  const box=document.getElementById('mapLevels');
+  box.innerHTML='';
+  MISSIONS.forEach(m=>{
+    const d=done.includes(m.id), u=m.id===1||done.includes(m.id-1);
+    const div=document.createElement('div');
+    div.className='lv-card'+(d?' done':'')+(u?'':' locked');
+    div.onclick=()=>u&&openMission(m.id);
+    div.innerHTML=`<div class="lv-num">0${m.id} · ${m.title}</div><h3>${m.title}</h3><p>${m.desc.slice(0,28)}…</p><div>${d?'✅':(u?'▶️':'🔒')}</div>`;
+    box.appendChild(div);
+  });
+  show('sc-map');
+}
+
+function openMission(id){
+  if(id>1 && !done.includes(id-1)) return;
+  curM=id;
+  const m=MISSIONS[id-1];
+  document.getElementById('mTag').textContent=`MISSION 0${id} / 05`;
+  document.getElementById('mTitle').textContent=m.title;
+  document.getElementById('mDesc').textContent=m.desc;
+  document.getElementById('mSteps').textContent=m.steps;
+  document.getElementById('mCount').textContent=m.count+' 題';
+  const art=document.querySelector('.mission-art');
+  art.innerHTML=`
+    <img class="theme-img" src="${m.theme}" alt="主題圖" onerror="this.style.display='none'">
+    <div class="chs">${m.chars.map(([e,f])=>
+      `<div class="ch" style="width:56px;height:70px;font-size:1.5rem;"><span>${e}</span><img src="images/${f}.png" onerror="this.style.display='none'"></div>`
+    ).join('')}</div>`;
+  show('sc-mission');
+}
+
+function startPlay(){
+  const m=MISSIONS[curM-1];
+  qIdx=0; score=0; lock=false;
+  document.getElementById('starN').textContent='0';
+  document.getElementById('sideScore').textContent='0 / '+m.count+' 分';
+  document.getElementById('sideTitle').textContent=`MISSION 0${curM}`;
+  document.getElementById('sideName').textContent=m.title;
+  document.getElementById('sideChars').innerHTML=m.chars.map(([e,f])=>
+    `<div class="ch" style="width:48px;height:60px;font-size:1.4rem;"><span>${e}</span><img src="images/${f}.png" onerror="this.style.display='none'"></div>`
+  ).join('');
+  document.getElementById('sideStars').textContent='☆☆☆☆☆';
+  document.getElementById('fb').textContent='';
+  
+  // hide all modes
+  ['mode-assemble','mode-pick','mode-match','mode-ctx'].forEach(id=>document.getElementById(id).style.display='none');
+  
+  if(m.mode==='assemble'){
+    queue = shuffle(WORDS).slice(0, m.count);
+    document.getElementById('mode-assemble').style.display='block';
+    nextAssemble();
+  } else if(m.mode==='pick'){
+    queue = shuffle(WORDS).slice(0, m.count);
+    document.getElementById('mode-pick').style.display='block';
+    nextPick();
+  } else if(m.mode==='match'){
+    document.getElementById('mode-match').style.display='block';
+    startMatch();
+  } else if(m.mode==='ctx'){
+    queue = shuffle(CONTEXTS).slice(0, m.count);
+    document.getElementById('mode-ctx').style.display='block';
+    nextCtx();
+  }
+  show('sc-play');
+}
+
+// ===== ASSEMBLE (字卡組詞) - Doraemon style =====
+function nextAssemble(){
+  if(qIdx >= queue.length){ finish(); return; }
+  lock=false; selected=[];
+  curWord = queue[qIdx];
+  document.getElementById('qLabel').textContent=`第 ${qIdx+1} / ${queue.length} 題 · 入門 · 不計時`;
+  document.getElementById('target').textContent=curWord;
+  document.getElementById('prog').style.width=((qIdx)/queue.length*100)+'%';
+  document.getElementById('fb').textContent='';
+  document.getElementById('tip').textContent='慢慢來，想清楚再作答。';
+  
+  // slots
+  const slots=document.getElementById('slots');
+  slots.innerHTML='';
+  for(let i=0;i<curWord.length;i++){
+    const s=document.createElement('div');
+    s.className='slot'; s.id='slot'+i;
+    slots.appendChild(s);
+  }
+  
+  // tiles: correct chars + distractors
+  let chars = curWord.split('');
+  // add 1-2 distractor chars from other words
+  const extra = shuffle(WORDS.join('').split('').filter(c=>!chars.includes(c))).slice(0, Math.min(2, 4-chars.length));
+  let all = shuffle([...chars, ...extra]);
+  // ensure we have at least the needed chars
+  const tiles=document.getElementById('tiles');
+  tiles.innerHTML='';
+  tileStates = all.map((ch,i)=>({ch, used:false, el:null}));
+  all.forEach((ch,i)=>{
+    const b=document.createElement('button');
+    b.className='tile';
+    b.textContent=ch;
+    b.onclick=()=>tapTile(i);
+    tiles.appendChild(b);
+    tileStates[i].el=b;
+  });
+  
+  speak(curWord);
+}
+
+function tapTile(i){
+  if(lock || tileStates[i].used) return;
+  if(selected.length >= curWord.length) return;
+  tileStates[i].used=true;
+  tileStates[i].el.classList.add('used');
+  selected.push({ch: tileStates[i].ch, idx:i});
+  renderSlots();
+}
+
+function renderSlots(){
+  for(let i=0;i<curWord.length;i++){
+    const s=document.getElementById('slot'+i);
+    if(i<selected.length){
+      s.textContent=selected[i].ch;
+      s.classList.add('filled');
+    } else {
+      s.textContent='';
+      s.classList.remove('filled');
+    }
+  }
+}
+
+function undoTile(){
+  if(lock || !selected.length) return;
+  const last=selected.pop();
+  tileStates[last.idx].used=false;
+  tileStates[last.idx].el.classList.remove('used');
+  renderSlots();
+}
+
+function clearTiles(){
+  if(lock) return;
+  selected.forEach(s=>{
+    tileStates[s.idx].used=false;
+    tileStates[s.idx].el.classList.remove('used');
+  });
+  selected=[];
+  renderSlots();
+}
+
+function giveHint(){
+  if(lock) return;
+  // highlight next needed char
+  const need = curWord[selected.length];
+  if(!need) return;
+  tileStates.forEach((t,i)=>{
+    t.el.classList.remove('hint');
+    if(!t.used && t.ch===need) t.el.classList.add('hint');
+  });
+  document.getElementById('tip').textContent='提示：下一個字係「'+need+'」';
+  speak('下一個字係 '+need);
+}
+
+function checkAssemble(){
+  if(lock) return;
+  if(selected.length < curWord.length){
+    document.getElementById('fb').textContent='仲未組完，繼續揀字卡！';
+    document.getElementById('fb').className='fb no';
+    return;
+  }
+  lock=true;
+  const ans = selected.map(s=>s.ch).join('');
+  if(ans === curWord){
+    document.getElementById('fb').textContent='✅ 完全正確！';
+    document.getElementById('fb').className='fb ok';
+    score++;
+    document.getElementById('starN').textContent=score;
+    document.getElementById('sideScore').textContent=score+' / '+queue.length;
+    updateSideStars();
+    speak('啱啦！');
+    setTimeout(()=>{ qIdx++; nextAssemble(); }, 1000);
+  } else {
+    document.getElementById('fb').textContent='❌ 未啱，再試一次！可以撳「清空」重來。';
+    document.getElementById('fb').className='fb no';
+    document.getElementById('tip').textContent='答錯可以再試，慢慢組。';
+    speak('未啱，再試一次');
+    lock=false;
+  }
+}
+
+// ===== PICK full word =====
+function nextPick(){
+  if(qIdx >= queue.length){ finish(); return; }
+  lock=false;
+  curWord = queue[qIdx];
+  document.getElementById('qLabel').textContent=`第 ${qIdx+1} / ${queue.length} 題`;
+  document.getElementById('prog').style.width=(qIdx/queue.length*100)+'%';
+  document.getElementById('fb').textContent='';
+  document.getElementById('pickLabel').textContent='聽一聽，揀出正確嘅詞語卡。';
+  
+  let opts = shuffle([curWord, ...randWrong(curWord, 3)]);
+  const box=document.getElementById('wordOpts');
+  box.innerHTML='';
+  opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='word-opt'; b.textContent=o;
+    b.onclick=()=>{
+      if(lock) return; lock=true;
+      if(o===curWord){
+        b.classList.add('correct');
+        score++; document.getElementById('starN').textContent=score; updateSideStars();
+        document.getElementById('fb').textContent='✅ 啱！'; document.getElementById('fb').className='fb ok';
+        speak('啱啦');
+        setTimeout(()=>{ qIdx++; nextPick(); }, 1000);
+      } else {
+        b.classList.add('wrong');
+        document.getElementById('fb').textContent='❌ 正確係「'+curWord+'」'; document.getElementById('fb').className='fb no';
+        setTimeout(()=>{ lock=false; qIdx++; nextPick(); }, 1200);
+      }
+    };
+    box.appendChild(b);
+  });
+  speak(curWord);
+}
+function speakCurrent(){ speak(curWord); }
+
+// ===== MATCH：圖片 ↔ 詞語 =====
+function startMatch(){
+  matchSel=null; matchDone=0; score=0; queue = shuffle(WORDS).slice(0,6);
+  const sel = queue;
+  const area=document.getElementById('matchArea');
+  area.innerHTML='<div id="matchL" style="display:flex;flex-direction:column;gap:8px;"></div><div id="matchR" style="display:flex;flex-direction:column;gap:8px;"></div>';
+  const L=document.getElementById('matchL'), R=document.getElementById('matchR');
+  // 左邊：圖片
+  shuffle(sel).forEach(w=>{
+    const b=document.createElement('button');
+    b.className='word-opt';
+    b.style.cssText='margin:0;width:100%;padding:10px;min-height:72px;display:flex;align-items:center;justify-content:center;gap:8px;';
+    b.innerHTML=`<img src="${WORD_IMGS[w]||''}" alt="" style="width:48px;height:48px;object-fit:contain;" onerror="this.style.display='none'"><span style="font-size:0.85rem;color:#64748b;">${MEANINGS[w]||''}</span>`;
+    b.dataset.w=w; b.onclick=()=>matchClick(b,'img',w);
+    L.appendChild(b);
+  });
+  // 右邊：詞語
+  shuffle(sel).forEach(w=>{
+    const b=document.createElement('button');
+    b.className='word-opt';
+    b.style.cssText='margin:0;width:100%;font-size:1.35rem;';
+    b.textContent=w;
+    b.dataset.w=w; b.onclick=()=>matchClick(b,'word',w);
+    R.appendChild(b);
+  });
+  document.getElementById('qLabel').textContent='圖片配詞語  0 / 6';
+  document.getElementById('prog').style.width='0%';
+  updateSideStars();
+}
+
+function matchClick(btn, type, w){
+  if(btn.classList.contains('correct')) return;
+  if(!matchSel){
+    matchSel={btn, type, w};
+    btn.style.outline='3px solid #ffd700';
+    return;
+  }
+  if(matchSel.type===type){
+    matchSel.btn.style.outline='';
+    matchSel={btn, type, w};
+    btn.style.outline='3px solid #ffd700';
+    return;
+  }
+  // different types - check pair
+  if(matchSel.w===w){
+    matchSel.btn.classList.add('correct');
+    btn.classList.add('correct');
+    matchSel.btn.style.outline='';
+    matchSel=null;
+    matchDone++; score++;
+    document.getElementById('starN').textContent=score;
+    updateSideStars();
+    document.getElementById('qLabel').textContent=`圖片配詞語  ${matchDone} / 6`;
+    document.getElementById('prog').style.width=(matchDone/6*100)+'%';
+    document.getElementById('fb').textContent='✅ 配對成功！';
+    document.getElementById('fb').className='fb ok';
+    if(matchDone>=6) setTimeout(finish, 800);
+  } else {
+    matchSel.btn.style.outline='';
+    btn.style.outline='3px solid #dc2626';
+    setTimeout(()=>{ btn.style.outline=''; }, 500);
+    matchSel=null;
+    document.getElementById('fb').textContent='❌ 唔配對，再試！';
+    document.getElementById('fb').className='fb no';
+  }
+}
+
+// ===== CONTEXT =====
+let ctxCurrent = null;
+function speakCtx(){
+  if(!ctxCurrent) return;
+  // 用完整句子朗讀（空格處讀「邊個詞」）
+  speak(ctxCurrent.s.replace('______', '邊個詞'));
+}
+function nextCtx(){
+  if(qIdx>=queue.length){ finish(); return; }
+  lock=false;
+  const q=queue[qIdx];
+  ctxCurrent = q;
+  document.getElementById('qLabel').textContent=`第 ${qIdx+1} / ${queue.length} 題`;
+  document.getElementById('prog').style.width=(qIdx/queue.length*100)+'%';
+  document.getElementById('ctxSent').textContent=q.s;
+  document.getElementById('fb').textContent='';
+  let opts=shuffle([q.a, ...randWrong(q.a,3)]);
+  const box=document.getElementById('ctxOpts');
+  box.innerHTML='';
+  opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='word-opt'; b.textContent=o;
+    b.onclick=()=>{
+      if(lock) return; lock=true;
+      if(o===q.a){
+        b.classList.add('correct'); score++;
+        document.getElementById('starN').textContent=score; updateSideStars();
+        document.getElementById('fb').textContent='✅'; document.getElementById('fb').className='fb ok';
+        setTimeout(()=>{ qIdx++; nextCtx(); }, 1000);
+      } else {
+        b.classList.add('wrong');
+        document.getElementById('fb').textContent='❌ 正確係「'+q.a+'」'; document.getElementById('fb').className='fb no';
+        setTimeout(()=>{ lock=false; qIdx++; nextCtx(); }, 1200);
+      }
+    };
+    box.appendChild(b);
+  });
+  speak(q.s.replace('______','邊個詞'));
+}
+
+function updateCertName(){
+  const n = document.getElementById('certName').value.trim();
+  document.getElementById('certNameDisplay').textContent = n || '———';
+  if(n) localStorage.setItem('moxie2_name', n);
+}
+function finish(){
+  if(!done.includes(curM)){ done.push(curM); localStorage.setItem('moxie2_done', JSON.stringify(done)); }
+  updateProgress();
+  const totalQ = queue.length || MISSIONS[curM-1].count;
+  document.getElementById('doneTitle').textContent=MISSIONS[curM-1].title+' 完成！';
+  document.getElementById('doneMsg').textContent='你獲得咗 '+score+' / '+totalQ+' 分！繼續加油！';
+  const sc = Math.max(1, Math.min(5, Math.round((score/totalQ)*5)));
+  document.getElementById('doneStars').textContent='⭐'.repeat(sc);
+  document.getElementById('nextBtn').style.display = curM<5 ? '' : 'none';
+  if(curM>=5){
+    // 證書日期同名字
+    const d = new Date();
+    document.getElementById('certDate').textContent =
+      d.getFullYear() + ' 年 ' + (d.getMonth()+1) + ' 月 ' + d.getDate() + ' 日';
+    const saved = localStorage.getItem('moxie2_name') || '';
+    document.getElementById('certName').value = saved;
+    updateCertName();
+    show('sc-final');
+    speak('恭喜你！你正式成為龍珠詞語戰士！');
+  } else {
+    show('sc-done');
+    speak('關卡完成！');
+  }
+}
+
+function nextMission(){ openMission(curM+1); }
+function restart(){ done=[]; localStorage.setItem('moxie2_done','[]'); updateProgress(); show('sc-title'); }
+
+updateProgress();
+</script>
+</body>
+</html>

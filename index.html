@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>龍珠中文遊戲 | 悟空默書大冒險</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      font-family: 'Noto Sans TC', 'PingFang HK', sans-serif;
+      background: #F7F3EB;
+      color: #2c3e50;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 40px; }
+    
+    .hero {
+      background: #fff;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      border: 1px solid #f0e6d8;
+      margin-bottom: 20px;
+    }
+    .hero-banner {
+      height: 240px;
+      background: linear-gradient(180deg, #0a1628, #1a3a5c);
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .hero-banner img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center top;
+    }
+    .hero-banner .fallback {
+      position: relative; z-index: 1;
+      font-size: 3rem; padding: 20px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .hero-body {
+      padding: 22px 20px 24px;
+      text-align: center;
+    }
+    .hero-body h1 {
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: #1a4a6e;
+      margin-bottom: 6px;
+    }
+    .hero-body h1 span { color: #e65c00; }
+    .hero-body p {
+      font-size: 1rem;
+      color: #5a6a7a;
+      line-height: 1.55;
+      margin-bottom: 4px;
+    }
+    
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1a4a6e;
+      margin: 8px 0 12px;
+      text-align: center;
+    }
+    
+    .game-list { display: flex; flex-direction: column; gap: 12px; }
+    
+    .game-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 18px 16px;
+      border: 1px solid #f0eae0;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .game-card:active { transform: scale(0.98); }
+    .game-card.primary {
+      border: 2px solid #d4a017;
+      background: linear-gradient(135deg, #fffbeb, #fff);
+      box-shadow: 0 6px 20px rgba(212,160,23,0.2);
+    }
+    .game-icon {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+    .game-info { flex: 1; min-width: 0; }
+    .game-info h3 {
+      font-size: 1.1rem;
+      color: #1a4a6e;
+      margin-bottom: 4px;
+    }
+    .game-info p {
+      font-size: 0.88rem;
+      color: #6a7a8a;
+      line-height: 1.4;
+    }
+    .game-arrow {
+      font-size: 1.3rem;
+      color: #1a6b8a;
+      font-weight: 700;
+    }
+    
+    .footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #8a9aaa;
+      margin-top: 24px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-banner">
+        <img src="images/home-cover.png" alt="悟空封面" onerror="this.onerror=null;this.src='images/cover.png';this.onerror=function(){this.style.display='none';document.getElementById('homeFallback').style.display='block';}">
+        <div class="fallback" id="homeFallback" style="display:none;">🐉 💥 🟠 🔵</div>
+      </div>
+      <div class="hero-body">
+        <h1>龍珠 <span>中文遊戲</span></h1>
+        <p>為非華語小朋友而設 · 邊玩邊學</p>
+        <p style="font-size:0.9rem;color:#8a9aaa;">不用拼音 · 粵語朗讀 · 收集勇氣星</p>
+      </div>
+    </div>
+    
+    <div class="section-title">選擇遊戲</div>
+    
+    <div class="game-list">
+      <!-- 主推：默書大冒險 -->
+      <a class="game-card primary" href="moxie.html">
+        <div class="game-icon" style="background:#fff3e0;">🐉</div>
+        <div class="game-info">
+          <h3>悟空默書大冒險</h3>
+          <p>字卡組詞 · 5 個關卡 · 完成有證書（最推薦）</p>
+        </div>
+        <div class="game-arrow">→</div>
+      </a>
+      
+      <!-- 單人故事 -->
+      <a class="game-card" href="story.html">
+        <div class="game-icon" style="background:#e8f5e9;">📖</div>
+        <div class="game-info">
+          <h3>龍珠故事冒險</h3>
+          <p>故事問答 · 配對 · 動作挑戰（三關）</p>
+        </div>
+        <div class="game-arrow">→</div>
+      </a>
+      
+      <!-- 雙人對決 -->
+      <a class="game-card" href="duel.html">
+        <div class="game-icon" style="background:#e3f2fd;">⚡</div>
+        <div class="game-info">
+          <h3>龍珠雙人對決</h3>
+          <p>單人／雙人 · 搶答 · 限時 · 氣功波射擊</p>
+        </div>
+        <div class="game-arrow">→</div>
+      </a>
+    </div>
+    
+    <div class="footer">
+      目標詞語：農夫 · 甘心 · 幹活 · 運氣 · 草叢 · 突然 · 乾脆<br>
+      澆水 · 費勁 · 繼續 · 專心 · 撿起 · 樹榦<br><br>
+      每次進步一點點，就很了不起。
+    </div>
+  </div>
+</body>
+</html>

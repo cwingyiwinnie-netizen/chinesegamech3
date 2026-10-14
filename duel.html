@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>龍珠雙人對決 | Z戰士大比拼</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      font-family: 'Noto Sans TC', 'PingFang HK', sans-serif;
+      background: linear-gradient(180deg, #0f172a 0%, #1e3a5f 40%, #0c4a6e 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+    #app { max-width: 960px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    /* Header */
+    .header {
+      background: linear-gradient(90deg, #1a1a2e, #2d1b4e);
+      padding: 10px 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 3px solid #ffd700; color: white; position: sticky; top: 0; z-index: 50;
+    }
+    .logo { font-size: 1.1rem; font-weight: 900; color: #ffd700; }
+    .mode-badge { background: #ff6b00; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; }
+    
+    .screen { display: none; flex: 1; flex-direction: column; padding: 14px; animation: fadeIn 0.35s ease; }
+    .screen.active { display: flex; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    
+    .btn {
+      background: linear-gradient(135deg, #ff6b00, #ffd700);
+      color: #1a1a2e; border: none; padding: 14px 26px; font-size: 1.15rem; font-weight: 700;
+      border-radius: 50px; cursor: pointer; font-family: inherit; box-shadow: 0 5px 16px rgba(255,107,0,0.4);
+      margin: 6px; transition: transform 0.15s;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-blue { background: linear-gradient(135deg, #2563eb, #60a5fa); color: white; }
+    .btn-green { background: linear-gradient(135deg, #16a34a, #4ade80); color: white; }
+    .btn-red { background: linear-gradient(135deg, #dc2626, #f87171); color: white; }
+    .btn-purple { background: linear-gradient(135deg, #7c3aed, #a78bfa); color: white; }
+    .btn-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }
+    
+    /* Title */
+    .title-hero { text-align: center; padding: 20px 10px; }
+    .title-hero h1 {
+      font-size: 2rem;
+      background: linear-gradient(90deg, #ff6b00, #ffd700, #ff6b00);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 8px 0;
+    }
+    .team-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+    .char-avatar {
+      width: 95px; height: 120px; border-radius: 12px; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, #475569, #1e293b);
+      border: 2px solid rgba(255,215,0,0.5);
+      font-size: 2.8rem;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .char-avatar img {
+      width: 100%; height: 100%; object-fit: cover; object-position: top center;
+      display: block; position: absolute; inset: 0; z-index: 2;
+    }
+    .char-avatar .emoji-fallback {
+      font-size: 2.8rem; z-index: 1; line-height: 1;
+    }
+    .char-name { font-size: 0.85rem; text-align: center; margin-top: 4px; color: #ffd700; font-weight: 700; }
+    
+    /* Mode select cards */
+    .mode-cards { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+    .mode-card {
+      background: rgba(255,255,255,0.1); border: 3px solid #ffd700; border-radius: 16px;
+      padding: 16px; display: flex; align-items: center; gap: 14px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-card:active { transform: scale(0.98); background: rgba(255,215,0,0.15); }
+    .mode-icon { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0; }
+    .mode-info h3 { font-size: 1.15rem; margin-bottom: 4px; color: #ffd700; }
+    .mode-info p { font-size: 0.9rem; color: #cbd5e1; }
+    
+    /* Player scores */
+    .score-bar {
+      display: flex; justify-content: space-between; gap: 10px; margin-bottom: 12px;
+    }
+    .player-score {
+      flex: 1; background: rgba(255,255,255,0.1); border-radius: 12px; padding: 10px;
+      text-align: center; border: 2px solid transparent;
+    }
+    .player-score.p1 { border-color: #ff6b00; }
+    .player-score.p2 { border-color: #2563eb; }
+    .player-score .name { font-weight: 700; font-size: 0.95rem; }
+    .player-score .score { font-size: 1.6rem; font-weight: 900; color: #ffd700; }
+    
+    /* Common game area */
+    .game-area {
+      background: rgba(0,0,0,0.25); border-radius: 16px; padding: 14px;
+      border: 2px solid rgba(255,215,0,0.3); min-height: 280px; position: relative;
+    }
+    .question-box {
+      background: white; color: #1a1a2e; border-radius: 14px; padding: 16px;
+      text-align: center; margin-bottom: 14px; border: 3px solid #ffd700;
+    }
+    .question-box .q-text { font-size: 1.4rem; font-weight: 700; min-height: 40px; }
+    .question-box .q-hint { font-size: 0.95rem; color: #64748b; margin-top: 6px; }
+    
+    .options-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .opt-btn {
+      background: rgba(255,255,255,0.15); border: 3px solid #ffd700; color: white;
+      padding: 18px 10px; font-size: 1.35rem; font-weight: 700; border-radius: 14px;
+      cursor: pointer; font-family: inherit; min-height: 70px;
+    }
+    .opt-btn:active { transform: scale(0.97); }
+    .opt-btn.correct { background: #16a34a; border-color: #16a34a; }
+    .opt-btn.wrong { background: #dc2626; border-color: #dc2626; }
+    
+    /* Dual side buttons */
+    .dual-sides { display: flex; gap: 12px; margin-top: 12px; }
+    .side-btn {
+      flex: 1; padding: 28px 10px; font-size: 1.3rem; font-weight: 900;
+      border-radius: 16px; border: 4px solid; cursor: pointer; font-family: inherit;
+      min-height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .side-btn.left { background: rgba(255,107,0,0.2); border-color: #ff6b00; color: #ffd700; }
+    .side-btn.right { background: rgba(37,99,235,0.2); border-color: #2563eb; color: #93c5fd; }
+    .side-btn:active { transform: scale(0.97); }
+    .side-btn.disabled { opacity: 0.4; pointer-events: none; }
+    
+    /* Falling words (Mode 4) */
+    .fall-area {
+      position: relative; height: 320px; overflow: hidden;
+      background: linear-gradient(180deg, #0f172a, #1e3a5f);
+      border-radius: 14px; border: 2px solid #ffd700;
+    }
+    .falling-word {
+      position: absolute; padding: 10px 16px; background: rgba(255,215,0,0.9);
+      color: #1a1a2e; font-weight: 900; font-size: 1.2rem; border-radius: 10px;
+      cursor: pointer; user-select: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: transform 0.1s;
+    }
+    .falling-word:active { transform: scale(1.15); }
+    .falling-word.wrong-word { background: rgba(220,38,38,0.85); color: white; }
+    
+    /* Match grid (Mode 3) */
+    .match-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    }
+    .match-card {
+      aspect-ratio: 1; background: linear-gradient(145deg, #1e3a8a, #3b82f6);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 700; color: white; cursor: pointer;
+      border: 2px solid #1e40af; position: relative;
+    }
+    .match-card.flipped { background: white; color: #1a1a2e; border-color: #ffd700; }
+    .match-card.matched { background: #16a34a; border-color: #16a34a; opacity: 0.8; pointer-events: none; }
+    
+    /* Relay (Mode 2) */
+    .relay-zones {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .relay-zone {
+      background: rgba(255,255,255,0.08); border: 3px dashed #94a3b8;
+      border-radius: 14px; padding: 14px; min-height: 140px; text-align: center;
+    }
+    .relay-zone.p1-zone { border-color: #ff6b00; }
+    .relay-zone.p2-zone { border-color: #2563eb; }
+    .relay-zone.done { border-style: solid; background: rgba(22,163,74,0.2); border-color: #16a34a; }
+    .relay-zone h4 { margin-bottom: 8px; font-size: 1rem; }
+    .relay-task {
+      background: rgba(255,255,255,0.15); border-radius: 10px; padding: 10px;
+      margin: 6px 0; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+    }
+    .relay-task.done { background: #16a34a; text-decoration: line-through; opacity: 0.7; }
+    
+    /* Result */
+    .result-box {
+      text-align: center; background: rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 24px; border: 3px solid #ffd700; margin: 20px 0;
+    }
+    .result-box h2 { font-size: 1.8rem; color: #ffd700; margin-bottom: 10px; }
+    
+    .feedback { text-align: center; font-size: 1.15rem; font-weight: 700; min-height: 32px; margin: 8px 0; }
+    .feedback.ok { color: #4ade80; }
+    .feedback.no { color: #f87171; }
+    
+    .progress-bar { height: 8px; background: rgba(255,255,255,0.15); border-radius: 8px; margin: 8px 0 12px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #ff6b00, #ffd700); border-radius: 8px; transition: width 0.3s; width: 0%; }
+    
+    .hint { font-size: 0.9rem; color: #94a3b8; text-align: center; margin: 6px 0; }
+    
+    @media (max-width: 500px) {
+      .match-grid { grid-template-columns: repeat(3, 1fr); }
+      .char-avatar { width: 72px; height: 90px; }
+      .side-btn { padding: 20px 8px; font-size: 1.1rem; min-height: 80px; }
+      .opt-btn { font-size: 1.2rem; padding: 14px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div class="logo">🐉 龍珠雙人對決</div>
+      <div class="mode-badge" id="modeBadge">準備中</div>
+    </div>
+    
+    <!-- ========== TITLE ========== -->
+    <div class="screen active" id="screen-title">
+      <div class="title-hero">
+        <div style="font-size:3.2rem;">🐉⚡</div>
+        <h1>龍珠雙人對決</h1>
+        <p style="font-size:1.1rem; opacity:0.9; margin-bottom:8px;">Z戰士大比拼 · 單人／雙人</p>
+        
+        <div class="team-row">
+          <div>
+            <div class="char-avatar">
+              <span class="emoji-fallback">💥</span>
+              <img src="images/goku.png" alt="悟空" onerror="this.style.display='none'">
+            </div>
+            <div class="char-name">悟空隊</div>
+          </div>
+          <div style="font-size:2.2rem; align-self:center; color:#ffd700; font-weight:900;">VS</div>
+          <div>
+            <div class="char-avatar">
+              <span class="emoji-fallback">🔵</span>
+              <img src="images/vegeta.png" alt="比達" onerror="this.style.display='none'">
+            </div>
+            <div class="char-name">比達隊</div>
+          </div>
+        </div>
+        
+        <p style="font-size:0.95rem; color:#94a3b8; margin:12px 0;">
+          目標詞語：農夫 · 甘心 · 幹活 · 運氣 · 草叢 · 突然 · 乾脆 · 澆水 · 費勁 · 繼續 · 專心 · 撿起 · 樹榦
+        </p>
+        
+        <h3 style="margin:16px 0 10px; color:#ffd700;">選擇模式</h3>
+        <div class="btn-group">
+          <button class="btn" onclick="selectPlayMode('solo')">🧍 單人模式</button>
+          <button class="btn btn-blue" onclick="selectPlayMode('dual')">👥 雙人模式</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ========== GAME SELECT ========== -->
+    <div class="screen" id="screen-select">
+      <h2 style="text-align:center; color:#ffd700; margin:8px 0 14px;">選擇小比賽</h2>
+      <p class="hint" id="selectHint">而家係單人模式</p>
+      
+      <div class="mode-cards">
+        <div class="mode-card" onclick="startGame(1)">
+          <div class="mode-icon" style="background:#ffedd5;">⚡</div>
+          <div class="mode-info">
+            <h3>1. 搶答龍珠</h3>
+            <p>最快反應！邊個先答啱就搶到龍珠</p>
+          </div>
+        </div>
+        <div class="mode-card" onclick="startGame(2)">
+          <div class="mode-icon" style="background:#dcfce7;">⏱️</div>
+          <div class="mode-info">
+            <h3>2. 限時挑戰</h3>
+            <p>5秒內答啱！答錯或逾時扣分，越到後面越快</p>
+          </div>
+        </div>
+        <div class="mode-card" onclick="startGame(3)">
+          <div class="mode-icon" style="background:#dbeafe;">🃏</div>
+          <div class="mode-info">
+            <h3>3. 詞語對決</h3>
+            <p>詞語 ↔ 圖案配對，記憶力大比拼</p>
+          </div>
+        </div>
+        <div class="mode-card" onclick="startGame(4)">
+          <div class="mode-icon" style="background:#fce7f3;">💥</div>
+          <div class="mode-info">
+            <h3>4. 氣功波射擊</h3>
+            <p>打落嚟嘅正確詞語，集氣變超賽亞人！</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn btn-blue" onclick="showScreen('screen-title')">返回</button>
+      </div>
+    </div>
+    
+    <!-- ========== MODE 1: 搶答 ========== -->
+    <div class="screen" id="screen-g1">
+      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:10px;">
+        <div style="text-align:center;">
+          <div class="char-avatar" style="width:80px;height:100px;">
+            <span class="emoji-fallback">💥</span>
+            <img src="images/goku.png" alt="悟空" onerror="this.style.display='none'">
+          </div>
+          <div class="char-name">悟空</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="char-avatar" style="width:70px;height:90px;">
+            <span class="emoji-fallback">🟠</span>
+            <img src="images/goten.png" alt="悟天" onerror="this.style.display='none'">
+          </div>
+          <div class="char-name">悟天</div>
+        </div>
+      </div>
+      <div class="score-bar">
+        <div class="player-score p1"><div class="name">🟠 悟空隊</div><div class="score" id="g1-s1">0</div></div>
+        <div class="player-score p2" id="g1-p2box"><div class="name">🔵 比達隊</div><div class="score" id="g1-s2">0</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="g1-prog"></div></div>
+      
+      <div class="question-box">
+        <div class="q-text" id="g1-q">準備…</div>
+        <div class="q-hint" id="g1-hint"></div>
+      </div>
+      
+      <div class="options-grid" id="g1-opts"></div>
+      
+      <div class="dual-sides" id="g1-dual" style="display:none;">
+        <button class="side-btn left" id="g1-left" onclick="g1Answer('p1')">🟠 悟空隊答！</button>
+        <button class="side-btn right" id="g1-right" onclick="g1Answer('p2')">🔵 比達隊答！</button>
+      </div>
+      
+      <div class="feedback" id="g1-fb"></div>
+      <div class="btn-group">
+        <button class="btn btn-blue" onclick="backToSelect()">退出</button>
+      </div>
+    </div>
+    
+    <!-- ========== MODE 2: 限時挑戰 ========== -->
+    <div class="screen" id="screen-g2">
+      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:10px;">
+        <div style="text-align:center;">
+          <div class="char-avatar" style="width:75px;height:95px;">
+            <span class="emoji-fallback">🟠</span>
+            <img src="images/gohan.png" alt="悟飯" onerror="this.style.display='none'">
+          </div>
+          <div class="char-name">悟飯</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="char-avatar" style="width:75px;height:95px;">
+            <span class="emoji-fallback">🟢</span>
+            <img src="images/piccolo.png" alt="比克" onerror="this.style.display='none'">
+          </div>
+          <div class="char-name">比克</div>
+        </div>
+      </div>
+      <div class="score-bar">
+        <div class="player-score p1"><div class="name">🟠 悟空隊</div><div class="score" id="g2-s1">0</div></div>
+        <div class="player-score p2" id="g2-p2box"><div class="name">🔵 比達隊</div><div class="score" id="g2-s2">0</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="g2-prog"></div></div>
+      
+      <div style="text-align:center; margin:8px 0;">
+        <div id="g2-timer" style="font-size:2.2rem; font-weight:900; color:#ffd700;">5</div>
+        <div style="font-size:0.9rem; color:#94a3b8;">剩餘時間（秒）</div>
+      </div>
+      
+      <div class="question-box">
+        <div class="q-text" id="g2-q">準備…</div>
+        <div class="q-hint" id="g2-hint">限時答題！</div>
+      </div>
+      
+      <div class="options-grid" id="g2-opts"></div>
+      
+      <div class="dual-sides" id="g2-dual" style="display:none;">
+        <button class="side-btn left" id="g2-left" onclick="g2Claim('p1')">🟠 悟空隊搶答</button>
+        <button class="side-btn right" id="g2-right" onclick="g2Claim('p2')">🔵 比達隊搶答</button>
+      </div>
+      
+      <div class="feedback" id="g2-fb"></div>
+      <div class="btn-group">
+        <button class="btn btn-blue" onclick="backToSelect()">退出</button>
+      </div>
+    </div>
+    
+    <!-- ========== MODE 3: 詞語對決 ========== -->
+    <div class="screen" id="screen-g3">
+      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:10px;">
+        <div style="text-align:center;">
+          <div class="char-avatar" style="width:75px;height:95px;">
+            <span class="emoji-fallback">🔵</span>
+            <img src="images/vegeta.png" alt="比達" onerror="this.style.display='none'">
+          </div>
+          <div class="char-name">比達</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="char-avatar" style="width:75px;height:95px;">
+            <span class="emoji-fallback">🟢</span>
+            <img src="images/trunks.png" alt="特南克斯" onerror="this.style.display='none'">
+          </div>
+          <div class="char-name">特南克斯</div>
+        </div>
+      </div>
+      <div class="score-bar">
+        <div class="player-score p1"><div class="name">🟠 悟空隊</div><div class="score" id="g3-s1">0</div></div>
+        <div class="player-score p2" id="g3-p2box"><div class="name">🔵 比達隊</div><div class="score" id="g3-s2">0</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="g3-prog"></div></div>
+      
+      <div class="question-box">
+        <div class="q-text" id="g3-turn">輪到：悟空隊</div>
+        <div class="q-hint">翻兩張卡，配對「詞語」同「圖案／意思」</div>
+      </div>
+      
+      <div class="match-grid" id="g3-grid"></div>
+      
+      <div class="feedback" id="g3-fb"></div>
+      <div class="btn-group">
+        <button class="btn btn-blue" onclick="backToSelect()">退出</button>
+      </div>
+    </div>
+    
+    <!-- ========== MODE 4: 氣功波射擊 ========== -->
+    <div class="screen" id="screen-g4">
+      <div style="display:flex;justify-content:center;gap:10px;margin-bottom:10px;">
+        <div style="text-align:center;">
+          <div class="char-avatar" style="width:80px;height:100px;">
+            <span class="emoji-fallback">💥</span>
+            <img src="images/goku.png" alt="悟空" onerror="this.style.display='none'">
+          </div>
+          <div class="char-name">悟空</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="char-avatar" style="width:70px;height:90px;">
+            <span class="emoji-fallback">🔵</span>
+            <img src="images/vegeta.png" alt="比達" onerror="this.style.display='none'">
+          </div>
+          <div class="char-name">比達</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="char-avatar" style="width:70px;height:90px;">
+            <span class="emoji-fallback">🟠</span>
+            <img src="images/gohan.png" alt="悟飯" onerror="this.style.display='none'">
+          </div>
+          <div class="char-name">悟飯</div>
+        </div>
+      </div>
+      <div class="score-bar">
+        <div class="player-score p1"><div class="name">🟠 悟空隊 氣</div><div class="score" id="g4-s1">0</div></div>
+        <div class="player-score p2" id="g4-p2box"><div class="name">🔵 比達隊 氣</div><div class="score" id="g4-s2">0</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="g4-prog"></div></div>
+      
+      <div class="question-box">
+        <div class="q-text">打正確詞語！集滿氣就變超賽亞人！</div>
+        <div class="q-hint" id="g4-target">目標：<strong id="g4-word">—</strong></div>
+      </div>
+      
+      <div class="fall-area" id="g4-area"></div>
+      
+      <div class="dual-sides" id="g4-dual" style="display:none; margin-top:10px;">
+        <div style="flex:1; text-align:center; color:#ffd700; font-weight:700;">🟠 悟空隊打左邊</div>
+        <div style="flex:1; text-align:center; color:#93c5fd; font-weight:700;">🔵 比達隊打右邊</div>
+      </div>
+      
+      <div class="feedback" id="g4-fb"></div>
+      <div class="btn-group">
+        <button class="btn btn-blue" onclick="backToSelect()">退出</button>
+      </div>
+    </div>
+    
+    <!-- ========== RESULT ========== -->
+    <div class="screen" id="screen-result">
+      <div class="result-box">
+        <div style="font-size:3.5rem;" id="result-emoji">🏆</div>
+        <h2 id="result-title">比賽結束！</h2>
+        <p id="result-msg" style="font-size:1.2rem; margin:12px 0; line-height:1.6;"></p>
+        <div class="score-bar" style="max-width:360px; margin:16px auto;">
+          <div class="player-score p1"><div class="name">悟空隊</div><div class="score" id="res-s1">0</div></div>
+          <div class="player-score p2" id="res-p2box"><div class="name">比達隊</div><div class="score" id="res-s2">0</div></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn" onclick="backToSelect()">再選比賽</button>
+          <button class="btn btn-green" onclick="restartCurrent()">再玩一次</button>
+          <button class="btn btn-blue" onclick="showScreen('screen-title')">返回主頁</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===================== DATA =====================
+    const WORDS = [
+      { word:"農夫", meaning:"種田嘅人", img:"images/farmer.png", icon:"👨‍🌾" },
+      { word:"甘心", meaning:"心甘情願", img:"images/happy.png", icon:"😊" },
+      { word:"幹活", meaning:"做工作", img:"images/work.png", icon:"💪" },
+      { word:"運氣", meaning:"好運氣", img:"images/luck.png", icon:"🍀" },
+      { word:"草叢", meaning:"一堆草", img:"images/bush.png", icon:"🌿" },
+      { word:"突然", meaning:"忽然之間", img:"images/sudden.png", icon:"⚡" },
+      { word:"乾脆", meaning:"爽快地做", img:"images/decisive.png", icon:"✨" },
+      { word:"澆水", meaning:"畀植物淋水", img:"images/water.png", icon:"💧" },
+      { word:"費勁", meaning:"好辛苦", img:"images/heavy.png", icon:"😓" },
+      { word:"繼續", meaning:"唔停咁做", img:"images/continue.png", icon:"➡️" },
+      { word:"專心", meaning:"集中精神", img:"images/focus.png", icon:"🧘" },
+      { word:"撿起", meaning:"拾起嚟", img:"images/pick.png", icon:"🤲" },
+      { word:"樹榦", meaning:"樹嘅主幹", img:"images/tree.png", icon:"🌴" }
+    ];
+    
+    // ===================== STATE =====================
+    let playMode = 'solo'; // solo | dual
+    let currentGame = 0;
+    let scores = { p1: 0, p2: 0 };
+    let g1Round = 0, g1Max = 8;
+    let g1Current = null;
+    let g1Lock = false;
+    let g2Tasks = { p1: [], p2: [] };
+    let g3Turn = 'p1';
+    let g3First = null;
+    let g3Lock = false;
+    let g3Matched = 0;
+    let g4Target = null;
+    let g4Timer = null;
+    let g4Running = false;
+    
+    // ===================== UTILS =====================
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+    function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+    function randWord() { return WORDS[Math.floor(Math.random() * WORDS.length)]; }
+    function speak(t) {
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = 'zh-HK'; u.rate = 0.9;
+        speechSynthesis.speak(u);
+      }
+    }
+    
+    // ===================== MODE SELECT =====================
+    function selectPlayMode(mode) {
+      playMode = mode;
+      document.getElementById('modeBadge').textContent = mode === 'solo' ? '單人模式' : '雙人模式';
+      document.getElementById('selectHint').textContent = mode === 'solo' ? '而家係單人模式（你扮演悟空隊）' : '而家係雙人模式（左邊悟空隊，右邊比達隊）';
+      // show/hide p2
+      ['g1-p2box','g2-p2box','g3-p2box','g4-p2box','res-p2box'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = mode === 'dual' ? '' : 'none';
+      });
+      showScreen('screen-select');
+    }
+    
+    function startGame(n) {
+      currentGame = n;
+      scores = { p1: 0, p2: 0 };
+      if (n === 1) initG1();
+      else if (n === 2) initG2();
+      else if (n === 3) initG3();
+      else if (n === 4) initG4();
+    }
+    
+    function backToSelect() {
+      stopG4();
+      if (typeof g2Timer !== 'undefined' && g2Timer) clearInterval(g2Timer);
+      showScreen('screen-select');
+    }
+    
+    function restartCurrent() {
+      startGame(currentGame);
+    }
+    
+    function showResult(title, msg, emoji = '🏆') {
+      stopG4();
+      document.getElementById('result-emoji').textContent = emoji;
+      document.getElementById('result-title').textContent = title;
+      document.getElementById('result-msg').innerHTML = msg;
+      document.getElementById('res-s1').textContent = scores.p1;
+      document.getElementById('res-s2').textContent = scores.p2;
+      showScreen('screen-result');
+      speak(title + '！' + msg.replace(/<[^>]+>/g, ''));
+    }
+    
+    // ===================== GAME 1: 搶答龍珠 =====================
+    function initG1() {
+      g1Round = 0; g1Lock = false;
+      scores = { p1:0, p2:0 };
+      document.getElementById('g1-s1').textContent = 0;
+      document.getElementById('g1-s2').textContent = 0;
+      document.getElementById('g1-dual').style.display = playMode === 'dual' ? 'flex' : 'none';
+      document.getElementById('g1-opts').style.display = playMode === 'solo' ? 'grid' : 'none';
+      showScreen('screen-g1');
+      nextG1();
+    }
+    
+    function nextG1() {
+      if (g1Round >= g1Max) {
+        const winner = scores.p1 > scores.p2 ? '悟空隊贏咗！' : scores.p2 > scores.p1 ? '比達隊贏咗！' : '打成平手！';
+        showResult('搶答龍珠完結！', playMode === 'dual' ? winner + '<br>雙方都好叻！' : '你攞到 ' + scores.p1 + ' 分！', '⚡');
+        return;
+      }
+      g1Round++;
+      g1Lock = false;
+      document.getElementById('g1-prog').style.width = (g1Round / g1Max * 100) + '%';
+      document.getElementById('g1-fb').textContent = '';
+      
+      g1Current = randWord();
+      const showMeaning = Math.random() > 0.5;
+      const qEl = document.getElementById('g1-q');
+      const hEl = document.getElementById('g1-hint');
+      
+      if (showMeaning) {
+        qEl.textContent = g1Current.meaning;
+        hEl.textContent = '邊個詞係呢個意思？';
+      } else {
+        qEl.textContent = g1Current.word;
+        hEl.textContent = '呢個詞係咩意思？';
+      }
+      
+      // options
+      let opts = [g1Current];
+      while (opts.length < 4) {
+        const w = randWord();
+        if (!opts.find(o => o.word === w.word)) opts.push(w);
+      }
+      opts = shuffle(opts);
+      
+      const optsEl = document.getElementById('g1-opts');
+      optsEl.innerHTML = '';
+      opts.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'opt-btn';
+        b.textContent = showMeaning ? o.word : o.meaning;
+        b.onclick = () => {
+          if (playMode === 'solo') g1Check(o.word === g1Current.word, 'p1', b);
+        };
+        optsEl.appendChild(b);
+      });
+      
+      // dual: store correct for side buttons
+      window._g1Correct = g1Current.word;
+      window._g1ShowMeaning = showMeaning;
+      window._g1Opts = opts;
+      
+      speak(showMeaning ? g1Current.meaning : g1Current.word);
+    }
+    
+    function g1Answer(who) {
+      if (g1Lock || playMode !== 'dual') return;
+      // In dual mode, first to press gets to answer → show options briefly or auto check random? 
+      // Simpler: first press claims the question, then we show if they are "ready"
+      // Better UX: both sides press, the first one is recorded, then we reveal correct by having them pick? 
+      // For speed: first to press gets the point if we assume they know, but better to show options after first press.
+      
+      g1Lock = true;
+      document.getElementById('g1-left').classList.add('disabled');
+      document.getElementById('g1-right').classList.add('disabled');
+      
+      // Show options for the one who pressed
+      const optsEl = document.getElementById('g1-opts');
+      optsEl.style.display = 'grid';
+      optsEl.innerHTML = '';
+      window._g1Opts.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'opt-btn';
+        b.textContent = window._g1ShowMeaning ? o.word : o.meaning;
+        b.onclick = () => g1Check(o.word === g1Current.word, who, b);
+        optsEl.appendChild(b);
+      });
+      
+      document.getElementById('g1-fb').textContent = (who === 'p1' ? '🟠 悟空隊' : '🔵 比達隊') + ' 搶到作答權！快啲揀！';
+    }
+    
+    function g1Check(correct, who, btn) {
+      if (g1Lock && playMode === 'solo') return; // already answered in solo? 
+      g1Lock = true;
+      document.querySelectorAll('#g1-opts .opt-btn').forEach(b => b.onclick = null);
+      
+      if (correct) {
+        if (btn) btn.classList.add('correct');
+        scores[who]++;
+        document.getElementById('g1-s1').textContent = scores.p1;
+        document.getElementById('g1-s2').textContent = scores.p2;
+        document.getElementById('g1-fb').textContent = '✅ 啱！' + (who === 'p1' ? '悟空隊' : '比達隊') + ' +1 龍珠';
+        document.getElementById('g1-fb').className = 'feedback ok';
+        speak('啱啦！');
+      } else {
+        if (btn) btn.classList.add('wrong');
+        document.getElementById('g1-fb').textContent = '❌ 唔啱！正確係「' + g1Current.word + '」';
+        document.getElementById('g1-fb').className = 'feedback no';
+        speak('唔啱，正確係 ' + g1Current.word);
+      }
+      
+      setTimeout(() => {
+        document.getElementById('g1-opts').style.display = playMode === 'solo' ? 'grid' : 'none';
+        document.getElementById('g1-left').classList.remove('disabled');
+        document.getElementById('g1-right').classList.remove('disabled');
+        nextG1();
+      }, 1400);
+    }
+    
+    // ===================== GAME 2: 限時挑戰 =====================
+    let g2Round = 0, g2Max = 8, g2Lock = false, g2Timer = null, g2TimeLeft = 5, g2Current = null, g2ClaimedBy = null;
+    
+    function initG2() {
+      scores = { p1:0, p2:0 };
+      g2Round = 0; g2Lock = false; g2ClaimedBy = null;
+      document.getElementById('g2-s1').textContent = 0;
+      document.getElementById('g2-s2').textContent = 0;
+      document.getElementById('g2-prog').style.width = '0%';
+      document.getElementById('g2-fb').textContent = '';
+      document.getElementById('g2-dual').style.display = playMode === 'dual' ? 'flex' : 'none';
+      document.getElementById('g2-opts').style.display = playMode === 'solo' ? 'grid' : 'none';
+      showScreen('screen-g2');
+      nextG2();
+    }
+    
+    function nextG2() {
+      if (g2Timer) clearInterval(g2Timer);
+      if (g2Round >= g2Max) {
+        const winner = scores.p1 > scores.p2 ? '悟空隊贏咗！' : scores.p2 > scores.p1 ? '比達隊贏咗！' : '打成平手！';
+        showResult('限時挑戰完結！', playMode === 'dual' ? winner : '你答啱咗 ' + scores.p1 + ' 題！', '⏱️');
+        return;
+      }
+      g2Round++;
+      g2Lock = false;
+      g2ClaimedBy = null;
+      document.getElementById('g2-prog').style.width = (g2Round / g2Max * 100) + '%';
+      document.getElementById('g2-fb').textContent = '';
+      document.getElementById('g2-left')?.classList.remove('disabled');
+      document.getElementById('g2-right')?.classList.remove('disabled');
+      
+      // Time gets harder: start 5s, later 3.5s
+      g2TimeLeft = Math.max(3.5, 5.5 - g2Round * 0.25);
+      document.getElementById('g2-timer').textContent = Math.ceil(g2TimeLeft);
+      
+      g2Current = randWord();
+      const showMeaning = Math.random() > 0.4;
+      document.getElementById('g2-q').textContent = showMeaning ? g2Current.meaning : g2Current.word;
+      document.getElementById('g2-hint').textContent = showMeaning ? '邊個詞係呢個意思？（限時！）' : '呢個詞係咩意思？（限時！）';
+      
+      let opts = [g2Current];
+      while (opts.length < 4) {
+        const w = randWord();
+        if (!opts.find(o => o.word === w.word)) opts.push(w);
+      }
+      opts = shuffle(opts);
+      window._g2Opts = opts;
+      window._g2ShowMeaning = showMeaning;
+      
+      const optsEl = document.getElementById('g2-opts');
+      optsEl.innerHTML = '';
+      opts.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'opt-btn';
+        b.textContent = showMeaning ? o.word : o.meaning;
+        b.onclick = () => {
+          if (playMode === 'solo') g2Check(o.word === g2Current.word, 'p1', b);
+        };
+        optsEl.appendChild(b);
+      });
+      
+      speak(showMeaning ? g2Current.meaning : g2Current.word);
+      
+      // countdown
+      g2Timer = setInterval(() => {
+        g2TimeLeft -= 0.1;
+        document.getElementById('g2-timer').textContent = Math.max(0, Math.ceil(g2TimeLeft));
+        if (g2TimeLeft <= 0) {
+          clearInterval(g2Timer);
+          if (!g2Lock) {
+            g2Lock = true;
+            document.getElementById('g2-fb').textContent = '⏰ 時間到！正確係「' + g2Current.word + '」';
+            document.getElementById('g2-fb').className = 'feedback no';
+            setTimeout(nextG2, 1200);
+          }
+        }
+      }, 100);
+    }
+    
+    function g2Claim(who) {
+      if (g2Lock || playMode !== 'dual' || g2ClaimedBy) return;
+      g2ClaimedBy = who;
+      document.getElementById('g2-left').classList.add('disabled');
+      document.getElementById('g2-right').classList.add('disabled');
+      
+      const optsEl = document.getElementById('g2-opts');
+      optsEl.style.display = 'grid';
+      optsEl.innerHTML = '';
+      window._g2Opts.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'opt-btn';
+        b.textContent = window._g2ShowMeaning ? o.word : o.meaning;
+        b.onclick = () => g2Check(o.word === g2Current.word, who, b);
+        optsEl.appendChild(b);
+      });
+      document.getElementById('g2-fb').textContent = (who === 'p1' ? '🟠 悟空隊' : '🔵 比達隊') + ' 搶到！快啲答！';
+    }
+    
+    function g2Check(correct, who, btn) {
+      if (g2Lock) return;
+      g2Lock = true;
+      if (g2Timer) clearInterval(g2Timer);
+      document.querySelectorAll('#g2-opts .opt-btn').forEach(b => b.onclick = null);
+      
+      if (correct) {
+        if (btn) btn.classList.add('correct');
+        scores[who]++;
+        document.getElementById('g2-s1').textContent = scores.p1;
+        document.getElementById('g2-s2').textContent = scores.p2;
+        document.getElementById('g2-fb').textContent = '✅ 啱！+1 分';
+        document.getElementById('g2-fb').className = 'feedback ok';
+        speak('啱啦！');
+      } else {
+        if (btn) btn.classList.add('wrong');
+        document.getElementById('g2-fb').textContent = '❌ 唔啱！正確係「' + g2Current.word + '」';
+        document.getElementById('g2-fb').className = 'feedback no';
+        speak('唔啱');
+      }
+      setTimeout(() => {
+        document.getElementById('g2-opts').style.display = playMode === 'solo' ? 'grid' : 'none';
+        nextG2();
+      }, 1300);
+    }
+    
+    // ===================== GAME 3: 詞語對決 =====================
+    function initG3() {
+      scores = { p1:0, p2:0 };
+      g3Turn = 'p1';
+      g3First = null;
+      g3Lock = false;
+      g3Matched = 0;
+      document.getElementById('g3-s1').textContent = 0;
+      document.getElementById('g3-s2').textContent = 0;
+      document.getElementById('g3-prog').style.width = '0%';
+      document.getElementById('g3-fb').textContent = '';
+      updateG3Turn();
+      
+      const selected = shuffle(WORDS).slice(0,6);
+      let cards = [];
+      selected.forEach((w,i) => {
+        cards.push({ id:i, type:'word', content:w.word, pair:i, isImg:false });
+        // 圖案卡：優先用圖片，冇圖就顯示意思+icon
+        cards.push({ 
+          id:i+100, type:'pic', 
+          content: w.meaning, 
+          img: w.img, 
+          icon: w.icon || '🐉',
+          pair:i, 
+          isImg:true 
+        });
+      });
+      cards = shuffle(cards);
+      
+      const grid = document.getElementById('g3-grid');
+      grid.innerHTML = '';
+      cards.forEach((c) => {
+        const div = document.createElement('div');
+        div.className = 'match-card';
+        div.dataset.pair = c.pair;
+        div.innerHTML = '<span style="font-size:1.3rem;">🐉</span>';
+        div.onclick = () => g3Flip(div, c);
+        grid.appendChild(div);
+      });
+      
+      showScreen('screen-g3');
+    }
+    
+    function updateG3Turn() {
+      const t = document.getElementById('g3-turn');
+      if (playMode === 'solo') {
+        t.textContent = '單人模式 · 繼續配對！';
+      } else {
+        t.textContent = g3Turn === 'p1' ? '輪到：🟠 悟空隊' : '輪到：🔵 比達隊';
+      }
+    }
+    
+    function g3ShowContent(div, data) {
+      if (data.isImg) {
+        div.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:4px;">
+            <img src="${data.img}" alt="" style="width:70%;height:55%;object-fit:contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span style="display:none;font-size:1.6rem;">${data.icon}</span>
+            <span style="font-size:0.7rem;margin-top:2px;line-height:1.1;">${data.content}</span>
+          </div>`;
+      } else {
+        div.innerHTML = `<span style="font-size:1.15rem;font-weight:900;">${data.content}</span>`;
+      }
+    }
+    
+    function g3Flip(div, data) {
+      if (g3Lock || div.classList.contains('flipped') || div.classList.contains('matched')) return;
+      div.classList.add('flipped');
+      g3ShowContent(div, data);
+      
+      if (!g3First) {
+        g3First = { div, data };
+        return;
+      }
+      
+      g3Lock = true;
+      const first = g3First;
+      
+      if (first.data.pair === data.pair && first.div !== div) {
+        setTimeout(() => {
+          first.div.classList.add('matched');
+          div.classList.add('matched');
+          g3Matched++;
+          const who = playMode === 'solo' ? 'p1' : g3Turn;
+          scores[who]++;
+          document.getElementById('g3-s1').textContent = scores.p1;
+          document.getElementById('g3-s2').textContent = scores.p2;
+          document.getElementById('g3-prog').style.width = (g3Matched/6*100) + '%';
+          document.getElementById('g3-fb').textContent = '✅ 配對成功！';
+          document.getElementById('g3-fb').className = 'feedback ok';
+          g3First = null;
+          g3Lock = false;
+          
+          if (g3Matched >= 6) {
+            setTimeout(() => {
+              const winner = scores.p1 > scores.p2 ? '悟空隊贏咗！' : scores.p2 > scores.p1 ? '比達隊贏咗！' : '打成平手！';
+              showResult('詞語對決完結！', playMode === 'dual' ? winner : '你配對晒全部！好叻！', '🃏');
+            }, 700);
+          }
+        }, 400);
+      } else {
+        setTimeout(() => {
+          first.div.classList.remove('flipped');
+          first.div.innerHTML = '<span style="font-size:1.3rem;">🐉</span>';
+          div.classList.remove('flipped');
+          div.innerHTML = '<span style="font-size:1.3rem;">🐉</span>';
+          g3First = null;
+          g3Lock = false;
+          if (playMode === 'dual') {
+            g3Turn = g3Turn === 'p1' ? 'p2' : 'p1';
+            updateG3Turn();
+          }
+        }, 800);
+      }
+    }
+    
+    // ===================== GAME 4: 氣功波射擊 =====================
+    function initG4() {
+      scores = { p1:0, p2:0 };
+      g4Running = true;
+      document.getElementById('g4-s1').textContent = 0;
+      document.getElementById('g4-s2').textContent = 0;
+      document.getElementById('g4-prog').style.width = '0%';
+      document.getElementById('g4-fb').textContent = '';
+      document.getElementById('g4-dual').style.display = playMode === 'dual' ? 'flex' : 'none';
+      document.getElementById('g4-area').innerHTML = '';
+      
+      g4Target = randWord();
+      document.getElementById('g4-word').textContent = g4Target.word;
+      
+      showScreen('screen-g4');
+      speak('目標詞語係 ' + g4Target.word + '！快啲打！');
+      
+      // spawn loop
+      let spawned = 0;
+      g4Timer = setInterval(() => {
+        if (!g4Running) return;
+        spawnFalling();
+        spawned++;
+        if (spawned > 40 || scores.p1 + scores.p2 >= 12) {
+          stopG4();
+          const winner = scores.p1 > scores.p2 ? '悟空隊變咗超賽亞人！' : scores.p2 > scores.p1 ? '比達隊變咗超賽亞人！' : '兩個隊一齊變超賽亞人！';
+          showResult('氣功波射擊完結！', playMode === 'dual' ? winner : '你集到 ' + scores.p1 + ' 點氣！', '💥');
+        }
+      }, 900);
+    }
+    
+    function spawnFalling() {
+      const area = document.getElementById('g4-area');
+      const isTarget = Math.random() > 0.45;
+      const w = isTarget ? g4Target : randWord();
+      const el = document.createElement('div');
+      el.className = 'falling-word' + (isTarget ? '' : ' wrong-word');
+      el.textContent = w.word;
+      el.style.left = (10 + Math.random() * 70) + '%';
+      el.style.top = '-40px';
+      
+      // dual: left half p1, right half p2 roughly
+      const isLeft = parseFloat(el.style.left) < 50;
+      
+      el.onclick = () => {
+        if (!g4Running) return;
+        if (w.word === g4Target.word) {
+          const who = playMode === 'solo' ? 'p1' : (isLeft ? 'p1' : 'p2');
+          scores[who]++;
+          document.getElementById('g4-s1').textContent = scores.p1;
+          document.getElementById('g4-s2').textContent = scores.p2;
+          document.getElementById('g4-prog').style.width = Math.min(100, (scores.p1+scores.p2)/12*100) + '%';
+          document.getElementById('g4-fb').textContent = '💥 打中！' + (who==='p1'?'悟空':'比達') + '隊 +1 氣';
+          document.getElementById('g4-fb').className = 'feedback ok';
+          el.remove();
+          
+          // change target sometimes
+          if (Math.random() > 0.7) {
+            g4Target = randWord();
+            document.getElementById('g4-word').textContent = g4Target.word;
+            speak('新目標：' + g4Target.word);
+          }
+        } else {
+          document.getElementById('g4-fb').textContent = '❌ 打錯詞！';
+          document.getElementById('g4-fb').className = 'feedback no';
+          el.style.background = '#dc2626';
+          setTimeout(() => el.remove(), 300);
+        }
+      };
+      
+      area.appendChild(el);
+      
+      // animate fall
+      let pos = -40;
+      const speed = 1.2 + Math.random() * 1.5;
+      const fall = setInterval(() => {
+        if (!el.parentElement) { clearInterval(fall); return; }
+        pos += speed;
+        el.style.top = pos + 'px';
+        if (pos > 340) { el.remove(); clearInterval(fall); }
+      }, 30);
+    }
+    
+    function stopG4() {
+      g4Running = false;
+      if (g4Timer) clearInterval(g4Timer);
+      g4Timer = null;
+    }
+  </script>
+</body>
+</html>
