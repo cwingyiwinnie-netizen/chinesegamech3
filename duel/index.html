@@ -148,7 +148,7 @@ a{color:var(--gold);font-weight:800}
         <button type="button" class="on" data-pool="all">全部詞</button>
         <button type="button" data-pool="hard">難詞模式</button>
       </div>
-      <p class="note" id="poolHint">全部詞：準決用易詞；決賽加繼續、草叢、樹幹。</p>
+      <p class="note" id="poolHint">全部詞：準決用易詞；決賽加繼續、草叢、樹榦。</p>
       <p style="margin:8px 0 0;font-weight:900;text-align:center">場次</p>
       <div class="pick row" style="margin:10px 0" id="roundPick">
         <button type="button" class="on" data-r="semi">準決賽（易詞）</button>
@@ -281,14 +281,14 @@ a{color:var(--gold);font-weight:800}
       });
     }
     var EASY = ["甘心","運氣","澆水","撿起","專心","農夫","突然","乾脆","幹活","費勁"];
-    var HARD = EASY.concat(["繼續","草叢","樹幹"]);
+    var HARD = EASY.concat(["繼續","草叢","樹榦"]);
     /* 難詞模式：星期一、二小息只出讀默前呢五個詞。提示沿用下面 PARTS。 */
-    var DRILL = ["繼續","草叢","樹幹","幹活","專心"];
+    var DRILL = ["繼續","草叢","樹榦","幹活","專心"];
     var PARTS = {
       "甘心":"甘＋心","運氣":"運有「走」；氣＝气＋米","澆水":"水旁＋堯","撿起":"手旁撿；走＋己＝起",
       "專心":"專＋心","農夫":"田裡幹活嘅人","突然":"洞裡隻狗衝出嚟","乾脆":"脆有「月」",
       "幹活":"活＝水＋舌；幹記「干」","費勁":"費有貝；勁要「力」","繼續":"兩個都有「糹」",
-      "草叢":"草有早；叢＝一堆","樹幹":"樹有木；幹＝幹活嗰個"
+      "草叢":"草有早；叢＝一堆","樹榦":"樹有木；榦左邊都係木"
     };
     var YELL = {
       start:["準備好未？三、二、一——出招！","兩邊集氣……開始！"],
@@ -345,8 +345,8 @@ a{color:var(--gold);font-weight:800}
       var hint = el("poolHint");
       if (hint) {
         hint.textContent = wordMode === "hard"
-          ? "難詞模式：準決同決賽都只出繼續、草叢、樹幹、幹活、專心。"
-          : "全部詞：準決用易詞；決賽加繼續、草叢、樹幹。";
+          ? "難詞模式：準決同決賽都只出繼續、草叢、樹榦、幹活、專心。"
+          : "全部詞：準決用易詞；決賽加繼續、草叢、樹榦。";
       }
       var semiBtn = document.querySelector('#roundPick [data-r="semi"]');
       var finalBtn = document.querySelector('#roundPick [data-r="final"]');
