@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>悟空認招挑戰</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --sky:#0b1026; --sky2:#121a3a; --indigo:#4f46e5; --violet:#7c3aed;
+  --cyan:#22d3ee; --cyan-dim:#0891b2; --mist:#a5b4fc; --card:#151c3d;
+  --card2:#1e2a55; --ink:#e8eeff; --muted:#94a3c8; --hit:#34d399;
+  --miss:#f472b6; --glow:#67e8f9;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%,#312e8155,transparent),
+    radial-gradient(circle at 85% 20%,#0ea5e933,transparent 40%),
+    radial-gradient(circle at 15% 70%,#7c3aed22,transparent 45%),
+    linear-gradient(180deg,var(--sky),var(--sky2) 60%,#0a0f22);
+  color:var(--ink);min-height:100vh;
+}
+button{font:inherit;font-weight:900;border:none;cursor:pointer;border-radius:999px;
+  min-height:52px;padding:14px 22px;transition:transform .12s,box-shadow .12s,border-color .15s}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.4;cursor:default;transform:none}
+
+/* ===== Header: 認 badge / scouter frame ===== */
+.topbar{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 14px;
+  background:linear-gradient(90deg,#0f172aee,#1e1b4eee 50%,#0f172aee);
+  border-bottom:1px solid #6366f155;
+  backdrop-filter:blur(10px);
+  box-shadow:0 4px 24px #0006;
+}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.badge-ren{
+  flex:0 0 auto;width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(145deg,var(--cyan),var(--indigo));
+  color:#0b1026;font-size:1.45rem;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 2px #a5f3fc88,0 0 18px #22d3ee66;
+  font-family:"Orbitron","Noto Sans TC",sans-serif;
+}
+.topbar h1{
+  font-size:1.15rem;font-weight:900;letter-spacing:.06em;line-height:1.2;
+  background:linear-gradient(90deg,#e0e7ff,var(--cyan));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.topbar .sub{font-size:.68rem;font-weight:800;color:var(--mist);opacity:.85;letter-spacing:.12em}
+.btn-link{
+  background:transparent;color:var(--cyan);
+  border:1.5px solid #22d3ee66;font-size:.75rem;padding:10px 12px;min-height:42px;
+  white-space:nowrap;text-decoration:none;border-radius:999px;font-weight:900;
+  box-shadow:0 0 12px #22d3ee22;
+}
+.btn-link:hover{border-color:var(--cyan);background:#22d3ee15}
+
+.app{max-width:640px;margin:0 auto;padding:12px 14px 48px}
+
+/* ===== Star chip strip (NOT dice card bar) ===== */
+.stars-strip{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  margin:10px 0 12px;padding:8px 12px;
+  background:linear-gradient(90deg,#1e1b4e88,#0f172a88);
+  border:1px solid #6366f144;border-radius:999px;
+  box-shadow:inset 0 0 20px #4f46e522;
+}
+.stars-strip .chip-lbl{
+  font-size:.72rem;font-weight:800;color:var(--mist);
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.stars-strip .chip-val{
+  font-size:1.15rem;font-weight:900;color:var(--cyan);
+  font-family:"Orbitron","Noto Sans TC",sans-serif;
+  text-shadow:0 0 12px #22d3ee88;
+}
+.stars-strip .chip-star{font-size:1rem}
+.mode-chips{display:flex;gap:6px;margin-left:auto}
+.mode-chip{
+  background:#1e2a5588;border:1.5px solid #6366f155;color:var(--mist);
+  border-radius:999px;font-size:.78rem;min-height:36px;padding:6px 12px;
+}
+.mode-chip.on{
+  background:linear-gradient(135deg,var(--indigo),var(--violet));
+  color:#fff;border-color:var(--cyan);
+  box-shadow:0 0 14px #6366f166;
+}
+
+/* Fighters — compact strip */
+.fighters{
+  display:flex;justify-content:space-between;gap:6px;margin-bottom:10px;
+  overflow-x:auto;padding:4px 2px 6px;
+}
+.fighter{
+  flex:0 0 auto;width:64px;text-align:center;cursor:pointer;
+  border-radius:14px;padding:5px 3px;border:2px solid transparent;
+  background:#151c3d88;transition:border-color .15s,transform .12s,box-shadow .15s;
+}
+.fighter:active{transform:scale(.96)}
+.fighter.active{
+  border-color:var(--cyan);
+  box-shadow:0 0 0 2px #22d3ee44,0 0 16px #22d3ee33;
+}
+.fighter img{
+  width:48px;height:48px;border-radius:50%;object-fit:cover;
+  border:2px solid #6366f188;display:block;margin:0 auto 3px;
+  background:#1e2a55;
+}
+.fighter.locked img{filter:grayscale(1) brightness(.55);opacity:.5}
+.fighter .fname{font-size:.65rem;font-weight:900;color:var(--mist);line-height:1.2}
+.fighter.locked .fname{color:#64748b}
+.fighter .lock-badge{font-size:.58rem;font-weight:800;color:#64748b;margin-top:1px}
+.fighter .lock-ico{font-size:.75rem}
+
+
+/* ===== 重新挑戰 (kid reset) ===== */
+.btn-rechallenge{
+  background:linear-gradient(135deg,#6d28d9,#4f46e5);
+  color:#fff;border:1.5px solid #a78bfa88;
+  font-size:.72rem;min-height:36px;padding:6px 14px;border-radius:999px;
+  box-shadow:0 0 14px #7c3aed44;white-space:nowrap;letter-spacing:.04em;
+}
+.btn-rechallenge:hover{border-color:#c4b5fd;box-shadow:0 0 18px #a78bfa66}
+.stars-strip .btn-rechallenge{margin-left:4px}
+.rechallenge-note{
+  width:100%;flex-basis:100%;font-size:.62rem;font-weight:800;color:#64748b;
+  letter-spacing:.02em;padding:2px 4px 0;line-height:1.35;
+}
+.reset-backdrop{
+  position:fixed;inset:0;z-index:80;background:#0b1026cc;
+  display:none;align-items:center;justify-content:center;padding:18px;
+  backdrop-filter:blur(6px);
+}
+.reset-backdrop.on{display:flex}
+.reset-modal{
+  width:min(420px,100%);
+  background:linear-gradient(165deg,#1e1b4eee,#151c3dee);
+  border:1.5px solid #a78bfa66;border-radius:22px;padding:22px 18px 18px;
+  box-shadow:0 16px 48px #0008,0 0 32px #7c3aed33;
+  text-align:center;
+}
+.reset-modal h2{
+  font-size:1.15rem;font-weight:900;color:#e0e7ff;margin-bottom:10px;
+  background:linear-gradient(90deg,#e0e7ff,var(--cyan));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.reset-modal .reset-msg{
+  font-size:.95rem;font-weight:800;color:#c7d2fe;line-height:1.55;margin-bottom:18px;
+}
+.reset-modal .reset-actions{display:flex;flex-direction:column;gap:10px}
+.reset-modal .btn-reset-ok{
+  background:linear-gradient(135deg,var(--violet),var(--indigo));
+  color:#fff;border:1.5px solid #c4b5fd88;
+  box-shadow:0 0 18px #7c3aed55;font-size:.95rem;
+}
+.reset-modal .btn-reset-cancel{
+  background:#1e2a5588;color:var(--mist);border:1.5px solid #6366f155;font-size:.88rem;
+}
+
+.unlock-yell{
+  display:none;text-align:center;font-size:1.15rem;font-weight:900;
+  color:var(--cyan);padding:6px;margin-bottom:6px;
+  text-shadow:0 0 16px #22d3ee88;
+  animation:popYell .6s ease;
+}
+.unlock-yell.on{display:block}
+@keyframes popYell{
+  0%{transform:scale(.6);opacity:0}
+  50%{transform:scale(1.1)}
+  100%{transform:scale(1);opacity:1}
+}
+
+/* ===== Arena panel ===== */
+.arena{
+  background:linear-gradient(165deg,#151c3dee,#1a1440ee);
+  border-radius:24px;padding:16px 14px 20px;
+  border:1.5px solid #6366f155;
+  box-shadow:0 8px 32px #0005,inset 0 1px 0 #a5b4fc22;
+  margin-bottom:14px;text-align:center;
+}
+.arena-tag{
+  font-size:.72rem;font-weight:800;color:var(--mist);
+  letter-spacing:.18em;margin-bottom:4px;opacity:.9;
+}
+.cheer{font-size:.8rem;font-weight:800;color:#818cf8;min-height:1.15em;margin-bottom:8px}
+
+/* ===== 氣影 radar / scouter (ABOVE cards) ===== */
+.scouter-wrap{
+  display:flex;justify-content:center;margin:6px auto 14px;
+}
+.scouter{
+  width:min(220px,58vw);aspect-ratio:1;border-radius:50%;
+  position:relative;
+  background:
+    radial-gradient(circle at 50% 50%,#22d3ee18 0%,transparent 55%),
+    radial-gradient(circle at 40% 35%,#6366f133,transparent 60%),
+    #0b1026;
+  border:3px solid var(--cyan);
+  box-shadow:
+    0 0 0 6px #22d3ee22,
+    0 0 28px #22d3ee44,
+    0 0 60px #4f46e533,
+    inset 0 0 40px #22d3ee15;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.scouter::before{
+  content:"";position:absolute;inset:12%;border-radius:50%;
+  border:1.5px dashed #67e8f9aa;pointer-events:none;
+  animation:spinSlow 12s linear infinite;
+}
+.scouter::after{
+  content:"";position:absolute;inset:22%;border-radius:50%;
+  border:1px solid #818cf866;pointer-events:none;
+}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+.scouter-ring{
+  position:absolute;inset:4px;border-radius:50%;
+  border:2px solid transparent;
+  border-top-color:#a5f3fc;border-right-color:#818cf8;
+  opacity:.7;pointer-events:none;
+  animation:spinSlow 4s linear infinite reverse;
+}
+.ki-label{
+  position:absolute;top:14%;left:0;right:0;z-index:2;
+  font-size:.7rem;font-weight:900;color:var(--cyan);
+  letter-spacing:.2em;text-shadow:0 0 10px #22d3ee;
+}
+.ki-glyph{
+  position:relative;z-index:2;
+  font-size:clamp(2.8rem,14vw,4rem);font-weight:900;
+  color:rgba(103,232,249,.22);
+  -webkit-text-stroke:2.5px rgba(165,243,252,.55);
+  text-stroke:2.5px rgba(165,243,252,.55);
+  letter-spacing:.12em;user-select:none;
+  transition:color .25s,opacity .25s,-webkit-text-stroke .25s;
+  line-height:1.15;padding:6px;
+  text-shadow:0 0 20px #22d3ee33;
+}
+.scouter.reveal .ki-glyph{
+  color:rgba(224,242,254,.38);
+  -webkit-text-stroke:3px rgba(103,232,249,.85);
+  text-stroke:3px rgba(103,232,249,.85);
+  text-shadow:0 0 24px #22d3ee88,0 0 48px #6366f166;
+  animation:radarPulse 1.6s ease-in-out infinite;
+}
+.scouter.hit{
+  border-color:var(--hit);
+  box-shadow:
+    0 0 0 6px #34d39933,
+    0 0 36px #34d39966,
+    inset 0 0 40px #34d39922;
+}
+.scouter.hit .ki-glyph{
+  color:rgba(167,243,208,.95);
+  -webkit-text-stroke:2px #6ee7b7;
+  text-stroke:2px #6ee7b7;
+  text-shadow:0 0 20px #34d399;animation:none;
+}
+@keyframes radarPulse{
+  0%,100%{transform:scale(1);opacity:.9}
+  50%{transform:scale(1.05);opacity:1}
+}
+
+.status-line{
+  font-size:1.2rem;font-weight:900;color:#c7d2fe;
+  min-height:1.4em;margin:2px 0 6px;
+  text-shadow:0 0 12px #6366f166;
+}
+.hint-box{
+  min-height:2em;margin:0 0 12px;padding:10px 12px;border-radius:14px;
+  background:#1e1b4e66;border:1.5px dashed #818cf888;color:var(--mist);
+  font-size:.92rem;font-weight:800;line-height:1.45;
+}
+
+.btn-next{
+  width:100%;font-size:1.35rem;padding:16px;
+  background:linear-gradient(135deg,var(--indigo),var(--violet));
+  color:#fff;border-radius:18px;
+  box-shadow:0 6px 24px #4f46e566,0 0 0 1px #a5b4fc44;
+  letter-spacing:.06em;
+}
+.btn-hear{
+  width:100%;margin-top:8px;
+  background:#0f172a;color:var(--cyan);
+  border:1.5px solid #22d3ee55;font-size:1rem;
+  box-shadow:0 0 14px #22d3ee22;
+}
+
+/* ===== HERO: three big choice cards ===== */
+.choices{
+  display:none;
+  grid-template-columns:1fr;
+  gap:12px;margin:16px 0 6px;
+}
+@media (min-width:480px){
+  .choices{grid-template-columns:repeat(3,1fr);gap:10px}
+}
+.choices.on{display:grid}
+.choice-card{
+  background:linear-gradient(160deg,#1e2a55,#151c3d);
+  border:3px solid #6366f188;border-radius:22px;
+  min-height:88px;padding:20px 14px;
+  font-size:clamp(1.7rem,7.5vw,2.25rem);font-weight:900;color:#e0e7ff;
+  letter-spacing:.1em;
+  box-shadow:0 4px 20px #0004,inset 0 1px 0 #a5b4fc22;
+  transition:transform .12s,border-color .15s,background .15s,box-shadow .15s;
+}
+.choice-card:hover,.choice-card:focus-visible{
+  border-color:var(--cyan);
+  box-shadow:0 0 0 3px #22d3ee55,0 0 24px #22d3ee44;
+  outline:none;
+}
+.choice-card:active{transform:scale(.96)}
+.choice-card.selected{
+  border-color:var(--cyan);
+  box-shadow:0 0 0 4px #22d3ee66,0 0 28px #22d3ee55;
+}
+.choice-card.correct-flash{
+  background:linear-gradient(145deg,#064e3b,#065f46);
+  border-color:var(--hit);color:#a7f3d0;
+  box-shadow:0 0 0 4px #34d39966,0 0 28px #34d39955;
+}
+.choice-card.wrong-flash{
+  background:linear-gradient(145deg,#4a1942,#831843);
+  border-color:var(--miss);color:#fbcfe8;
+  animation:shakeCard .4s ease;
+}
+@keyframes shakeCard{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  50%{transform:translateX(8px)}
+  75%{transform:translateX(-5px)}
+}
+
+.praise{
+  min-height:1.4em;margin-top:10px;font-size:1.05rem;font-weight:900;color:var(--cyan);
+  text-shadow:0 0 10px #22d3ee55;
+}
+
+/* ===== Write zone: HIDDEN until 打中 ===== */
+.write-zone{display:none;margin-top:16px;padding-top:14px;border-top:1px solid #6366f144}
+.write-zone.on{display:block;animation:revealWrite .35s ease}
+@keyframes revealWrite{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.write-title{font-weight:900;color:var(--cyan);margin-bottom:8px;font-size:1.05rem;letter-spacing:.04em}
+.grids{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:10px}
+.tian{
+  width:84px;height:84px;background:#0b1026;border:2px solid #6366f188;border-radius:10px;
+  position:relative;box-shadow:0 0 12px #4f46e522;
+}
+.tian::before,.tian::after{content:"";position:absolute;background:#6366f144}
+.tian::before{left:50%;top:6%;bottom:6%;width:1.5px;transform:translateX(-50%)}
+.tian::after{top:50%;left:6%;right:6%;height:1.5px;transform:translateY(-50%)}
+.tian .ghost{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:2.4rem;font-weight:900;color:rgba(103,232,249,.28);pointer-events:none;
+  -webkit-text-stroke:1.5px rgba(165,243,252,.45);
+}
+
+.canvas-wrap{
+  position:relative;margin:10px auto;max-width:320px;
+  border:2.5px solid #6366f1aa;border-radius:16px;overflow:hidden;
+  background:#0b1026;box-shadow:0 0 20px #4f46e533;touch-action:none;
+}
+#kiCanvas{display:block;width:100%;height:220px;cursor:crosshair;touch-action:none}
+.canvas-ghost{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:4.2rem;font-weight:900;color:rgba(103,232,249,.18);pointer-events:none;
+  letter-spacing:.08em;user-select:none;
+  -webkit-text-stroke:2px rgba(165,243,252,.35);
+}
+.canvas-label{font-size:.78rem;font-weight:800;color:var(--mist);margin-bottom:6px}
+.write-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.btn-clear{
+  background:#0f172a;border:2px solid #6366f188;color:var(--mist);
+  font-size:.92rem;border-radius:999px;
+}
+.btn-done-write{
+  background:linear-gradient(135deg,var(--indigo),var(--violet));
+  color:#fff;font-size:.92rem;
+  box-shadow:0 4px 16px #4f46e555;
+}
+.btn-skip{
+  width:100%;margin-top:10px;
+  background:transparent;border:1.5px dashed #64748b88;color:#94a3b8;
+  font-size:.88rem;border-radius:999px;min-height:44px;padding:10px;
+}
+
+.teacher{
+  margin-top:14px;padding:10px 12px;border-radius:14px;
+  background:#0f172a66;border:1px dashed #6366f144;
+  font-size:.68rem;font-weight:700;color:#64748b;line-height:1.5;text-align:left;
+}
+.teacher strong{color:var(--mist)}
+
+.fx{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+.chip{position:absolute;font-weight:900;font-size:26px;color:var(--cyan);
+  text-shadow:0 0 12px #22d3eeaa;animation:fall 1.1s ease-out forwards}
+@keyframes fall{to{transform:translateY(140px) scale(.5);opacity:0}}
+
+/* ===== Arena row: portrait + quiz ===== */
+.arena-row{display:flex;gap:14px;align-items:stretch;margin-bottom:14px}
+.portrait-panel{
+  flex:0 0 168px;width:168px;
+  background:linear-gradient(165deg,#151c3dee,#1a1440ee);
+  border-radius:24px;padding:14px 12px;border:1.5px solid #6366f155;
+  box-shadow:0 8px 28px #0005,inset 0 1px 0 #a5b4fc22;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  justify-content:flex-start;
+}
+.portrait-tag{font-size:.72rem;font-weight:900;color:var(--cyan);letter-spacing:.14em;margin-bottom:10px;text-shadow:0 0 10px #22d3ee55}
+.portrait-frame{
+  width:140px;height:140px;border-radius:50%;border:4px solid #6366f188;
+  background:radial-gradient(circle at 40% 35%,#6366f133,transparent 60%),#0b1026;
+  box-shadow:0 0 0 5px #22d3ee18,0 0 24px #4f46e544;
+  overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:10px;
+}
+.portrait-frame.live{border-color:var(--cyan);box-shadow:0 0 0 5px #22d3ee44,0 0 32px #22d3ee55}
+.portrait-frame img{width:100%;height:100%;object-fit:cover;display:block}
+.portrait-sil{font-size:3.6rem;opacity:.35;filter:grayscale(1);user-select:none;line-height:1}
+.portrait-name{font-size:.95rem;font-weight:900;color:#e0e7ff;line-height:1.25;min-height:1.25em}
+.portrait-sub{font-size:.7rem;font-weight:800;color:#64748b;margin-top:4px}
+.portrait-panel.locked .portrait-name{color:#64748b}
+.portrait-panel.locked .portrait-frame{
+  border-color:#334155;box-shadow:none;
+  background:repeating-linear-gradient(-45deg,#0b1026,#0b1026 6px,#121a3a 6px,#121a3a 12px);
+}
+/* Tablet / iPad: dominant ~220–280px circle */
+@media (min-width:640px){
+  .portrait-panel{flex:0 0 300px;width:300px;padding:18px 16px;border-radius:28px}
+  .portrait-frame{width:260px;height:260px;border-width:5px;margin-bottom:12px}
+  .portrait-sil{font-size:6.2rem}
+  .portrait-tag{font-size:.82rem;margin-bottom:12px}
+  .portrait-name{font-size:1.15rem}
+  .portrait-sub{font-size:.78rem}
+}
+@media (min-width:900px){
+  .portrait-panel{flex:0 0 320px;width:320px}
+  .portrait-frame{width:280px;height:280px}
+  .portrait-sil{font-size:6.8rem}
+}
+@media (max-width:420px){
+  .portrait-panel{flex:0 0 118px;width:118px;padding:10px 6px}
+  .portrait-frame{width:96px;height:96px}
+  .portrait-sil{font-size:2.8rem}
+  .portrait-name{font-size:.78rem}
+}
+.app{max-width:860px}
+.arena{flex:1;min-width:0;margin-bottom:0}
+.unlock-yell{
+  font-size:1.35rem;padding:10px 8px;
+  text-shadow:0 0 20px #22d3eeaa,0 0 40px #a855f766;
+  background:linear-gradient(90deg,transparent,#22d3ee22,transparent);border-radius:16px;
+}
+
+/* Celebration FX */
+.flash-overlay{
+  position:fixed;inset:0;z-index:60;pointer-events:none;
+  background:radial-gradient(circle at 50% 40%,#a5f3fc88 0%,#22d3ee44 25%,transparent 70%);
+  opacity:0;
+}
+.flash-overlay.on{animation:flashPulse .55s ease-out forwards}
+@keyframes flashPulse{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+.star-burst{
+  position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(.3);
+  z-index:70;pointer-events:none;font-size:clamp(2.8rem,12vw,4.5rem);font-weight:900;
+  color:#fef08a;text-shadow:0 0 24px #facc15,0 0 48px #22d3ee88,0 4px 0 #854d0e;
+  opacity:0;letter-spacing:.04em;font-family:"Orbitron","Noto Sans TC",sans-serif;
+}
+.star-burst.on{animation:burstPop 1.15s ease-out forwards}
+@keyframes burstPop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}
+  25%{opacity:1;transform:translate(-50%,-55%) scale(1.25)}
+  55%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-70%) scale(.85)}
+}
+.confetti{position:absolute;width:10px;height:14px;border-radius:2px;animation:confettiFall 1.4s ease-out forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(90vh) rotate(720deg);opacity:0}}
+.unlock-banner{
+  position:fixed;left:50%;top:22%;transform:translate(-50%,-50%) scale(.5);
+  z-index:75;pointer-events:none;text-align:center;opacity:0;width:min(92vw,420px);
+}
+.unlock-banner.on{animation:bannerIn 2.4s ease-out forwards}
+.unlock-banner .ub-main{font-size:clamp(1.6rem,7vw,2.4rem);font-weight:900;color:#67e8f9;text-shadow:0 0 28px #22d3ee,0 0 56px #a855f7;letter-spacing:.1em;margin-bottom:8px}
+.unlock-banner .ub-sub{font-size:clamp(1.1rem,4.5vw,1.5rem);font-weight:900;color:#fef08a;text-shadow:0 0 18px #facc15}
+@keyframes bannerIn{
+  0%{opacity:0;transform:translate(-50%,-40%) scale(.4)}
+  15%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}
+  45%{transform:translate(-50%,-50%) scale(1.04)}
+  70%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-65%) scale(.9)}
+}
+
+/* Certificate */
+.cert-backdrop{display:none;position:fixed;inset:0;z-index:90;background:#0b1026cc;backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px}
+.cert-backdrop.on{display:flex}
+.cert-modal{
+  width:min(420px,96vw);max-height:92vh;overflow:auto;
+  background:linear-gradient(165deg,#1e1b4e,#0f172a);border:2px solid #22d3ee88;border-radius:24px;
+  padding:22px 18px 18px;box-shadow:0 0 0 4px #6366f133,0 20px 60px #000a,0 0 40px #22d3ee33;text-align:center;
+}
+.cert-modal h2{font-size:1.35rem;font-weight:900;color:#67e8f9;letter-spacing:.08em;margin-bottom:8px;text-shadow:0 0 16px #22d3ee66}
+.cert-line{font-size:.95rem;font-weight:800;color:#c7d2fe;margin-bottom:16px;line-height:1.5}
+.cert-fields{text-align:left;margin:0 auto 16px;max-width:300px}
+.cert-row{display:flex;align-items:baseline;gap:8px;margin-bottom:12px;font-size:.95rem;font-weight:800;color:var(--mist)}
+.cert-row label{flex:0 0 auto;min-width:4.5em}
+.cert-row .blank{flex:1;border:none;border-bottom:2px dashed #6366f1aa;background:transparent;color:#e0e7ff;font:inherit;font-weight:900;padding:4px 6px;outline:none;min-width:0}
+.cert-row .blank:focus{border-bottom-color:var(--cyan)}
+.btn-cert{width:100%;font-size:1.15rem;padding:14px;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;border-radius:16px;margin-bottom:8px;box-shadow:0 6px 20px #4f46e555}
+.btn-cert-close{width:100%;background:transparent;border:1.5px solid #6366f155;color:var(--mist);font-size:.88rem;min-height:42px;padding:10px}
+.btn-cert-open{display:none;width:100%;margin:10px 0 0;background:linear-gradient(135deg,#854d0e,#ca8a04);color:#fef9c3;font-size:1rem;border-radius:16px;box-shadow:0 4px 18px #ca8a0455}
+.btn-cert-open.on{display:block}
+@media print{
+  body *{visibility:hidden !important}
+  .cert-backdrop,.cert-backdrop *{visibility:visible !important}
+  .cert-backdrop{display:flex !important;position:static;background:#fff;padding:0;backdrop-filter:none}
+  .cert-modal{box-shadow:none;border:3px solid #4f46e5;background:#fff;color:#0f172a;width:100%;max-width:100%;border-radius:0}
+  .cert-modal h2{color:#4f46e5;text-shadow:none}.cert-line{color:#1e293b}.cert-row{color:#334155}
+  .cert-row .blank{color:#0f172a;border-bottom-color:#64748b}
+  .btn-cert,.btn-cert-close,.btn-cert-open{display:none !important}
+}
+
+
+/* ===== 打怪挑戰 (optional) ===== */
+.battle-toggle-row{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  margin:0 0 12px;padding:8px 12px;
+  background:linear-gradient(90deg,#1e1b4e66,#0f172a66);
+  border:1px solid #6366f144;border-radius:16px;
+}
+.battle-chip{
+  background:#1e2a5588;border:1.5px solid #6366f155;color:var(--mist);
+  border-radius:999px;font-size:.78rem;min-height:36px;padding:6px 14px;
+}
+.battle-chip.on{
+  background:linear-gradient(135deg,#b45309,#7c3aed);
+  color:#fff;border-color:#fbbf24;
+  box-shadow:0 0 14px #f59e0b55;
+}
+.timer-chip{
+  background:#1e2a5588;border:1.5px solid #6366f155;color:var(--mist);
+  border-radius:999px;font-size:.72rem;min-height:34px;padding:5px 12px;
+}
+.timer-chip.on{border-color:var(--cyan);color:var(--cyan);background:#0f172a}
+.timer-chip[hidden],.battle-panel[hidden],.post-hit[hidden],.shield-revive[hidden]{display:none !important}
+.battle-hint{font-size:.68rem;font-weight:800;color:#64748b;margin-left:auto}
+
+.battle-panel{
+  margin:0 0 12px;padding:14px 12px;
+  background:linear-gradient(165deg,#1a1440ee,#151c3dee);
+  border:1.5px solid #a78bfa55;border-radius:20px;
+  box-shadow:0 6px 24px #0005,inset 0 1px 0 #fbbf2422;
+}
+.battle-panel .bp-title{
+  font-size:.72rem;font-weight:900;color:#fbbf24;letter-spacing:.16em;
+  text-align:center;margin-bottom:10px;text-shadow:0 0 10px #f59e0b55;
+}
+.battle-bars{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
+.monster-side,.shield-side{flex:1;min-width:140px}
+.monster-vis{
+  display:flex;align-items:center;gap:10px;margin-bottom:8px;
+}
+.monster-sil{
+  width:96px;height:96px;border-radius:22px;flex:0 0 auto;
+  background:
+    radial-gradient(circle at 35% 30%,#f472b655,transparent 50%),
+    radial-gradient(circle at 70% 70%,#7c3aed55,transparent 45%),
+    linear-gradient(145deg,#1e1b4e,#0b1026);
+  border:2.5px solid #a78bfa88;
+  box-shadow:0 0 22px #7c3aed55;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;padding:0;
+}
+.monster-sil img{
+  width:100%;height:100%;object-fit:cover;display:block;border-radius:20px;
+}
+.monster-sil::before{content:none;display:none}
+@media (min-width:700px){
+  .monster-sil{width:120px;height:120px;border-radius:26px}
+  .monster-sil img{border-radius:24px}
+}
+.monster-sil.hurt{animation:monHurt .45s ease}
+@keyframes monHurt{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px) scale(1.05)}
+  50%{transform:translateX(6px)}
+  75%{transform:translateX(-4px)}
+}
+.monster-sil.ko{filter:grayscale(.4) brightness(.7);opacity:.75}
+.monster-meta{flex:1;min-width:0}
+.monster-name{font-size:.95rem;font-weight:900;color:#fbcfe8;margin-bottom:4px}
+.bar-wrap{
+  height:14px;border-radius:999px;background:#0b1026;border:1.5px solid #6366f155;
+  overflow:hidden;box-shadow:inset 0 0 8px #0006;
+}
+.bar-fill{height:100%;border-radius:999px;transition:width .35s ease;min-width:0}
+.bar-fill.hp{background:linear-gradient(90deg,#f472b6,#ef4444);box-shadow:0 0 10px #f472b666}
+.bar-fill.shield{background:linear-gradient(90deg,#22d3ee,#6366f1);box-shadow:0 0 10px #22d3ee66}
+.bar-lbl{font-size:.68rem;font-weight:800;color:var(--mist);margin-top:3px;display:flex;justify-content:space-between}
+.timer-row{
+  display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;
+}
+.timer-ring{
+  font-family:"Orbitron","Noto Sans TC",sans-serif;
+  font-size:1.25rem;font-weight:900;color:var(--cyan);
+  min-width:2.4em;text-align:center;text-shadow:0 0 12px #22d3ee66;
+}
+.timer-ring.warn{color:#fbbf24}
+.timer-ring.danger{color:#f472b6;animation:timerPulse .5s ease infinite}
+@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.55}}
+.timer-lbl{font-size:.72rem;font-weight:800;color:var(--mist)}
+
+.shield-revive{
+  margin-top:10px;padding:12px;border-radius:14px;text-align:center;
+  background:#0f172a88;border:1.5px dashed #22d3ee66;
+}
+.shield-revive p{font-size:.92rem;font-weight:900;color:#a5b4fc;margin-bottom:8px;line-height:1.4}
+.btn-revive{
+  background:linear-gradient(135deg,var(--cyan-dim),var(--indigo));
+  color:#fff;font-size:1rem;border:1.5px solid #67e8f988;
+  box-shadow:0 0 16px #22d3ee44;min-width:160px;
+}
+
+.post-hit{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 6px;
+}
+.post-hit .ph-btn{
+  border-radius:18px;min-height:72px;padding:14px 10px;font-size:1.05rem;
+  letter-spacing:.04em;display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.post-hit .ph-btn small{font-size:.68rem;font-weight:800;opacity:.85}
+.ph-stars{
+  background:linear-gradient(145deg,#1e2a55,#151c3d);
+  color:#e0e7ff;border:2.5px solid #6366f1aa;
+  box-shadow:0 0 16px #4f46e533;
+}
+.ph-attack{
+  background:linear-gradient(145deg,#7c2d12,#9a3412);
+  color:#ffedd5;border:2.5px solid #fbbf24aa;
+  box-shadow:0 0 18px #f59e0b44;
+}
+.ph-attack:hover,.ph-stars:hover{filter:brightness(1.08)}
+
+.battle-fx-hit{
+  position:fixed;left:50%;top:36%;transform:translate(-50%,-50%) scale(.4);
+  z-index:72;pointer-events:none;font-size:clamp(2rem,9vw,3.2rem);font-weight:900;
+  color:#fef08a;text-shadow:0 0 24px #f59e0b,0 0 40px #ef4444;opacity:0;
+}
+.battle-fx-hit.on{animation:burstPop 1.2s ease-out forwards}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="badge-ren" aria-hidden="true">認</div>
+    <div>
+      <h1>悟空認招挑戰</h1>
+      <div class="sub">認招台 · 出招卡</div>
+    </div>
+  </div>
+  <a class="btn-link" id="linkCourage" href="../dice/">去玩勇氣骰</a>
+</header>
+
+<div class="app">
+  <div class="stars-strip" aria-live="polite">
+    <span class="chip-lbl">勇氣星</span>
+    <span class="chip-val"><span class="chip-star">⭐</span> <span id="starsNum">0</span></span>
+    <button type="button" class="btn-rechallenge" id="btnRechallenge" title="清星重新認招">重新挑戰</button>
+    <div class="mode-chips" role="group" aria-label="招式池">
+      <button type="button" class="mode-chip on" id="modeBoss" data-mode="boss">Boss 五招</button>
+      <button type="button" class="mode-chip" id="modeAll" data-mode="all">全部招式</button>
+    </div>
+    <div class="rechallenge-note">試玩先清；正式日唔好亂撳。</div>
+  </div>
+
+
+  <div class="battle-toggle-row" aria-label="打怪挑戰選項">
+    <button type="button" class="battle-chip" id="chipBattle" aria-pressed="false">打怪挑戰</button>
+    <button type="button" class="timer-chip" id="chipTimer" hidden aria-pressed="true">計時 20秒 · 開</button>
+    <span class="battle-hint" id="battleHint">預設純認招；撳開先有怪獸</span>
+  </div>
+
+  <div class="battle-panel" id="battlePanel" hidden>
+    <div class="bp-title">怪獸挑戰</div>
+    <div class="battle-bars">
+      <div class="monster-side">
+        <div class="monster-vis">
+          <div class="monster-sil" id="monsterSil" aria-hidden="true"><img id="monsterImg" src="img/boss-monster.jpg" alt="原創怪獸"></div>
+          <div class="monster-meta">
+            <div class="monster-name" id="monsterName">氣影怪獸</div>
+            <div class="bar-wrap" aria-label="怪獸氣血"><div class="bar-fill hp" id="monsterHpBar" style="width:100%"></div></div>
+            <div class="bar-lbl"><span>怪獸</span><span id="monsterHpLbl">100</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="shield-side">
+        <div class="monster-vis">
+          <div class="monster-sil" id="shieldSil" style="font-size:1.8rem;border-color:#22d3ee88;box-shadow:0 0 18px #22d3ee33" aria-hidden="true">🛡️</div>
+          <div class="monster-meta">
+            <div class="monster-name" style="color:#a5f3fc">護盾</div>
+            <div class="bar-wrap" aria-label="護盾"><div class="bar-fill shield" id="shieldBar" style="width:100%"></div></div>
+            <div class="bar-lbl"><span>護盾</span><span id="shieldLbl">50</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="timer-row" id="timerRow" hidden>
+      <span class="timer-lbl">倒數</span>
+      <span class="timer-ring" id="timerRing">20</span>
+      <span class="timer-lbl">秒 · 小息可關計時</span>
+    </div>
+    <div class="shield-revive" id="shieldRevive" hidden>
+      <p>護盾見底啦！撳「再集氣」補返 ＋10 護盾，繼續打！</p>
+      <button type="button" class="btn-revive" id="btnRevive">再集氣 ＋10 護盾</button>
+    </div>
+  </div>
+
+  <div class="unlock-yell" id="unlockYell">新夥伴加入！</div>
+  <div class="fighters" id="fightersRow" aria-label="戰士"></div>
+
+  <div class="arena-row">
+    <aside class="portrait-panel locked" id="portraitPanel" aria-label="出戰夥伴">
+      <div class="portrait-tag">出戰夥伴</div>
+      <div class="portrait-frame" id="portraitFrame">
+        <span class="portrait-sil" id="portraitSil" aria-hidden="true">👤</span>
+        <img id="portraitImg" alt="" hidden />
+      </div>
+      <div class="portrait-name" id="portraitName">未解鎖</div>
+      <div class="portrait-sub" id="portraitSub">集齊勇氣星解鎖</div>
+    </aside>
+
+  <div class="arena">
+    <div class="arena-tag">認招台</div>
+    <div class="cheer" id="cheerLine"></div>
+
+    <!-- 氣影 scouter ABOVE choice cards -->
+    <div class="scouter-wrap">
+      <div class="scouter" id="kiStage" aria-live="polite">
+        <div class="scouter-ring" aria-hidden="true"></div>
+        <span class="ki-label">氣影</span>
+        <div class="ki-glyph" id="kiGlyph">？</div>
+      </div>
+    </div>
+
+    <div class="status-line" id="statusLine">準備認招未？</div>
+    <div class="hint-box" id="hintBox">撳「出題認招！」睇氣影，再揀啱嘅出招卡！</div>
+
+    <button type="button" class="btn-next" id="btnNext">出題認招！</button>
+    <button type="button" class="btn-hear" id="btnHear" hidden>🔊 再聽老師出招</button>
+
+    <!-- HERO: big choice cards -->
+    <div class="choices" id="choices" role="group" aria-label="出招卡"></div>
+
+
+    <!-- After 認中 + battle ON: 集星 OR 出招打怪 -->
+    <div class="post-hit" id="postHit" hidden>
+      <button type="button" class="ph-btn ph-stars" id="btnCollectStars">集星<small>＋1 跳過／＋2 畫氣</small></button>
+      <button type="button" class="ph-btn ph-attack" id="btnAttackMonster">出招打怪<small>手指畫氣出擊</small></button>
+    </div>
+
+    <!-- Write panel: collapsed until 打中 -->
+    <div class="write-zone" id="writeZone">
+      <div class="write-title" id="writeTitle">出招畫氣 ✍️</div>
+      <div class="grids" id="grids"></div>
+      <p class="canvas-label">氣影 · 用手指畫出招式</p>
+      <div class="canvas-wrap">
+        <div class="canvas-ghost" id="canvasGhost"></div>
+        <canvas id="kiCanvas" width="320" height="220"></canvas>
+      </div>
+      <div class="write-btns">
+        <button type="button" class="btn-clear" id="btnClear">清氣重畫</button>
+        <button type="button" class="btn-done-write" id="btnDoneWrite">出招完成 · ＋2⭐</button>
+      </div>
+      <button type="button" class="btn-skip" id="btnSkip">今日只集氣過關 · ＋1</button>
+    </div>
+
+    <div class="praise" id="praise" aria-live="polite"></div>
+      <button type="button" class="btn-cert-open" id="btnCertOpen">📜 悟空認招達人證書</button>
+  </div>
+  </div>
+
+  <div class="teacher">
+    <strong>老師用</strong>（細字）· 認招挑戰：睇氣影／聽老師 → 揀啱出招卡。認中後出招畫氣＋2，或今日只集氣過關＋1。錯唔扣星，換卡再認。可選「打怪挑戰」：認中後揀集星或出招打怪；護盾見底撳再集氣；計時可關。戰士解鎖：3／5／8／12／16／20★（0★ 全部鎖定）。「重新挑戰」清星＋鎖定（同骰共用）。試玩先清；正式日唔好亂撳。localStorage: bossDiceSave（含 battleMode／shield／monsterHp／timerOn）。
+  </div>
+</div>
+
+<div class="fx" id="fx" aria-hidden="true"></div>
+<div class="flash-overlay" id="flashOverlay" aria-hidden="true"></div>
+<div class="star-burst" id="starBurst" aria-hidden="true"></div>
+<div class="unlock-banner" id="unlockBanner" aria-hidden="true">
+  <div class="ub-main">新夥伴加入！</div>
+  <div class="ub-sub">夥伴出戰！</div>
+</div>
+<div class="battle-fx-hit" id="battleFxHit" aria-hidden="true">打中！</div>
+
+
+<div class="reset-backdrop" id="resetBackdrop" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+  <div class="reset-modal">
+    <h2 id="resetTitle">重新挑戰</h2>
+    <p class="reset-msg">重新集星？會變返 0 星、夥伴全部鎖定（勇氣骰進度一齊清）。確定？</p>
+    <div class="reset-actions">
+      <button type="button" class="btn-reset-ok" id="btnResetOk">確定重新挑戰</button>
+      <button type="button" class="btn-reset-cancel" id="btnResetCancel">取消</button>
+    </div>
+  </div>
+</div>
+
+<div class="cert-backdrop" id="certBackdrop" role="dialog" aria-modal="true" aria-labelledby="certTitle">
+  <div class="cert-modal">
+    <h2 id="certTitle">悟空認招達人證書</h2>
+    <p class="cert-line">六位夥伴齊集 · 你係今日最強認招戰士！</p>
+    <div class="cert-fields">
+      <div class="cert-row"><label for="certWarrior">戰士名</label><input class="blank" id="certWarrior" type="text" placeholder="______" autocomplete="off" /></div>
+      <div class="cert-row"><label for="certDate">日期</label><input class="blank" id="certDate" type="text" placeholder="______" autocomplete="off" /></div>
+      <div class="cert-row"><label for="certStars">勇氣星</label><input class="blank" id="certStars" type="text" placeholder="______" autocomplete="off" /></div>
+    </div>
+    <button type="button" class="btn-cert" id="btnCertPrint">證書到手！</button>
+    <button type="button" class="btn-cert-close" id="btnCertClose">收起</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const ALL_WORDS = [
+    { text: '甘心', hint: '甘＋心' },
+    { text: '運氣', hint: '運有「走」；氣＝气＋米' },
+    { text: '澆水', hint: '水旁＋堯' },
+    { text: '撿起', hint: '手旁撿；走＋己＝起' },
+    { text: '專心', hint: '專＋心' },
+    { text: '農夫', hint: '田裡幹活嘅人' },
+    { text: '突然', hint: '洞裡隻狗衝出嚟' },
+    { text: '乾脆', hint: '脆有「月」' },
+    { text: '幹活', hint: '活＝水＋舌；幹記「干」' },
+    { text: '費勁', hint: '費有貝；勁要「力」' },
+    { text: '繼續', hint: '兩個都有「糹」' },
+    { text: '草叢', hint: '草有早；叢＝一堆' },
+    { text: '樹幹', hint: '樹有木；幹＝幹活嗰個' }
+  ];
+  const BOSS_TEXTS = ['繼續', '草叢', '樹幹', '幹活', '專心'];
+
+  const FIGHTERS = [
+    { id: 'a', name: '橙閃', need: 3,  atk: 10, img: 'img/fighter-a.jpg' },
+    { id: 'b', name: '藍氣', need: 5,  atk: 14, img: 'img/fighter-b.jpg' },
+    { id: 'c', name: '紫影', need: 8,  atk: 18, img: 'img/fighter-c.jpg' },
+    { id: 'd', name: '銀穗', need: 12, atk: 22, img: 'img/fighter-d.jpg' },
+    { id: 'e', name: '粉焰', need: 16, atk: 26, img: 'img/fighter-e.jpg' },
+    { id: 'f', name: '光拳', need: 20, atk: 32, img: 'img/fighter-f.jpg' }
+  ];
+  const MONSTER_ROSTER = [
+    { name: '氣影怪獸', img: 'img/boss-monster.jpg' },
+    { name: '暗影怪獸', img: 'img/boss-monster.jpg' },
+    { name: '雷鳴怪獸', img: 'img/boss-monster.jpg' },
+    { name: '炎爪怪獸', img: 'img/boss-monster.jpg' },
+    { name: '星塵怪獸', img: 'img/boss-monster.jpg' }
+  ];
+  const MONSTER_MAX = 100;
+  const SHIELD_MAX = 50;
+  const TIMER_SECS = 20;
+  const BONUS_STARS = 3;
+
+  const SAVE_KEY = 'bossDiceSave';
+
+  let mode = 'boss';
+  let stars = 0;
+  let unlocked = {};
+  let activeFighter = null; /* null until unlock; 0★ all locked */
+  let certShown = false;
+  let current = null;
+  let choosing = false;
+  let lastTargetId = null;
+  let battleMode = false;
+  let shield = SHIELD_MAX;
+  let monsterHp = MONSTER_MAX;
+  let timerOn = true;
+  let missCount = 0;
+  let timerLeft = TIMER_SECS;
+  let timerId = null;
+  let attackMode = false;
+  let monsterIdx = 0;
+  let monstersBeat = 0;
+
+  const el = {
+    kiStage: document.getElementById('kiStage'),
+    kiGlyph: document.getElementById('kiGlyph'),
+    status: document.getElementById('statusLine'),
+    hint: document.getElementById('hintBox'),
+    next: document.getElementById('btnNext'),
+    hear: document.getElementById('btnHear'),
+    choices: document.getElementById('choices'),
+    writeZone: document.getElementById('writeZone'),
+    grids: document.getElementById('grids'),
+    writeTitle: document.getElementById('writeTitle'),
+    doneWrite: document.getElementById('btnDoneWrite'),
+    clearBtn: document.getElementById('btnClear'),
+    skip: document.getElementById('btnSkip'),
+    canvas: document.getElementById('kiCanvas'),
+    canvasGhost: document.getElementById('canvasGhost'),
+    praise: document.getElementById('praise'),
+    starsNum: document.getElementById('starsNum'),
+    fightersRow: document.getElementById('fightersRow'),
+    unlockYell: document.getElementById('unlockYell'),
+    cheer: document.getElementById('cheerLine'),
+    modeBoss: document.getElementById('modeBoss'),
+    modeAll: document.getElementById('modeAll'),
+    fx: document.getElementById('fx'),
+    flash: document.getElementById('flashOverlay'),
+    starBurst: document.getElementById('starBurst'),
+    unlockBanner: document.getElementById('unlockBanner'),
+    portraitPanel: document.getElementById('portraitPanel'),
+    portraitFrame: document.getElementById('portraitFrame'),
+    portraitImg: document.getElementById('portraitImg'),
+    portraitSil: document.getElementById('portraitSil'),
+    portraitName: document.getElementById('portraitName'),
+    portraitSub: document.getElementById('portraitSub'),
+    certBackdrop: document.getElementById('certBackdrop'),
+    certWarrior: document.getElementById('certWarrior'),
+    certDate: document.getElementById('certDate'),
+    certStars: document.getElementById('certStars'),
+    btnCertOpen: document.getElementById('btnCertOpen'),
+    btnCertPrint: document.getElementById('btnCertPrint'),
+    btnCertClose: document.getElementById('btnCertClose'),
+    btnRechallenge: document.getElementById('btnRechallenge'),
+    resetBackdrop: document.getElementById('resetBackdrop'),
+    btnResetOk: document.getElementById('btnResetOk'),
+    btnResetCancel: document.getElementById('btnResetCancel'),
+    chipBattle: document.getElementById('chipBattle'),
+    chipTimer: document.getElementById('chipTimer'),
+    battleHint: document.getElementById('battleHint'),
+    battlePanel: document.getElementById('battlePanel'),
+    monsterSil: document.getElementById('monsterSil'),
+    monsterImg: document.getElementById('monsterImg'),
+    monsterName: document.getElementById('monsterName'),
+    monsterHpBar: document.getElementById('monsterHpBar'),
+    monsterHpLbl: document.getElementById('monsterHpLbl'),
+    shieldBar: document.getElementById('shieldBar'),
+    shieldLbl: document.getElementById('shieldLbl'),
+    timerRow: document.getElementById('timerRow'),
+    timerRing: document.getElementById('timerRing'),
+    shieldRevive: document.getElementById('shieldRevive'),
+    btnRevive: document.getElementById('btnRevive'),
+    postHit: document.getElementById('postHit'),
+    btnCollectStars: document.getElementById('btnCollectStars'),
+    btnAttackMonster: document.getElementById('btnAttackMonster'),
+    battleFxHit: document.getElementById('battleFxHit')
+  };
+
+  function loadSave() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (typeof d.stars === 'number' && d.stars >= 0) stars = d.stars;
+      if (d.unlocked && typeof d.unlocked === 'object') unlocked = Object.assign({}, d.unlocked);
+      if (d.activeFighter) activeFighter = d.activeFighter;
+      if (d.mode === 'all' || d.mode === 'boss') mode = d.mode;
+      if (d.certShown) certShown = true;
+      if (typeof d.battleMode === 'boolean') battleMode = d.battleMode;
+      if (typeof d.timerOn === 'boolean') timerOn = d.timerOn;
+      if (typeof d.shield === 'number' && d.shield >= 0) shield = Math.min(SHIELD_MAX, d.shield);
+      if (typeof d.monsterHp === 'number' && d.monsterHp >= 0) monsterHp = Math.min(MONSTER_MAX, d.monsterHp);
+      if (typeof d.monsterIdx === 'number' && d.monsterIdx >= 0) monsterIdx = d.monsterIdx % MONSTER_ROSTER.length;
+      if (typeof d.monstersBeat === 'number' && d.monstersBeat >= 0) monstersBeat = d.monstersBeat;
+    } catch (e) {}
+  }
+
+  function save() {
+    try {
+      var prev = {};
+      try {
+        var raw = localStorage.getItem(SAVE_KEY);
+        if (raw) prev = JSON.parse(raw) || {};
+      } catch (e2) { prev = {}; }
+      if (!prev || typeof prev !== 'object') prev = {};
+      prev.stars = stars;
+      prev.unlocked = unlocked;
+      prev.activeFighter = activeFighter;
+      prev.mode = mode;
+      prev.certShown = certShown;
+      prev.battleMode = battleMode;
+      prev.shield = shield;
+      prev.monsterHp = monsterHp;
+      prev.timerOn = timerOn;
+      prev.monsterIdx = monsterIdx;
+      prev.monstersBeat = monstersBeat;
+      localStorage.setItem(SAVE_KEY, JSON.stringify(prev));
+    } catch (e) {}
+  }
+
+  function poolWords() {
+    if (mode === 'boss') {
+      return ALL_WORDS.filter(function (w) { return BOSS_TEXTS.indexOf(w.text) !== -1; });
+    }
+    return ALL_WORDS.slice();
+  }
+
+  function renderStars() {
+    el.starsNum.textContent = String(stars);
+  }
+
+  function renderModes() {
+    el.modeBoss.classList.toggle('on', mode === 'boss');
+    el.modeAll.classList.toggle('on', mode === 'all');
+  }
+
+  function isUnlocked(f) {
+    return !!unlocked[f.id] || stars >= f.need;
+  }
+
+  function allUnlocked() {
+    return FIGHTERS.every(function (f) { return isUnlocked(f); }) || stars >= 20;
+  }
+
+  function renderPortrait() {
+    var f = activeFighter
+      ? FIGHTERS.find(function (x) { return x.id === activeFighter; })
+      : null;
+    var ok = f && isUnlocked(f);
+    if (ok) {
+      el.portraitPanel.classList.remove('locked');
+      el.portraitFrame.classList.add('live');
+      el.portraitImg.src = f.img;
+      el.portraitImg.alt = f.name;
+      el.portraitImg.hidden = false;
+      el.portraitSil.hidden = true;
+      el.portraitName.textContent = f.name;
+      el.portraitSub.textContent = battleMode
+        ? ('夥伴出戰中！出招 −' + f.atk)
+        : '夥伴出戰中！';
+    } else {
+      el.portraitPanel.classList.add('locked');
+      el.portraitFrame.classList.remove('live');
+      el.portraitImg.hidden = true;
+      el.portraitImg.removeAttribute('src');
+      el.portraitSil.hidden = false;
+      el.portraitName.textContent = '未解鎖';
+      el.portraitSub.textContent = '集齊勇氣星解鎖';
+    }
+  }
+
+  function updateCertButton() {
+    if (allUnlocked()) el.btnCertOpen.classList.add('on');
+    else el.btnCertOpen.classList.remove('on');
+  }
+
+  function showCertModal() {
+    var now = new Date();
+    var y = now.getFullYear();
+    var m = String(now.getMonth() + 1).padStart(2, '0');
+    var d = String(now.getDate()).padStart(2, '0');
+    if (!el.certDate.value) el.certDate.value = y + '-' + m + '-' + d;
+    el.certStars.value = String(stars);
+    el.certBackdrop.classList.add('on');
+  }
+
+  function checkCert() {
+    if (allUnlocked()) {
+      updateCertButton();
+      if (!certShown) {
+        certShown = true;
+        save();
+        setTimeout(function () { showCertModal(); }, 1800);
+      }
+    }
+  }
+
+  function confettiBlast(n) {
+    var colors = ['#22d3ee', '#a855f7', '#facc15', '#34d399', '#f472b6', '#818cf8', '#67e8f9'];
+    for (var i = 0; i < (n || 28); i++) {
+      var p = document.createElement('div');
+      p.className = 'confetti';
+      p.style.left = (8 + Math.random() * 84) + '%';
+      p.style.top = (-5 + Math.random() * 15) + '%';
+      p.style.background = colors[i % colors.length];
+      p.style.animationDelay = (Math.random() * 0.35) + 's';
+      p.style.animationDuration = (1.1 + Math.random() * 0.7) + 's';
+      el.fx.appendChild(p);
+      setTimeout(function (node) { return function () { node.remove(); }; }(p), 2000);
+    }
+  }
+
+  function flashScreen() {
+    el.flash.classList.remove('on');
+    void el.flash.offsetWidth;
+    el.flash.classList.add('on');
+    setTimeout(function () { el.flash.classList.remove('on'); }, 600);
+  }
+
+  function showStarBurst(n) {
+    el.starBurst.textContent = '＋' + n + '⭐';
+    el.starBurst.classList.remove('on');
+    void el.starBurst.offsetWidth;
+    el.starBurst.classList.add('on');
+    setTimeout(function () { el.starBurst.classList.remove('on'); }, 1200);
+  }
+
+  function showUnlockBanner(names) {
+    var main = el.unlockBanner.querySelector('.ub-main');
+    var sub = el.unlockBanner.querySelector('.ub-sub');
+    main.textContent = '新夥伴加入！';
+    sub.textContent = (names && names.length ? names.join('、') + ' · ' : '') + '夥伴出戰！';
+    el.unlockBanner.classList.remove('on');
+    void el.unlockBanner.offsetWidth;
+    el.unlockBanner.classList.add('on');
+    setTimeout(function () { el.unlockBanner.classList.remove('on'); }, 2500);
+  }
+
+  function celebrate(n) {
+    flashScreen();
+    showStarBurst(n);
+    confettiBlast(32);
+    burst();
+  }
+
+
+  function renderFighters() {
+    el.fightersRow.innerHTML = '';
+    FIGHTERS.forEach(function (f) {
+      var unlockedNow = isUnlocked(f);
+      if (unlockedNow && !unlocked[f.id]) unlocked[f.id] = true;
+      var div = document.createElement('div');
+      div.className = 'fighter' + (unlockedNow ? '' : ' locked') +
+        (activeFighter === f.id && unlockedNow ? ' active' : '');
+      div.dataset.id = f.id;
+      var img = document.createElement('img');
+      img.src = f.img;
+      img.alt = f.name;
+      div.appendChild(img);
+      var nm = document.createElement('div');
+      nm.className = 'fname';
+      nm.textContent = f.name;
+      div.appendChild(nm);
+      if (!unlockedNow) {
+        var lb = document.createElement('div');
+        lb.className = 'lock-badge';
+        lb.innerHTML = '<span class="lock-ico">🔒</span> ' + f.need + '⭐';
+        div.appendChild(lb);
+      }
+      if (unlockedNow) {
+        div.addEventListener('click', function () {
+          activeFighter = f.id;
+          save();
+          renderFighters();
+          renderPortrait();
+          updateCheer();
+          el.praise.textContent = '夥伴出戰！「' + f.name + '」⚡';
+        });
+      }
+      el.fightersRow.appendChild(div);
+    });
+    if (activeFighter && !unlocked[activeFighter]) activeFighter = null;
+    if (!activeFighter) {
+      var first = FIGHTERS.find(function (f) { return unlocked[f.id]; });
+      if (first) activeFighter = first.id;
+    }
+    renderPortrait();
+    updateCheer();
+    updateCertButton();
+  }
+
+  function updateCheer() {
+    var f = activeFighter
+      ? FIGHTERS.find(function (x) { return x.id === activeFighter; })
+      : null;
+    if (f && unlocked[f.id]) {
+      el.cheer.textContent = '戰士「' + f.name + '」為你加油！⚡';
+    } else {
+      el.cheer.textContent = '集齊勇氣星，解鎖出戰夥伴！';
+    }
+  }
+
+  function checkUnlocks(prevStars) {
+    var newly = [];
+    FIGHTERS.forEach(function (f) {
+      if (f.need > 0 && prevStars < f.need && stars >= f.need && !unlocked[f.id]) {
+        unlocked[f.id] = true;
+        newly.push(f);
+      }
+    });
+    if (newly.length) {
+      var names = newly.map(function (f) { return f.name; });
+      el.unlockYell.textContent = '新夥伴加入！' + names.join('、');
+      el.unlockYell.classList.add('on');
+      flashScreen();
+      confettiBlast(40);
+      showUnlockBanner(names);
+      setTimeout(function () { el.unlockYell.classList.remove('on'); }, 2600);
+      activeFighter = newly[newly.length - 1].id;
+      speak('新夥伴加入！夥伴出戰！');
+    }
+    renderFighters();
+    checkCert();
+  }
+
+  function burst() {
+    for (var i = 0; i < 10; i++) {
+      var c = document.createElement('div');
+      c.className = 'chip';
+      c.textContent = ['⭐', '⚡', '★', '🔮'][i % 4];
+      c.style.left = (20 + Math.random() * 60) + '%';
+      c.style.top = (30 + Math.random() * 20) + '%';
+      el.fx.appendChild(c);
+      setTimeout(function (node) { return function () { node.remove(); }; }(c), 1100);
+    }
+  }
+
+  function addStars(n, msg) {
+    var prev = stars;
+    stars += n;
+    renderStars();
+    celebrate(n);
+    el.praise.textContent = msg || ('認中！勇氣星＋' + n + ' ⭐');
+    checkUnlocks(prev);
+    save();
+  }
+
+  function speak(text) {
+    try {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = 'zh-HK';
+      u.rate = 0.85;
+      var voices = window.speechSynthesis.getVoices();
+      var prefer = voices.find(function (v) {
+        return /zh[-_]HK|yue|Cantonese/i.test(v.lang + ' ' + v.name);
+      }) || voices.find(function (v) {
+        return /zh[-_]TW|zh[-_]CN|Chinese/i.test(v.lang + ' ' + v.name);
+      });
+      if (prefer) u.voice = prefer;
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function pickTarget() {
+    var pool = poolWords();
+    if (pool.length === 0) return null;
+    if (pool.length === 1) return pool[0];
+    var candidates = pool.filter(function (w) { return w.text !== lastTargetId; });
+    if (!candidates.length) candidates = pool;
+    return candidates[Math.floor(Math.random() * candidates.length)];
+  }
+
+  function pickDistractors(target, count) {
+    var pool = poolWords().filter(function (w) { return w.text !== target.text; });
+    var shuffled = shuffle(pool);
+    return shuffled.slice(0, Math.min(count, shuffled.length));
+  }
+
+
+  function currentMonster() {
+    return MONSTER_ROSTER[monsterIdx % MONSTER_ROSTER.length];
+  }
+
+  function stopRoundTimer() {
+    if (timerId) {
+      clearInterval(timerId);
+      timerId = null;
+    }
+  }
+
+  function updateTimerRing() {
+    if (!el.timerRing) return;
+    el.timerRing.textContent = String(Math.max(0, timerLeft));
+    el.timerRing.classList.toggle('warn', timerLeft <= 8 && timerLeft > 4);
+    el.timerRing.classList.toggle('danger', timerLeft <= 4);
+  }
+
+  function startRoundTimer() {
+    stopRoundTimer();
+    if (!battleMode || !timerOn || !choosing) {
+      el.timerRow.hidden = true;
+      return;
+    }
+    timerLeft = TIMER_SECS;
+    el.timerRow.hidden = false;
+    updateTimerRing();
+    timerId = setInterval(function () {
+      if (!choosing || !battleMode) {
+        stopRoundTimer();
+        return;
+      }
+      timerLeft -= 1;
+      updateTimerRing();
+      if (timerLeft <= 0) {
+        stopRoundTimer();
+        onBattleTimeout();
+      }
+    }, 1000);
+  }
+
+  function renderBattleBars() {
+    var hpPct = Math.max(0, Math.min(100, (monsterHp / MONSTER_MAX) * 100));
+    var shPct = Math.max(0, Math.min(100, (shield / SHIELD_MAX) * 100));
+    el.monsterHpBar.style.width = hpPct + '%';
+    el.shieldBar.style.width = shPct + '%';
+    el.monsterHpLbl.textContent = String(Math.max(0, monsterHp));
+    el.shieldLbl.textContent = String(Math.max(0, shield));
+    var m = currentMonster();
+    el.monsterName.textContent = m.name;
+    if (el.monsterImg) {
+      el.monsterImg.src = m.img || 'img/boss-monster.jpg';
+      el.monsterImg.alt = m.name;
+    }
+    el.monsterSil.classList.toggle('ko', monsterHp <= 0);
+    if (shield <= 0) {
+      el.shieldRevive.hidden = false;
+    } else {
+      el.shieldRevive.hidden = true;
+    }
+  }
+
+  function renderBattleUI() {
+    el.chipBattle.classList.toggle('on', battleMode);
+    el.chipBattle.setAttribute('aria-pressed', battleMode ? 'true' : 'false');
+    el.chipTimer.hidden = !battleMode;
+    el.chipTimer.classList.toggle('on', timerOn);
+    el.chipTimer.setAttribute('aria-pressed', timerOn ? 'true' : 'false');
+    el.chipTimer.textContent = timerOn ? '計時 20秒 · 開' : '計時 · 關（小息）';
+    el.battleHint.textContent = battleMode
+      ? '認中後可集星或出招打怪'
+      : '預設純認招；撳開先有怪獸';
+    el.battlePanel.hidden = !battleMode;
+    if (!battleMode) {
+      stopRoundTimer();
+      el.timerRow.hidden = true;
+      el.postHit.hidden = true;
+      el.shieldRevive.hidden = true;
+      attackMode = false;
+    } else {
+      renderBattleBars();
+      el.timerRow.hidden = !(timerOn && choosing);
+    }
+  }
+
+  function hidePostHit() {
+    el.postHit.hidden = true;
+  }
+
+  function showPostHit() {
+    el.postHit.hidden = false;
+    el.writeZone.classList.remove('on');
+  }
+
+  function monsterBite() {
+    if (!battleMode) return;
+    shield = Math.max(0, shield - 10);
+    renderBattleBars();
+    save();
+    el.monsterSil.classList.add('hurt');
+    setTimeout(function () { el.monsterSil.classList.remove('hurt'); }, 450);
+    el.praise.textContent = shield <= 0
+      ? '怪獸咬一口！護盾見底——撳「再集氣」繼續！'
+      : '怪獸咬一口！護盾 −10（仲有 ' + shield + '）';
+    speak(shield <= 0 ? '護盾見底，再集氣' : '護盾減十');
+  }
+
+  function onBattleTimeout() {
+    if (!choosing || !battleMode) return;
+    monsterBite();
+    missCount = 0;
+    if (choosing && current) {
+      reshuffleChoices();
+      el.status.textContent = '時間到——換卡再認！';
+      el.hint.textContent = '邊張先啱？認準！';
+      if (shield > 0) startRoundTimer();
+    }
+  }
+
+  function getActiveAtk() {
+    var f = activeFighter
+      ? FIGHTERS.find(function (x) { return x.id === activeFighter; })
+      : null;
+    if (f && isUnlocked(f)) return f;
+    return null;
+  }
+
+  function showBattleHitFx(text) {
+    el.battleFxHit.textContent = text || '打中！';
+    el.battleFxHit.classList.remove('on');
+    void el.battleFxHit.offsetWidth;
+    el.battleFxHit.classList.add('on');
+    setTimeout(function () { el.battleFxHit.classList.remove('on'); }, 1300);
+  }
+
+  function spawnNextMonster() {
+    monsterIdx = (monsterIdx + 1) % MONSTER_ROSTER.length;
+    monsterHp = MONSTER_MAX;
+    el.monsterSil.classList.remove('ko');
+    renderBattleBars();
+    save();
+  }
+
+  function applyAttackDamage() {
+    var f = getActiveAtk();
+    if (!f) {
+      el.praise.textContent = '先集星解鎖夥伴，先可以出招打怪！';
+      speak('先集星解鎖夥伴');
+      return false;
+    }
+    var dmg = f.atk;
+    monsterHp = Math.max(0, monsterHp - dmg);
+    renderBattleBars();
+    el.monsterSil.classList.add('hurt');
+    setTimeout(function () { el.monsterSil.classList.remove('hurt'); }, 450);
+    showBattleHitFx('打中！−' + dmg);
+    flashScreen();
+    confettiBlast(22);
+    burst();
+    el.praise.textContent = '打中！「' + f.name + '」出招 −' + dmg + '！';
+    speak('打中！');
+    save();
+    if (monsterHp <= 0) {
+      monstersBeat += 1;
+      addStars(BONUS_STARS, '怪獸倒下！勇氣星＋' + BONUS_STARS + ' ⭐');
+      showBattleHitFx('打中！怪獸倒下！');
+      el.status.textContent = '打中！怪獸倒下！＋' + BONUS_STARS + '⭐';
+      speak('怪獸倒下');
+      setTimeout(function () {
+        spawnNextMonster();
+        el.praise.textContent = '新怪獸出現！繼續認招打怪！（已打倒 ' + monstersBeat + ' 隻）';
+      }, 1400);
+    }
+    return true;
+  }
+
+  function reviveShield() {
+    if (shield >= SHIELD_MAX) {
+      el.praise.textContent = '護盾已經滿晒！';
+      return;
+    }
+    shield = Math.min(SHIELD_MAX, shield + 10);
+    renderBattleBars();
+    save();
+    el.praise.textContent = '再集氣！護盾＋10（而家 ' + shield + '）';
+    speak('再集氣');
+    flashScreen();
+    if (choosing && battleMode && timerOn && shield > 0) startRoundTimer();
+  }
+
+  function resetRoundUI() {
+    el.writeZone.classList.remove('on');
+    el.kiStage.classList.remove('hit');
+    el.choices.classList.remove('on');
+    el.choices.innerHTML = '';
+    el.hear.hidden = true;
+    choosing = false;
+    missCount = 0;
+    attackMode = false;
+    hidePostHit();
+    stopRoundTimer();
+    if (el.doneWrite) {
+      el.doneWrite.textContent = '出招完成 · ＋2⭐';
+    }
+    if (el.skip) {
+      el.skip.hidden = false;
+      el.skip.textContent = '今日只集氣過關 · ＋1';
+    }
+  }
+
+  function startRound() {
+    resetRoundUI();
+    current = pickTarget();
+    if (!current) return;
+    lastTargetId = current.text;
+    choosing = true;
+    missCount = 0;
+    attackMode = false;
+    hidePostHit();
+
+    el.kiStage.classList.add('reveal');
+    el.kiGlyph.textContent = current.text;
+    el.status.textContent = '老師出招！睇清楚氣影！';
+    el.hint.textContent = '邊張先啱？認準！';
+    el.praise.textContent = '';
+    el.next.textContent = '出題中…';
+    el.next.disabled = true;
+    el.hear.hidden = false;
+
+    speak(current.text);
+    if (battleMode) {
+      renderBattleBars();
+      if (shield <= 0) {
+        el.praise.textContent = '護盾見底——先撳「再集氣」再認！';
+      }
+      startRoundTimer();
+    }
+
+    var distractors = pickDistractors(current, 2);
+    var cards = shuffle([current].concat(distractors));
+    el.choices.innerHTML = '';
+    cards.forEach(function (w) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'choice-card';
+      b.textContent = w.text;
+      b.dataset.text = w.text;
+      b.addEventListener('click', function () {
+        b.classList.add('selected');
+        onPick(w, b);
+      });
+      el.choices.appendChild(b);
+    });
+    el.choices.classList.add('on');
+  }
+
+  function onPick(w, btn) {
+    if (!choosing || !current) return;
+    if (battleMode && shield <= 0) {
+      el.praise.textContent = '護盾見底——先撳「再集氣」再認！';
+      speak('再集氣');
+      return;
+    }
+    if (w.text === current.text) {
+      choosing = false;
+      stopRoundTimer();
+      missCount = 0;
+      btn.classList.add('correct-flash');
+      Array.prototype.forEach.call(el.choices.querySelectorAll('.choice-card'), function (c) {
+        c.disabled = true;
+      });
+      el.kiStage.classList.add('hit');
+      el.kiStage.classList.remove('reveal');
+      el.kiGlyph.textContent = current.text;
+      el.hint.textContent = '💡 ' + current.hint;
+      flashScreen();
+      confettiBlast(18);
+      burst();
+      speak('認中！' + current.text);
+      el.next.disabled = true;
+      el.next.textContent = '出題認招！';
+      if (battleMode) {
+        el.status.textContent = '認中！集星定出招打怪？';
+        el.praise.textContent = '認中！集星定出招打怪？';
+        showPostHit();
+      } else {
+        el.status.textContent = '認中！準備畫氣出招！';
+        el.praise.textContent = '認中！準備畫氣出招！';
+        openWrite(false);
+      }
+    } else {
+      btn.classList.add('wrong-flash');
+      missCount += 1;
+      if (battleMode && missCount >= 2) {
+        monsterBite();
+        missCount = 0;
+        el.praise.textContent = (el.praise.textContent.indexOf('護盾') !== -1)
+          ? el.praise.textContent
+          : '呢張唔係——換卡再認！';
+        if (shield > 0) {
+          el.praise.textContent = '呢張唔係——換卡再認！（怪獸咬咗一口）';
+        }
+      } else {
+        el.praise.textContent = '呢張唔係——換卡再認！';
+      }
+      speak('換卡再認');
+      setTimeout(function () {
+        btn.classList.remove('wrong-flash');
+        btn.classList.remove('selected');
+        reshuffleChoices();
+        if (battleMode && timerOn && choosing && shield > 0) {
+          /* keep running timer; do not full-reset */
+        }
+      }, 450);
+    }
+  }
+
+  function reshuffleChoices() {
+    if (!current || !choosing) return;
+    var distractors = pickDistractors(current, 2);
+    var cards = shuffle([current].concat(distractors));
+    el.choices.innerHTML = '';
+    cards.forEach(function (w) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'choice-card';
+      b.textContent = w.text;
+      b.dataset.text = w.text;
+      b.addEventListener('click', function () {
+        b.classList.add('selected');
+        onPick(w, b);
+      });
+      el.choices.appendChild(b);
+    });
+    el.status.textContent = '呢張唔係——換卡再認！';
+    el.hint.textContent = '邊張先啱？認準！';
+  }
+
+  /* ===== Finger canvas ===== */
+  var ctx = el.canvas.getContext('2d');
+  var drawing = false;
+
+  function resizeCanvas() {
+    var wrap = el.canvas.parentElement;
+    var w = wrap.clientWidth || 320;
+    var h = 220;
+    var ratio = window.devicePixelRatio || 1;
+    el.canvas.width = w * ratio;
+    el.canvas.height = h * ratio;
+    el.canvas.style.width = w + 'px';
+    el.canvas.style.height = h + 'px';
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 4;
+    ctx.fillStyle = '#0b1026';
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  function clearCanvas() {
+    var w = el.canvas.clientWidth || 320;
+    var h = el.canvas.clientHeight || 220;
+    ctx.fillStyle = '#0b1026';
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 4;
+  }
+
+  function posFromEvent(e) {
+    var rect = el.canvas.getBoundingClientRect();
+    var t = e.touches ? e.touches[0] : e;
+    return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    drawing = true;
+    var p = posFromEvent(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  }
+  function moveDraw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    var p = posFromEvent(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  }
+  function endDraw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    drawing = false;
+  }
+
+  el.canvas.addEventListener('mousedown', startDraw);
+  el.canvas.addEventListener('mousemove', moveDraw);
+  el.canvas.addEventListener('mouseup', endDraw);
+  el.canvas.addEventListener('mouseleave', endDraw);
+  el.canvas.addEventListener('touchstart', startDraw, { passive: false });
+  el.canvas.addEventListener('touchmove', moveDraw, { passive: false });
+  el.canvas.addEventListener('touchend', endDraw, { passive: false });
+
+  function openWrite(asAttack) {
+    attackMode = !!asAttack;
+    hidePostHit();
+    el.writeZone.classList.add('on');
+    if (attackMode) {
+      var f = getActiveAtk();
+      var atk = f ? f.atk : 0;
+      el.writeTitle.textContent = '出招打怪：「' + current.text + '」' + (f ? ' · ' + f.name + ' −' + atk : '');
+      el.doneWrite.textContent = f ? ('出招打怪 · −' + atk) : '出招打怪';
+      el.skip.hidden = true;
+    } else {
+      el.writeTitle.textContent = '出招畫氣：「' + current.text + '」';
+      el.doneWrite.textContent = '出招完成 · ＋2⭐';
+      el.skip.hidden = false;
+      el.skip.textContent = '今日只集氣過關 · ＋1';
+    }
+    el.canvasGhost.textContent = current.text;
+    el.grids.innerHTML = '';
+    var chars = Array.from(current.text);
+    chars.forEach(function (ch) {
+      var cell = document.createElement('div');
+      cell.className = 'tian';
+      var g = document.createElement('span');
+      g.className = 'ghost';
+      g.textContent = ch;
+      cell.appendChild(g);
+      el.grids.appendChild(cell);
+    });
+    if (chars.length === 2) {
+      for (var i = 0; i < 2; i++) {
+        var cell2 = document.createElement('div');
+        cell2.className = 'tian';
+        el.grids.appendChild(cell2);
+      }
+    }
+    setTimeout(function () {
+      resizeCanvas();
+      clearCanvas();
+    }, 30);
+    el.writeZone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function finishWriteRound() {
+    el.writeZone.classList.remove('on');
+    hidePostHit();
+    el.choices.classList.remove('on');
+    el.choices.innerHTML = '';
+    el.hear.hidden = true;
+    el.next.disabled = false;
+    el.next.textContent = '出題認招！';
+    el.status.textContent = '準備下一招未？';
+    el.hint.textContent = battleMode
+      ? '撳「出題認招！」繼續認招打怪！'
+      : '撳「出題認招！」繼續認 Boss 招式！';
+    el.kiStage.classList.remove('hit', 'reveal');
+    el.kiGlyph.textContent = '？';
+    current = null;
+    choosing = false;
+    attackMode = false;
+    missCount = 0;
+    stopRoundTimer();
+    if (el.doneWrite) el.doneWrite.textContent = '出招完成 · ＋2⭐';
+    if (el.skip) { el.skip.hidden = false; el.skip.textContent = '今日只集氣過關 · ＋1'; }
+  }
+
+  el.next.addEventListener('click', function () {
+    startRound();
+  });
+
+  el.hear.addEventListener('click', function () {
+    if (current) speak(current.text);
+  });
+
+  el.doneWrite.addEventListener('click', function () {
+    if (!current) return;
+    if (attackMode) {
+      if (!getActiveAtk()) {
+        el.praise.textContent = '先集星解鎖夥伴，先可以出招打怪！';
+        speak('先集星解鎖夥伴');
+        return;
+      }
+      applyAttackDamage();
+      finishWriteRound();
+      return;
+    }
+    addStars(2, '出招完成！認中！勇氣星＋2 ⭐⭐');
+    finishWriteRound();
+  });
+
+  el.skip.addEventListener('click', function () {
+    if (!current || attackMode) return;
+    addStars(1, '今日只集氣過關！勇氣星＋1 ⭐');
+    finishWriteRound();
+  });
+
+  el.clearBtn.addEventListener('click', function () {
+    clearCanvas();
+    el.praise.textContent = '清氣重畫 · 再嚟過！';
+  });
+
+  el.modeBoss.addEventListener('click', function () {
+    mode = 'boss';
+    renderModes();
+    save();
+    el.praise.textContent = '切換：Boss 五招！';
+  });
+  el.modeAll.addEventListener('click', function () {
+    mode = 'all';
+    renderModes();
+    save();
+    el.praise.textContent = '切換：全部招式（13 招）！';
+  });
+
+  if (window.speechSynthesis) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = function () {
+      window.speechSynthesis.getVoices();
+    };
+  }
+
+
+  function doRechallengeReset() {
+    stars = 0;
+    unlocked = {};
+    activeFighter = null;
+    certShown = false;
+    shield = SHIELD_MAX;
+    monsterHp = MONSTER_MAX;
+    monsterIdx = 0;
+    monstersBeat = 0;
+    missCount = 0;
+    attackMode = false;
+    stopRoundTimer();
+    hidePostHit();
+    save();
+    renderStars();
+    renderFighters();
+    renderPortrait();
+    updateCheer();
+    updateCertButton();
+    renderBattleUI();
+    el.unlockYell.textContent = '重新挑戰！全部夥伴未解鎖～';
+    el.unlockYell.classList.add('on');
+    el.praise.textContent = '重新挑戰！全部夥伴未解鎖～';
+    speak('重新挑戰！全部夥伴未解鎖');
+    setTimeout(function () { el.unlockYell.classList.remove('on'); }, 2800);
+  }
+
+  function openResetModal() {
+    el.resetBackdrop.classList.add('on');
+  }
+  function closeResetModal() {
+    el.resetBackdrop.classList.remove('on');
+  }
+
+  el.btnRechallenge.addEventListener('click', function () {
+    openResetModal();
+  });
+  el.btnResetCancel.addEventListener('click', function () {
+    closeResetModal();
+  });
+  el.btnResetOk.addEventListener('click', function () {
+    closeResetModal();
+    doRechallengeReset();
+  });
+  el.resetBackdrop.addEventListener('click', function (e) {
+    if (e.target === el.resetBackdrop) closeResetModal();
+  });
+
+
+  el.chipBattle.addEventListener('click', function () {
+    battleMode = !battleMode;
+    if (!battleMode) {
+      stopRoundTimer();
+      hidePostHit();
+      attackMode = false;
+    } else {
+      if (monsterHp <= 0) monsterHp = MONSTER_MAX;
+      if (shield < 0) shield = 0;
+    }
+    renderBattleUI();
+    renderPortrait();
+    save();
+    el.praise.textContent = battleMode
+      ? '打怪挑戰開！認中後可集星或出招打怪！'
+      : '返返純認招模式！';
+    speak(battleMode ? '打怪挑戰' : '認招挑戰');
+    if (battleMode && choosing && timerOn && shield > 0) startRoundTimer();
+  });
+
+  el.chipTimer.addEventListener('click', function () {
+    if (!battleMode) return;
+    timerOn = !timerOn;
+    renderBattleUI();
+    save();
+    if (!timerOn) {
+      stopRoundTimer();
+      el.timerRow.hidden = true;
+      el.praise.textContent = '計時關咗 · 小息慢慢認！';
+    } else {
+      el.praise.textContent = '計時開 · 每題 20 秒！';
+      if (choosing && shield > 0) startRoundTimer();
+    }
+  });
+
+  el.btnCollectStars.addEventListener('click', function () {
+    if (!current) return;
+    hidePostHit();
+    el.status.textContent = '認中！準備畫氣出招！';
+    el.praise.textContent = '集星！畫氣＋2 或跳過＋1';
+    openWrite(false);
+  });
+
+  el.btnAttackMonster.addEventListener('click', function () {
+    if (!current) return;
+    if (!getActiveAtk()) {
+      el.praise.textContent = '先集星解鎖夥伴，先可以出招打怪！';
+      speak('先集星解鎖夥伴');
+      return;
+    }
+    hidePostHit();
+    el.status.textContent = '出招打怪！手指畫氣出擊！';
+    el.praise.textContent = '出招打怪！畫完撳出擊！';
+    openWrite(true);
+  });
+
+  el.btnRevive.addEventListener('click', function () {
+    reviveShield();
+  });
+
+  loadSave();
+  /* 0★ all locked — 橙閃 needs 3★ */
+  FIGHTERS.forEach(function (f) {
+    if (stars >= f.need) unlocked[f.id] = true;
+  });
+  if (activeFighter && !unlocked[activeFighter]) activeFighter = null;
+  if (!activeFighter) {
+    var firstOk = FIGHTERS.find(function (f) { return unlocked[f.id]; });
+    activeFighter = firstOk ? firstOk.id : null;
+  }
+  renderStars();
+  renderModes();
+  renderFighters();
+  renderBattleUI();
+  save();
+  checkCert();
+
+  el.btnCertOpen.addEventListener('click', function () { showCertModal(); });
+  el.btnCertClose.addEventListener('click', function () { el.certBackdrop.classList.remove('on'); });
+  el.btnCertPrint.addEventListener('click', function () { window.print(); });
+  el.certBackdrop.addEventListener('click', function (e) {
+    if (e.target === el.certBackdrop) el.certBackdrop.classList.remove('on');
+  });
+})();
+</script>
+</body>
+</html>
