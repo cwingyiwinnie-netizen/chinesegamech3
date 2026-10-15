@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>龍珠搶答對決 · 規則卡</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@600;700;900&display=swap');
+:root{--paper:#F7F3EB;--navy:#1a4a6e;--orange:#e65c00;--gold:#d4a017}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Noto Sans TC",sans-serif;background:#ddd;color:#1c2833}
+.bar{background:var(--navy);color:#fff;padding:8px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}
+.bar button{background:var(--orange);border:none;color:#fff;font-weight:800;border-radius:999px;padding:8px 12px;cursor:pointer}
+.bar a{color:#ffd666;font-weight:700}
+.page{width:210mm;min-height:297mm;margin:12px auto;background:var(--paper);padding:12mm;box-shadow:0 8px 24px #0002}
+h1{margin:0 0 6px;font-size:26px;color:var(--navy);font-weight:900}
+h1 span{color:var(--orange)}
+.sub{font-weight:700;color:#5d6d7e;margin-bottom:12px;font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border-radius:18px;padding:12px;border:2px solid #e0e7ee;box-shadow:0 3px 10px #1a4a6e12}
+.card h2{margin:0 0 8px;font-size:15px;color:var(--orange);font-weight:900}
+.card ol,.card ul{margin:0;padding-left:18px;font-size:13px;font-weight:600;line-height:1.55}
+.full{grid-column:1/-1}
+.badge{display:inline-block;background:var(--gold);color:#1a1200;font-weight:900;font-size:11px;padding:2px 8px;border-radius:999px;margin-bottom:6px}
+.big{font-size:14px;font-weight:800;color:var(--navy)}
+.foot{margin-top:12px;text-align:center;font-weight:800;color:var(--navy);font-size:13px}
+@media print{body{background:#fff}.bar{display:none}.page{margin:0;box-shadow:none;width:auto}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <strong>規則卡 · 印 1 頁</strong>
+  <button onclick="print()">列印</button>
+  <a href="./">打開平板對決 →</a>
+</div>
+<div class="page">
+  <h1>🐉 龍珠<span>搶答對決</span></h1>
+  <div class="sub">小息 10 分鐘 · 4 人 · 認讀 · 先到 5 勇氣星勝 · 無粵拼印出</div>
+  <div class="grid">
+    <div class="card">
+      <div class="badge">賽制</div>
+      <h2>點比賽？</h2>
+      <ol>
+        <li>準決賽 × 2（各約 2.5 分）</li>
+        <li>決賽 × 1（約 3 分）</li>
+        <li>每場<strong>先到 5 ★</strong>就贏</li>
+        <li>輸咗唔走——轉做裁判／讀詞助手</li>
+      </ol>
+    </div>
+    <div class="card">
+      <div class="badge">4 人角色</div>
+      <h2>你做邊個？</h2>
+      <ul>
+        <li><strong>戰士 A／B</strong>：搶答對決</li>
+        <li><strong>龍珠裁判</strong>：撳「下一題！」「計星！」</li>
+        <li><strong>讀詞助手</strong>：需要時粵語讀出嚟</li>
+      </ul>
+      <p class="big" style="margin:8px 0 0">每人至少打 1 場！</p>
+    </div>
+    <div class="card">
+      <div class="badge">點得分</div>
+      <h2>規則（好短）</h2>
+      <ol>
+        <li>出題後要<strong>舉手／拍掣先</strong>，先講</li>
+        <li>講啱＝自己 ★＋1</li>
+        <li>講錯＝對手 ★＋1</li>
+        <li>連中 3 題＝可放「氣功波冷凍」對手 5 秒（每場限 1 次）</li>
+      </ol>
+    </div>
+    <div class="card">
+      <div class="badge">出題</div>
+      <h2>用邊啲詞？</h2>
+      <p class="big">準決：甘心、運氣、澆水、撿起、專心、農夫、突然、乾脆、幹活、費勁</p>
+      <p class="big" style="margin-top:6px">決賽加難：繼續、草叢、樹幹</p>
+    </div>
+    <div class="card full">
+      <div class="badge">裁判只用三句</div>
+      <h2>「下一題！」　「舉手先！」　「計星！」</h2>
+      <p class="big">冠軍封號：<strong>今日勇氣星王 · 最強戰士！</strong>🐉⭐</p>
+    </div>
+  </div>
+  <div class="foot">每次進步一點點，就好了不起 ⭐ · 和龍珠戰士一齊玩中文</div>
+</div>
+</body>
+</html>
