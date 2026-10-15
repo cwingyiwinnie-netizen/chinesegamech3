@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>勇氣骰 · Boss 招式大冒險</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --cream:#F7F3EB; --navy:#1a4a6e; --orange:#e65c00; --gold:#d4a017;
+  --ki:#38bdf8; --ink:#1a1200; --card:#fffef9; --soft:#e8e0d4;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  background:var(--cream);color:var(--ink);
+}
+button{font:inherit;font-weight:900;border:none;cursor:pointer;border-radius:999px;
+  min-height:52px;padding:14px 22px;transition:transform .12s,box-shadow .12s}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.45;cursor:default;transform:none}
+
+.screen-only{display:block}
+.print-only{display:none}
+
+.topbar{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 14px;background:linear-gradient(90deg,var(--navy),#245a82);
+  color:#fff;box-shadow:0 4px 16px #1a4a6e44;
+}
+.topbar h1{font-size:1.05rem;font-weight:900;letter-spacing:.02em;line-height:1.25}
+.topbar .emoji{font-size:1.2rem}
+.btn-print{
+  background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--ink);
+  font-size:.82rem;padding:10px 14px;min-height:44px;white-space:nowrap;
+  text-decoration:none;border-radius:999px;font-weight:900;box-shadow:0 2px 10px #e65c0044;
+}
+
+.app{max-width:560px;margin:0 auto;padding:14px 14px 40px}
+
+.stars-bar{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:var(--card);border:2px solid var(--soft);border-radius:18px;
+  padding:12px 14px;margin:12px 0;box-shadow:0 2px 10px #0001;
+}
+.stars-bar .lbl{font-size:.85rem;font-weight:800;color:var(--navy)}
+.stars-total{
+  font-size:2rem;font-weight:900;color:var(--gold);
+  text-shadow:0 2px 0 #e65c0033;letter-spacing:.04em;min-width:3.2em;text-align:center;
+}
+.stars-total .star-ico{font-size:1.6rem}
+
+.mode-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;
+}
+.mode-btn{
+  background:#fff;border:2.5px solid var(--navy);color:var(--navy);
+  border-radius:16px;font-size:1rem;min-height:48px;padding:10px 12px;
+}
+.mode-btn.on{
+  background:linear-gradient(135deg,var(--navy),#2a6a9e);color:#fff;
+  border-color:var(--gold);box-shadow:0 4px 14px #1a4a6e44;
+}
+
+.fighters{
+  display:flex;justify-content:space-between;gap:6px;margin-bottom:12px;
+  overflow-x:auto;padding:4px 2px 8px;
+}
+.fighter{
+  flex:0 0 auto;width:72px;text-align:center;cursor:pointer;
+  border-radius:14px;padding:6px 4px;border:2px solid transparent;
+  background:var(--card);transition:border-color .15s,transform .12s;
+}
+.fighter:active{transform:scale(.96)}
+.fighter.active{border-color:var(--gold);box-shadow:0 0 0 2px #d4a01755}
+.fighter img{
+  width:56px;height:56px;border-radius:50%;object-fit:cover;
+  border:2.5px solid var(--navy);display:block;margin:0 auto 4px;
+  background:#ddd;
+}
+.fighter.locked img{filter:grayscale(1) brightness(.7);opacity:.55}
+.fighter .fname{font-size:.72rem;font-weight:900;color:var(--navy);line-height:1.2}
+.fighter.locked .fname{color:#778}
+.fighter .lock-badge{
+  font-size:.65rem;font-weight:800;color:#889;margin-top:2px;
+}
+.fighter .lock-ico{font-size:.85rem}
+
+.unlock-yell{
+  display:none;text-align:center;font-size:1.25rem;font-weight:900;
+  color:var(--orange);padding:8px;margin-bottom:8px;
+  animation:popYell .6s ease;
+}
+.unlock-yell.on{display:block}
+@keyframes popYell{
+  0%{transform:scale(.6);opacity:0}
+  50%{transform:scale(1.12)}
+  100%{transform:scale(1);opacity:1}
+}
+
+.panel{
+  background:var(--card);border-radius:22px;padding:18px 16px;
+  border:2px solid var(--soft);box-shadow:0 6px 22px #1a4a6e14;margin-bottom:14px;
+  text-align:center;
+}
+.tagline{font-size:.9rem;font-weight:800;color:var(--navy);opacity:.85;margin-bottom:8px}
+.orbs{display:flex;justify-content:center;gap:8px;margin:6px 0 4px;font-size:1.4rem}
+.cheer{font-size:.85rem;font-weight:800;color:#2a6a9e;min-height:1.2em;margin-bottom:4px}
+
+.dice-stage{perspective:600px;margin:10px auto 16px;height:140px;display:flex;align-items:center;justify-content:center}
+.dice{
+  width:110px;height:110px;border-radius:22px;
+  background:linear-gradient(145deg,#fff,#f0e6d4);
+  border:4px solid var(--navy);
+  box-shadow:0 0 0 3px var(--gold),0 12px 28px #1a4a6e33,inset 0 -6px 12px #0001;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.55rem;font-weight:900;color:var(--navy);
+  transition:transform .15s;
+}
+.dice.rolling{
+  animation:shake .55s ease-in-out;
+  background:radial-gradient(circle at 40% 35%,#ffe9a8,var(--orange));
+  color:#fff;border-color:var(--orange);
+}
+.dice.fun{
+  background:linear-gradient(145deg,#ff9a3c,var(--orange));
+  color:#fff;border-color:#ffcc66;
+  box-shadow:0 0 0 3px #ffcc66,0 12px 28px #e65c0055;
+}
+@keyframes shake{
+  0%,100%{transform:rotate(0) scale(1)}
+  20%{transform:rotate(-18deg) scale(1.08)}
+  40%{transform:rotate(16deg) scale(.95)}
+  60%{transform:rotate(-12deg) scale(1.06)}
+  80%{transform:rotate(10deg) scale(.98)}
+}
+
+.result-word{
+  font-size:clamp(2.4rem,10vw,3.4rem);font-weight:900;color:var(--navy);
+  min-height:1.2em;margin:6px 0 4px;letter-spacing:.06em;
+  text-shadow:0 2px 0 #d4a01733;
+}
+.result-word.fun-word{color:var(--orange)}
+.hint-box{
+  min-height:2.6em;margin:8px 0 12px;padding:10px 12px;border-radius:14px;
+  background:#f0f7fb;border:1.5px dashed var(--ki);color:var(--navy);
+  font-size:.95rem;font-weight:800;line-height:1.45;
+}
+
+.btn-roll{
+  width:100%;font-size:1.45rem;padding:18px;
+  background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--ink);
+  box-shadow:0 6px 20px #e65c0055;
+}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.btn-read{
+  background:linear-gradient(135deg,#1a4a6e,#2a6a9e);color:#fff;
+  font-size:1.05rem;box-shadow:0 4px 14px #1a4a6e44;
+}
+.btn-write{
+  background:linear-gradient(135deg,#c44d00,var(--orange));color:#fff;
+  font-size:1.05rem;box-shadow:0 4px 14px #e65c0044;
+}
+.praise{
+  min-height:1.5em;margin-top:10px;font-size:1.05rem;font-weight:900;color:var(--orange);
+}
+
+.write-zone{display:none;margin-top:14px}
+.write-zone.on{display:block}
+.write-title{font-weight:900;color:var(--navy);margin-bottom:8px;font-size:1rem}
+.grids{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:10px}
+.tian{
+  width:88px;height:88px;background:#fff;border:2.5px solid var(--navy);border-radius:8px;
+  position:relative;box-shadow:0 2px 8px #0001;
+}
+.tian::before,.tian::after{content:"";position:absolute;background:#94a3b866}
+.tian::before{left:50%;top:6%;bottom:6%;width:1.5px;transform:translateX(-50%)}
+.tian::after{top:50%;left:6%;right:6%;height:1.5px;transform:translateY(-50%)}
+.tian .ghost{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:2.6rem;font-weight:900;color:#1a4a6e18;pointer-events:none;
+}
+
+.canvas-wrap{
+  position:relative;margin:10px auto;max-width:320px;
+  border:3px solid var(--navy);border-radius:16px;overflow:hidden;
+  background:#fff;box-shadow:0 4px 14px #1a4a6e22;touch-action:none;
+}
+#kiCanvas{display:block;width:100%;height:220px;cursor:crosshair;touch-action:none}
+.canvas-ghost{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:4.5rem;font-weight:900;color:#1a4a6e14;pointer-events:none;
+  letter-spacing:.08em;user-select:none;
+}
+.canvas-label{
+  font-size:.8rem;font-weight:800;color:#2a6a9e;margin-bottom:6px;
+}
+.write-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.btn-clear{
+  background:#fff;border:2px solid var(--navy);color:var(--navy);
+  font-size:.95rem;border-radius:999px;
+}
+.btn-done-write{
+  background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--ink);font-size:.95rem;
+}
+
+.pick-fun{display:none;margin-top:12px;text-align:left}
+.pick-fun.on{display:block}
+.pick-fun p{font-weight:800;color:var(--navy);margin-bottom:8px;text-align:center}
+.pick-fun .choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pick-fun button{
+  background:#fff;border:2px solid var(--navy);color:var(--navy);
+  border-radius:16px;font-size:1.15rem;min-height:52px;
+}
+.pick-fun .reroll{
+  background:linear-gradient(135deg,#ff9a3c,var(--orange));color:#fff;border:none;margin-top:8px;width:100%;
+}
+
+.teacher{
+  margin-top:18px;padding:10px 12px;border-radius:14px;
+  background:#1a4a6e0a;border:1px dashed #1a4a6e44;
+  font-size:.7rem;font-weight:700;color:#667;line-height:1.5;text-align:left;
+}
+.teacher strong{color:var(--navy)}
+
+.fx{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+.chip{position:absolute;font-weight:900;font-size:26px;color:var(--gold);
+  text-shadow:0 0 10px #fbbf24aa;animation:fall 1.1s ease-out forwards}
+@keyframes fall{to{transform:translateY(140px) scale(.5);opacity:0}}
+
+@page{size:A4 portrait;margin:0}
+@media print{
+  .screen-only{display:none !important}
+  .print-only{display:block !important}
+  body{background:#fff;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sheet{
+    width:210mm;height:297mm;page-break-after:always;page-break-inside:avoid;
+    padding:12mm 14mm;box-sizing:border-box;position:relative;overflow:hidden;
+  }
+  .sheet:last-child{page-break-after:auto}
+}
+
+.print-section{
+  margin-top:28px;padding-top:20px;border-top:3px dashed var(--soft);
+}
+.print-section h2{
+  text-align:center;font-size:1.1rem;color:var(--navy);margin-bottom:12px;
+}
+.sheet{
+  width:100%;max-width:210mm;margin:0 auto 24px;
+  background:#fff;border:2px solid var(--soft);border-radius:12px;
+  padding:18px 16px;box-sizing:border-box;
+}
+.sheet-title{
+  text-align:center;font-size:1.35rem;font-weight:900;color:var(--navy);margin-bottom:4px;
+}
+.sheet-sub{text-align:center;font-size:.85rem;font-weight:700;color:var(--orange);margin-bottom:14px}
+
+.net-wrap{display:flex;justify-content:center;margin:10px 0 16px}
+.net{
+  display:grid;
+  grid-template-columns:repeat(4, 38mm);
+  grid-template-rows:repeat(3, 38mm);
+  gap:0;
+}
+.face{
+  border:2.5px solid var(--navy);background:var(--cream);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-weight:900;position:relative;box-sizing:border-box;
+}
+.face .num{position:absolute;top:3px;left:5px;font-size:10px;color:#1a4a6e88;font-weight:800}
+.face .w{font-size:1.35rem;color:var(--navy);letter-spacing:.04em;line-height:1.2;text-align:center;padding:4px}
+.face.fun{background:linear-gradient(145deg,#ffe0c2,#ffb366);border-color:var(--orange)}
+.face.fun .w{color:var(--orange);font-size:1.05rem}
+.face.f1{grid-column:2;grid-row:2}
+.face.f2{grid-column:2;grid-row:1}
+.face.f3{grid-column:1;grid-row:2}
+.face.f4{grid-column:3;grid-row:2}
+.face.f5{grid-column:2;grid-row:3}
+.face.f6{grid-column:4;grid-row:2}
+
+.howto{
+  font-size:.88rem;font-weight:700;line-height:1.55;color:var(--ink);
+  background:#f7f3eb;border-radius:12px;padding:12px 14px;border:1.5px solid var(--soft);
+}
+.howto ol{margin:6px 0 0 1.2em}
+.howto li{margin:4px 0}
+
+.rules-card{
+  border:3px solid var(--navy);border-radius:18px;padding:20px 18px;
+  background:linear-gradient(180deg,#fffef9,var(--cream));
+  max-width:160mm;margin:20px auto;
+}
+.rules-card h3{text-align:center;font-size:1.5rem;color:var(--navy);margin-bottom:6px}
+.rules-card .badge{
+  display:block;text-align:center;font-size:.95rem;font-weight:900;color:var(--orange);margin-bottom:14px;
+}
+.rules-card ul{list-style:none;padding:0}
+.rules-card li{
+  display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:start;
+  margin:10px 0;font-weight:800;font-size:1.05rem;line-height:1.4;color:var(--ink);
+}
+.rules-card .ico{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--orange));
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+}
+.rules-stars{text-align:center;margin-top:16px;font-size:1.3rem;color:var(--gold);font-weight:900}
+
+@media screen{
+  .print-hint{text-align:center;font-size:.8rem;font-weight:700;color:#778;margin:8px 0 16px}
+}
+@media print{
+  .print-section{margin:0;padding:0;border:none}
+  .print-section > h2, .print-hint{display:none !important}
+  .sheet{border:none;border-radius:0;max-width:none;margin:0;padding:12mm 14mm}
+  .net{grid-template-columns:repeat(4, 38mm);grid-template-rows:repeat(3, 38mm)}
+}
+</style>
+</head>
+<body>
+
+<div class="screen-only">
+  <header class="topbar">
+    <h1><span class="emoji">🐉</span> 勇氣骰 · Boss 招式大冒險</h1>
+    <a class="btn-print" href="#print-sheets" id="btnPrintLink">列印骰仔紙</a>
+  </header>
+
+  <div class="app">
+    <div class="stars-bar">
+      <span class="lbl">勇氣星</span>
+      <div class="stars-total" id="starsDisplay" aria-live="polite"><span class="star-ico">⭐</span> <span id="starsNum">0</span></div>
+    </div>
+
+    <div class="mode-row" role="group" aria-label="招式池">
+      <button type="button" class="mode-btn on" id="modeBoss" data-mode="boss">Boss 五招</button>
+      <button type="button" class="mode-btn" id="modeAll" data-mode="all">全部招式</button>
+    </div>
+
+    <div class="unlock-yell" id="unlockYell">新夥伴加入！</div>
+
+    <div class="fighters" id="fightersRow" aria-label="戰士"></div>
+
+    <div class="panel">
+      <div class="orbs">⚡ ⭐ 🐉 ⭐ ⚡</div>
+      <p class="tagline">擲命運骰 → 集氣喊招 → 出招畫氣！</p>
+      <div class="cheer" id="cheerLine"></div>
+
+      <div class="dice-stage">
+        <div class="dice" id="diceFace" aria-live="polite">？</div>
+      </div>
+
+      <div class="result-word" id="resultWord">準備好未？</div>
+      <div class="hint-box" id="hintBox">撳下面大掣，擲出今日嘅 Boss 招式！</div>
+
+      <button type="button" class="btn-roll" id="btnRoll">擲！</button>
+
+      <div class="actions" id="actionRow" hidden>
+        <button type="button" class="btn-read" id="btnRead">集氣 · 喊招式名<br /><small style="font-weight:800;opacity:.9">勇氣星＋1</small></button>
+        <button type="button" class="btn-write" id="btnWrite">出招 · 畫氣<br /><small style="font-weight:800;opacity:.9">勇氣星＋2</small></button>
+      </div>
+
+      <div class="pick-fun" id="pickFun">
+        <p>🎲 再擲／自由選！揀一個招式，或者再擲～</p>
+        <div class="choices" id="funChoices"></div>
+        <button type="button" class="reroll" id="btnReroll">再擲一次！</button>
+      </div>
+
+      <div class="write-zone" id="writeZone">
+        <div class="write-title" id="writeTitle">喺田字格出招畫氣 ✍️</div>
+        <div class="grids" id="grids"></div>
+        <p class="canvas-label">氣影 · 用手指畫出招式</p>
+        <div class="canvas-wrap">
+          <div class="canvas-ghost" id="canvasGhost"></div>
+          <canvas id="kiCanvas" width="320" height="220"></canvas>
+        </div>
+        <div class="write-btns">
+          <button type="button" class="btn-clear" id="btnClear">清氣重畫</button>
+          <button type="button" class="btn-done-write" id="btnDoneWrite">出招完成 · ＋2⭐</button>
+        </div>
+      </div>
+
+      <div class="praise" id="praise" aria-live="polite"></div>
+    </div>
+
+    <div class="teacher">
+      <strong>老師用</strong>（細字）· Boss 五招／全部招式可切換。集氣＋1／出招＋2。戰士解鎖：3／5／8／12／16／20★。localStorage: bossDiceSave。
+    </div>
+  </div>
+</div>
+
+<div class="fx" id="fx" aria-hidden="true"></div>
+
+<div class="print-section print-only screen-only" id="print-sheets">
+  <h2 class="screen-only">📄 列印區（A4 直向 · 兩頁）</h2>
+  <p class="print-hint screen-only">用瀏覽器「列印」；只會印出下面兩張紙（互動掣會隱藏）。</p>
+
+  <section class="sheet" id="sheet-net">
+    <div class="sheet-title">🐉 勇氣骰 · 紙骰仔</div>
+    <div class="sheet-sub">Boss 招式大冒險 · 剪摺即可玩</div>
+    <div class="net-wrap">
+      <div class="net" aria-label="骰仔展開圖">
+        <div class="face f2"><span class="num">2</span><span class="w">草叢</span></div>
+        <div class="face f3"><span class="num">3</span><span class="w">樹幹</span></div>
+        <div class="face f1"><span class="num">1</span><span class="w">繼續</span></div>
+        <div class="face f4"><span class="num">4</span><span class="w">幹活</span></div>
+        <div class="face f5"><span class="num">5</span><span class="w">專心</span></div>
+        <div class="face f6 fun"><span class="num">6</span><span class="w">再擲<br />自由選</span></div>
+      </div>
+    </div>
+    <div class="howto">
+      <strong>點整紙骰仔</strong>
+      <ol>
+        <li>沿黑線剪出十字形（六個面連住）。</li>
+        <li>每個面沿邊向內摺成正方形。</li>
+        <li>用膠水／膠紙黏成立體骰；橙色面＝再擲／自由選。</li>
+        <li>擲到邊面，就集氣喊嗰個招式名，再出招畫氣！</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sheet" id="sheet-rules">
+    <div class="sheet-title">⚡ 小息規則卡</div>
+    <div class="sheet-sub">勇氣骰 · Boss 招式大冒險</div>
+    <div class="rules-card">
+      <h3>🐉 點玩？</h3>
+      <span class="badge">小息 3–5 分鐘就得</span>
+      <ul>
+        <li><span class="ico">①</span><span>擲命運骰／勇氣骰</span></li>
+        <li><span class="ico">②</span><span>擲到邊個 Boss 招式 → 集氣喊招式名</span></li>
+        <li><span class="ico">③</span><span>再出招畫氣（田字格＋氣影）</span></li>
+        <li><span class="ico">🎲</span><span>再擲面：自由揀招式，或者再擲一次</span></li>
+        <li><span class="ico">⭐</span><span>集氣＋1星 · 出招＋2星 · 解鎖戰士</span></li>
+      </ul>
+      <div class="rules-stars">★ ★ ★ ★ ★</div>
+      <p style="text-align:center;margin-top:10px;font-weight:800;font-size:.95rem;color:var(--navy)">
+        寫到就係集氣 · 打中就加星 · 唔怕錯！
+      </p>
+    </div>
+    <div class="howto" style="margin-top:18px">
+      <strong>老師用 · Boss 招式提示</strong>
+      <ul style="margin:6px 0 0 1.1em;padding:0">
+        <li>繼續：兩個都有「糹」</li>
+        <li>草叢：草有早；叢＝一堆</li>
+        <li>樹幹：樹有木；幹＝幹活嗰個</li>
+        <li>幹活：活＝水＋舌；幹記「干」</li>
+        <li>專心：專＋心</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  const ALL_WORDS = [
+    { text: '甘心', hint: '甘＋心' },
+    { text: '運氣', hint: '運有「走」；氣＝气＋米' },
+    { text: '澆水', hint: '水旁＋堯' },
+    { text: '撿起', hint: '手旁撿；走＋己＝起' },
+    { text: '專心', hint: '專＋心' },
+    { text: '農夫', hint: '田裡幹活嘅人' },
+    { text: '突然', hint: '洞裡隻狗衝出嚟' },
+    { text: '乾脆', hint: '脆有「月」' },
+    { text: '幹活', hint: '活＝水＋舌；幹記「干」' },
+    { text: '費勁', hint: '費有貝；勁要「力」' },
+    { text: '繼續', hint: '兩個都有「糹」' },
+    { text: '草叢', hint: '草有早；叢＝一堆' },
+    { text: '樹幹', hint: '樹有木；幹＝幹活嗰個' }
+  ];
+  const BOSS_TEXTS = ['繼續', '草叢', '樹幹', '幹活', '專心'];
+  const FUN = { text: '再擲／自由選', hint: '自由揀一個招式，或者再擲一次！', fun: true };
+
+  const FIGHTERS = [
+    { id: 'a', name: '橙閃', need: 3,  img: 'img/fighter-a.jpg' },
+    { id: 'b', name: '藍氣', need: 5,  img: 'img/fighter-b.jpg' },
+    { id: 'c', name: '紫影', need: 8,  img: 'img/fighter-c.jpg' },
+    { id: 'd', name: '銀穗', need: 12, img: 'img/fighter-d.jpg' },
+    { id: 'e', name: '粉焰', need: 16, img: 'img/fighter-e.jpg' },
+    { id: 'f', name: '光拳', need: 20, img: 'img/fighter-f.jpg' }
+  ];
+
+  const SAVE_KEY = 'bossDiceSave';
+
+  let mode = 'boss'; // 'boss' | 'all'
+  let stars = 0;
+  let unlocked = {};
+  let activeFighter = 'a';
+  let current = null;
+  let rolling = false;
+
+  const el = {
+    dice: document.getElementById('diceFace'),
+    word: document.getElementById('resultWord'),
+    hint: document.getElementById('hintBox'),
+    roll: document.getElementById('btnRoll'),
+    actions: document.getElementById('actionRow'),
+    read: document.getElementById('btnRead'),
+    write: document.getElementById('btnWrite'),
+    writeZone: document.getElementById('writeZone'),
+    grids: document.getElementById('grids'),
+    writeTitle: document.getElementById('writeTitle'),
+    doneWrite: document.getElementById('btnDoneWrite'),
+    clearBtn: document.getElementById('btnClear'),
+    canvas: document.getElementById('kiCanvas'),
+    canvasGhost: document.getElementById('canvasGhost'),
+    pickFun: document.getElementById('pickFun'),
+    funChoices: document.getElementById('funChoices'),
+    reroll: document.getElementById('btnReroll'),
+    praise: document.getElementById('praise'),
+    starsNum: document.getElementById('starsNum'),
+    fightersRow: document.getElementById('fightersRow'),
+    unlockYell: document.getElementById('unlockYell'),
+    cheer: document.getElementById('cheerLine'),
+    modeBoss: document.getElementById('modeBoss'),
+    modeAll: document.getElementById('modeAll'),
+    fx: document.getElementById('fx'),
+    printLink: document.getElementById('btnPrintLink')
+  };
+
+  function loadSave() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (typeof d.stars === 'number' && d.stars >= 0) stars = d.stars;
+      if (d.unlocked && typeof d.unlocked === 'object') unlocked = Object.assign({}, d.unlocked);
+      if (d.activeFighter) activeFighter = d.activeFighter;
+      if (d.mode === 'all' || d.mode === 'boss') mode = d.mode;
+    } catch (e) {}
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        stars: stars,
+        unlocked: unlocked,
+        activeFighter: activeFighter,
+        mode: mode
+      }));
+    } catch (e) {}
+  }
+
+  function poolWords() {
+    if (mode === 'boss') {
+      return ALL_WORDS.filter(function (w) { return BOSS_TEXTS.indexOf(w.text) !== -1; });
+    }
+    return ALL_WORDS.slice();
+  }
+
+  function renderStars() {
+    el.starsNum.textContent = String(stars);
+  }
+
+  function renderModes() {
+    el.modeBoss.classList.toggle('on', mode === 'boss');
+    el.modeAll.classList.toggle('on', mode === 'all');
+  }
+
+  function renderFighters() {
+    el.fightersRow.innerHTML = '';
+    FIGHTERS.forEach(function (f) {
+      const isUnlocked = !!unlocked[f.id] || stars >= f.need;
+      if (isUnlocked && !unlocked[f.id]) unlocked[f.id] = true;
+      const div = document.createElement('div');
+      div.className = 'fighter' + (isUnlocked ? '' : ' locked') + (activeFighter === f.id && isUnlocked ? ' active' : '');
+      div.dataset.id = f.id;
+      const img = document.createElement('img');
+      img.src = f.img;
+      img.alt = f.name;
+      div.appendChild(img);
+      const nm = document.createElement('div');
+      nm.className = 'fname';
+      nm.textContent = f.name;
+      div.appendChild(nm);
+      if (!isUnlocked) {
+        const lb = document.createElement('div');
+        lb.className = 'lock-badge';
+        lb.innerHTML = '<span class="lock-ico">🔒</span> ' + f.need + '⭐';
+        div.appendChild(lb);
+      }
+      if (isUnlocked) {
+        div.addEventListener('click', function () {
+          activeFighter = f.id;
+          save();
+          renderFighters();
+          updateCheer();
+        });
+      }
+      el.fightersRow.appendChild(div);
+    });
+    updateCheer();
+  }
+
+  function updateCheer() {
+    const f = FIGHTERS.find(function (x) { return x.id === activeFighter; });
+    el.cheer.textContent = f ? ('戰士' + f.name + ' 為你加油！⚡') : '';
+    /* Use Traditional: 戰士 */
+    el.cheer.textContent = f ? ('戰士「' + f.name + '」為你加油！⚡') : '';
+  }
+
+  function checkUnlocks(prevStars) {
+    let newly = [];
+    FIGHTERS.forEach(function (f) {
+      if (f.need > 0 && prevStars < f.need && stars >= f.need && !unlocked[f.id]) {
+        unlocked[f.id] = true;
+        newly.push(f);
+      }
+    });
+    if (newly.length) {
+      el.unlockYell.textContent = '新夥伴加入！' + newly.map(function (f) { return f.name; }).join('、');
+      el.unlockYell.classList.add('on');
+      burst();
+      setTimeout(function () { el.unlockYell.classList.remove('on'); }, 2200);
+      if (!unlocked[activeFighter]) activeFighter = newly[0].id;
+      else activeFighter = newly[newly.length - 1].id;
+    }
+    renderFighters();
+  }
+
+  function burst() {
+    for (let i = 0; i < 10; i++) {
+      const c = document.createElement('div');
+      c.className = 'chip';
+      c.textContent = ['⭐', '⚡', '★', '🐉'][i % 4];
+      c.style.left = (20 + Math.random() * 60) + '%';
+      c.style.top = (30 + Math.random() * 20) + '%';
+      el.fx.appendChild(c);
+      setTimeout(function () { c.remove(); }, 1100);
+    }
+  }
+
+  function addStars(n, msg) {
+    const prev = stars;
+    stars += n; // never subtract
+    renderStars();
+    burst();
+    el.praise.textContent = msg || ('打中！勇氣星＋' + n + ' ⭐');
+    checkUnlocks(prev);
+    save();
+  }
+
+  function showWord(w) {
+    current = w;
+    el.dice.classList.remove('rolling');
+    if (w.fun) {
+      el.dice.classList.add('fun');
+      el.dice.textContent = '🎲';
+      el.word.textContent = w.text;
+      el.word.classList.add('fun-word');
+      el.hint.textContent = w.hint;
+      el.actions.hidden = true;
+      el.writeZone.classList.remove('on');
+      el.pickFun.classList.add('on');
+      el.funChoices.innerHTML = '';
+      poolWords().forEach(function (x) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = x.text;
+        b.addEventListener('click', function () { pickFunWord(x); });
+        el.funChoices.appendChild(b);
+      });
+    } else {
+      el.dice.classList.remove('fun');
+      el.dice.textContent = w.text;
+      el.word.textContent = w.text;
+      el.word.classList.remove('fun-word');
+      el.hint.textContent = '💡 ' + w.hint;
+      el.pickFun.classList.remove('on');
+      el.writeZone.classList.remove('on');
+      el.actions.hidden = false;
+    }
+    el.praise.textContent = '';
+    el.roll.disabled = false;
+    el.roll.textContent = '再擲！';
+  }
+
+  function pickFunWord(w) {
+    el.pickFun.classList.remove('on');
+    showWord(Object.assign({}, w, { fun: false }));
+    el.praise.textContent = '揀好招式啦！準備集氣～';
+  }
+
+  function rollOutcome() {
+    // ~1/6 chance of 再擲／自由選; otherwise uniform from current pool
+    if (Math.random() < 1 / 6) return FUN;
+    const pool = poolWords();
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function spinFaces() {
+    const pool = poolWords();
+    const faces = pool.concat([FUN]);
+    return faces[Math.floor(Math.random() * faces.length)];
+  }
+
+  function roll() {
+    if (rolling) return;
+    rolling = true;
+    el.roll.disabled = true;
+    el.actions.hidden = true;
+    el.writeZone.classList.remove('on');
+    el.pickFun.classList.remove('on');
+    el.praise.textContent = '';
+    el.word.textContent = '…';
+    el.word.classList.remove('fun-word');
+    el.hint.textContent = '命運骰轉緊… ⚡';
+    el.dice.classList.remove('fun');
+    el.dice.classList.add('rolling');
+
+    let ticks = 0;
+    const iv = setInterval(function () {
+      const tmp = spinFaces();
+      el.dice.textContent = tmp.fun ? '🎲' : tmp.text;
+      ticks++;
+      if (ticks > 10) {
+        clearInterval(iv);
+        rolling = false;
+        showWord(rollOutcome());
+      }
+    }, 80);
+  }
+
+  function onRead() {
+    if (!current || current.fun) return;
+    addStars(1, '集氣成功！打中！勇氣星＋1 ⭐');
+  }
+
+  /* ===== Finger canvas ===== */
+  const ctx = el.canvas.getContext('2d');
+  let drawing = false;
+
+  function resizeCanvas() {
+    const wrap = el.canvas.parentElement;
+    const w = wrap.clientWidth || 320;
+    const h = 220;
+    const ratio = window.devicePixelRatio || 1;
+    el.canvas.width = w * ratio;
+    el.canvas.height = h * ratio;
+    el.canvas.style.width = w + 'px';
+    el.canvas.style.height = h + 'px';
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#e65c00';
+    ctx.lineWidth = 4;
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  function clearCanvas() {
+    const w = el.canvas.clientWidth || 320;
+    const h = el.canvas.clientHeight || 220;
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = '#e65c00';
+    ctx.lineWidth = 4;
+  }
+
+  function posFromEvent(e) {
+    const rect = el.canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    drawing = true;
+    const p = posFromEvent(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  }
+  function moveDraw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const p = posFromEvent(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  }
+  function endDraw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    drawing = false;
+  }
+
+  el.canvas.addEventListener('mousedown', startDraw);
+  el.canvas.addEventListener('mousemove', moveDraw);
+  el.canvas.addEventListener('mouseup', endDraw);
+  el.canvas.addEventListener('mouseleave', endDraw);
+  el.canvas.addEventListener('touchstart', startDraw, { passive: false });
+  el.canvas.addEventListener('touchmove', moveDraw, { passive: false });
+  el.canvas.addEventListener('touchend', endDraw, { passive: false });
+
+  function onWrite() {
+    if (!current || current.fun) return;
+    el.writeZone.classList.add('on');
+    el.writeTitle.textContent = '出招畫氣：「' + current.text + '」';
+    el.canvasGhost.textContent = current.text;
+    el.grids.innerHTML = '';
+    const chars = Array.from(current.text);
+    chars.forEach(function (ch) {
+      const cell = document.createElement('div');
+      cell.className = 'tian';
+      const g = document.createElement('span');
+      g.className = 'ghost';
+      g.textContent = ch;
+      cell.appendChild(g);
+      el.grids.appendChild(cell);
+    });
+    if (chars.length === 2) {
+      for (let i = 0; i < 2; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'tian';
+        el.grids.appendChild(cell);
+      }
+    }
+    setTimeout(function () {
+      resizeCanvas();
+      clearCanvas();
+    }, 30);
+    el.praise.textContent = '用手指畫氣影 · 慢慢出招～';
+    el.writeZone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function onDoneWrite() {
+    addStars(2, '出招完成！打中！勇氣星＋2 ⭐⭐');
+    el.writeZone.classList.remove('on');
+  }
+
+  el.roll.addEventListener('click', roll);
+  el.read.addEventListener('click', onRead);
+  el.write.addEventListener('click', onWrite);
+  el.doneWrite.addEventListener('click', onDoneWrite);
+  el.clearBtn.addEventListener('click', function () {
+    clearCanvas();
+    el.praise.textContent = '清氣重畫 · 再嚟過！';
+  });
+  el.reroll.addEventListener('click', function () {
+    el.pickFun.classList.remove('on');
+    roll();
+  });
+
+  el.modeBoss.addEventListener('click', function () {
+    mode = 'boss';
+    renderModes();
+    save();
+    el.praise.textContent = '切換：Boss 五招！';
+  });
+  el.modeAll.addEventListener('click', function () {
+    mode = 'all';
+    renderModes();
+    save();
+    el.praise.textContent = '切換：全部招式（13 招）！';
+  });
+
+  el.printLink.addEventListener('click', function (e) {
+    const rect = document.getElementById('print-sheets').getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      e.preventDefault();
+      window.print();
+    }
+  });
+
+  (function () {
+    const hint = document.querySelector('.print-hint');
+    if (!hint) return;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = '立即列印 A4';
+    b.style.cssText = 'display:block;margin:8px auto 16px;background:linear-gradient(135deg,#d4a017,#e65c00);color:#1a1200;font-size:1rem;padding:12px 24px;border-radius:999px;font-weight:900;min-height:48px;border:none;cursor:pointer';
+    b.addEventListener('click', function () { window.print(); });
+    hint.after(b);
+  })();
+
+  // Init unlocks from stars
+  loadSave();
+  FIGHTERS.forEach(function (f) {
+    if (stars >= f.need) unlocked[f.id] = true;
+  });
+  if (!unlocked[activeFighter]) activeFighter = 'a';
+  renderStars();
+  renderModes();
+  renderFighters();
+  save();
+})();
+</script>
+</body>
+</html>
