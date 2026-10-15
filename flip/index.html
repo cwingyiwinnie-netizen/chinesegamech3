@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>鏈巨人 · 合體翻牌</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --cyan:#22d3ee;--cyan2:#67e8f9;--silver:#c8d0dc;--steel:#6b7a8d;
+  --stone:#3d4550;--stone2:#2a3038;--ink:#0f1419;--gold:#f5c542;
+  --panel:rgba(20,28,36,.78);--ok:#34d399;--bad:#fb7185;--coin:#fbbf24;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{min-height:100%;}
+body{
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  color:#e8eef5;min-height:100dvh;
+  background:var(--ink) center/cover no-repeat fixed;
+  background-image:linear-gradient(180deg,rgba(8,14,22,.72),rgba(12,18,28,.88)),url("img/chain-giant-theme.jpg");
+}
+button{font:inherit;font-weight:900;border:none;cursor:pointer;border-radius:999px;min-height:48px;padding:12px 18px;transition:transform .12s,box-shadow .12s}
+button:active{transform:scale(.97)}button:disabled{opacity:.45;cursor:default}
+.top{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:10px 12px;
+  background:linear-gradient(90deg,#1a2836,#243442 50%,#1a2836);
+  border-bottom:2px solid rgba(34,211,238,.45);
+  box-shadow:0 4px 18px rgba(0,0,0,.35);
+}
+.top-left{display:flex;align-items:center;gap:8px;min-width:0}
+.mascot{
+  width:48px;height:48px;border-radius:50%;object-fit:cover;
+  border:2.5px solid var(--cyan);box-shadow:0 0 12px rgba(34,211,238,.55);
+  flex:0 0 auto;background:#111;
+}
+.top h1{font-size:clamp(.9rem,3.5vw,1.15rem);line-height:1.25;letter-spacing:.02em;white-space:nowrap}
+.top-right{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.chip{
+  display:flex;align-items:center;gap:4px;padding:6px 10px;border-radius:999px;
+  background:rgba(15,20,25,.75);font-size:1.05rem;font-weight:900;white-space:nowrap;
+}
+.chip.stars{border:2px solid var(--gold);color:var(--gold)}
+.chip.coins{border:2px solid var(--coin);color:var(--coin);font-size:1.2rem}
+.btn-shop{
+  background:linear-gradient(135deg,#b45309,#d97706);color:#fff;
+  border:2px solid var(--coin);min-height:42px;padding:8px 12px;font-size:.85rem;
+  box-shadow:0 0 10px rgba(251,191,36,.35);
+}
+.app{max-width:640px;margin:0 auto;padding:12px 12px 40px}
+.stage-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.stage-btn{
+  background:rgba(255,255,255,.08);border:2.5px solid var(--steel);color:var(--silver);
+  border-radius:16px;font-size:.82rem;min-height:52px;padding:8px 6px;line-height:1.25;
+}
+.stage-btn .st-num{display:block;font-size:.7rem;opacity:.75;margin-bottom:2px}
+.stage-btn.on{
+  background:linear-gradient(135deg,#0e7490,#155e75);
+  color:#fff;border-color:var(--cyan);
+  box-shadow:0 0 14px rgba(34,211,238,.35);
+}
+.stage-btn.locked{opacity:.4;cursor:default}
+.stage-btn.cleared:not(.on){border-color:var(--ok);color:var(--ok)}
+.stage-prog{
+  text-align:center;font-size:.9rem;font-weight:900;color:var(--cyan2);
+  margin-bottom:8px;letter-spacing:.06em;
+}
+.panel{
+  background:var(--panel);backdrop-filter:blur(8px);
+  border:2px solid rgba(200,208,220,.28);border-radius:22px;
+  padding:14px 12px 16px;box-shadow:0 8px 28px rgba(0,0,0,.35);
+}
+.target-box{
+  text-align:center;margin-bottom:12px;padding:10px 12px;border-radius:16px;
+  background:rgba(34,211,238,.1);border:1.5px dashed rgba(34,211,238,.45);
+}
+.target-lbl{font-size:.82rem;font-weight:800;color:var(--cyan2);opacity:.9;margin-bottom:4px}
+.target-word{
+  font-size:clamp(1.8rem,8vw,2.6rem);font-weight:900;letter-spacing:.18em;
+  color:#fff;text-shadow:0 0 18px rgba(34,211,238,.55);
+}
+.target-hint{font-size:.78rem;font-weight:800;color:var(--silver);opacity:.75;margin-top:4px;letter-spacing:.06em}
+.status{
+  text-align:center;min-height:1.4em;margin:6px 0 10px;
+  font-size:1.05rem;font-weight:900;color:var(--cyan2);
+}
+.status.ok{color:var(--ok)}
+.status.bad{color:var(--bad)}
+.status.ghost{color:#fbbf24}
+.status.buy{color:var(--coin)}
+.progress{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:12px;
+}
+.pw{
+  padding:4px 10px;border-radius:999px;font-size:.78rem;font-weight:900;
+  background:rgba(255,255,255,.06);border:1.5px solid var(--steel);color:var(--steel);
+}
+.pw.done{background:rgba(52,211,153,.15);border-color:var(--ok);color:var(--ok)}
+.pw.cur{background:rgba(34,211,238,.18);border-color:var(--cyan);color:var(--cyan2);box-shadow:0 0 8px rgba(34,211,238,.3)}
+.board{
+  display:grid;gap:10px;margin:8px auto 14px;
+  max-width:520px;
+}
+.board.n8,.board.n10{grid-template-columns:repeat(4,1fr)}
+.board.n12{grid-template-columns:repeat(4,1fr)}
+.board.n14{grid-template-columns:repeat(5,1fr)}
+@media(max-width:420px){
+  .board.n14{grid-template-columns:repeat(4,1fr)}
+}
+.card{
+  aspect-ratio:3/4;perspective:800px;cursor:pointer;border:none;padding:0;
+  background:transparent;min-height:0;border-radius:14px;
+  -webkit-user-select:none;user-select:none;
+}
+.card:disabled{cursor:default}
+.card-inner{
+  position:relative;width:100%;height:100%;border-radius:14px;
+  transform-style:preserve-3d;transition:transform .38s ease;
+  box-shadow:0 4px 14px rgba(0,0,0,.4);
+}
+.card.flipped .card-inner,.card.matched .card-inner{transform:rotateY(180deg)}
+.face{
+  position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;-webkit-font-smoothing:antialiased;
+}
+.back{
+  background:
+    radial-gradient(circle at 30% 25%,rgba(34,211,238,.35),transparent 45%),
+    linear-gradient(145deg,#4a5564,#2a323c 40%,#1c242e);
+  border:2.5px solid #8a96a6;
+  color:var(--cyan2);font-size:clamp(1.1rem,4.5vw,1.6rem);
+  box-shadow:inset 0 0 0 3px rgba(34,211,238,.18),inset 0 0 20px rgba(0,0,0,.35);
+}
+.back::before{
+  content:"⛓";opacity:.9;filter:drop-shadow(0 0 6px rgba(34,211,238,.7));
+}
+.front{
+  transform:rotateY(180deg);
+  background:linear-gradient(160deg,#f0f4f8,#d6dde6);
+  border:2.5px solid var(--cyan);
+  color:var(--stone2);font-size:clamp(1.5rem,6.5vw,2.2rem);
+  box-shadow:inset 0 0 0 3px rgba(34,211,238,.25),0 0 12px rgba(34,211,238,.25);
+}
+.card.matched .front{
+  background:linear-gradient(160deg,#d1fae5,#a7f3d0);
+  border-color:var(--ok);color:#065f46;
+  box-shadow:0 0 14px rgba(52,211,153,.45);
+}
+.card.ghost-hit .front{
+  background:linear-gradient(160deg,#1e1b2e,#312e4a);
+  border-color:#fbbf24;color:#fde68a;
+}
+.card.glow .back,.card.glow .front{
+  border-color:#fbbf24 !important;
+  box-shadow:0 0 16px 4px rgba(251,191,36,.65),inset 0 0 0 3px rgba(251,191,36,.3) !important;
+}
+.card.peek .card-inner{transform:rotateY(180deg)}
+.ghost-face{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  font-size:clamp(1.6rem,7vw,2.4rem);line-height:1;
+}
+.ghost-face .eyes{display:flex;gap:8px;font-size:.55em}
+.ghost-face .mouth{font-size:.7em;margin-top:2px}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.btn-new{
+  background:linear-gradient(135deg,#0e7490,#0891b2);color:#fff;
+  box-shadow:0 4px 14px rgba(8,145,178,.4);font-size:1rem;
+}
+.btn-shuffle{
+  background:rgba(255,255,255,.1);border:2px solid var(--silver);color:#fff;font-size:.95rem;
+}
+.win-banner{
+  display:none;text-align:center;margin:10px 0 4px;padding:12px;
+  border-radius:16px;background:linear-gradient(135deg,rgba(52,211,153,.2),rgba(34,211,238,.2));
+  border:2px solid var(--ok);font-size:1.15rem;font-weight:900;color:#a7f3d0;
+}
+.win-banner.on{display:block}
+.props-bar{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:8px 0 4px;min-height:0;
+}
+.prop-use{
+  background:rgba(251,191,36,.15);border:2px solid var(--coin);color:var(--coin);
+  border-radius:12px;min-height:40px;padding:6px 12px;font-size:.82rem;
+}
+.prop-use:disabled{opacity:.35}
+.teacher{
+  margin-top:14px;padding:10px;border-radius:12px;
+  background:rgba(0,0,0,.25);border:1px dashed rgba(200,208,220,.25);
+  font-size:.68rem;font-weight:700;color:#8899aa;line-height:1.45;text-align:left;
+}
+.fx{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+.fx-chip{position:absolute;font-size:clamp(22px,5vw,34px);font-weight:900;animation:rainFall 1.25s ease-out forwards;will-change:transform,opacity}
+@keyframes rainFall{
+  0%{transform:translateY(-8vh) rotate(0deg) scale(1);opacity:1}
+  100%{transform:translateY(85vh) rotate(380deg) scale(.55);opacity:0}
+}
+.fx-flash{
+  position:fixed;inset:0;pointer-events:none;z-index:55;
+  background:radial-gradient(ellipse at 50% 40%,rgba(52,211,153,.45),rgba(34,211,238,.18) 45%,transparent 70%);
+  opacity:0;animation:screenFlash 1.15s ease-out forwards;
+}
+@keyframes screenFlash{
+  0%{opacity:0}
+  18%{opacity:1}
+  100%{opacity:0}
+}
+.fx-banner{
+  position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.55);
+  z-index:58;pointer-events:none;opacity:0;
+  text-align:center;padding:16px 22px;border-radius:20px;
+  background:rgba(12,20,28,.88);border:3px solid var(--ok);
+  box-shadow:0 0 28px rgba(52,211,153,.55),0 0 60px rgba(34,211,238,.25);
+  color:#a7f3d0;font-weight:900;font-size:clamp(1.35rem,6.5vw,2.1rem);
+  letter-spacing:.04em;line-height:1.25;max-width:92vw;
+}
+.fx-banner.on{
+  animation:bannerPop 1.2s cubic-bezier(.2,1.4,.4,1) forwards;
+}
+.fx-banner.big{
+  font-size:clamp(1.55rem,7.5vw,2.45rem);
+  border-color:var(--gold);color:#fde68a;
+  box-shadow:0 0 32px rgba(245,197,66,.6),0 0 70px rgba(34,211,238,.3);
+}
+.fx-banner.big.on{
+  animation-duration:1.45s;
+}
+@keyframes bannerPop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}
+  22%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}
+  55%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-42%) scale(.92)}
+}
+.mascot.bounce{animation:mascotBounce .85s ease-out}
+@keyframes mascotBounce{
+  0%{transform:scale(1) translateY(0)}
+  30%{transform:scale(1.22) translateY(-6px)}
+  55%{transform:scale(.95) translateY(2px)}
+  100%{transform:scale(1) translateY(0)}
+}
+@keyframes pulseGlow{
+  0%,100%{box-shadow:0 0 0 0 rgba(34,211,238,.0)}
+  50%{box-shadow:0 0 18px 4px rgba(34,211,238,.35)}
+}
+.card.hint-pulse .back{animation:pulseGlow 1.2s ease-in-out 2}
+.card.ghost-marked .back{
+  border-color:#a78bfa !important;
+  box-shadow:inset 0 0 0 3px rgba(167,139,250,.28),inset 0 0 20px rgba(0,0,0,.35),0 0 10px rgba(167,139,250,.35) !important;
+}
+.card.ghost-marked .back::after{
+  content:"👻";
+  position:absolute;top:4px;right:4px;
+  font-size:clamp(.7rem,3vw,.95rem);line-height:1;
+  filter:drop-shadow(0 0 4px rgba(167,139,250,.9));
+  pointer-events:none;
+}
+
+/* Shop modal */
+.modal-bg{
+  display:none;position:fixed;inset:0;z-index:60;
+  background:rgba(0,0,0,.65);align-items:flex-end;justify-content:center;
+  padding:12px;
+}
+.modal-bg.on{display:flex}
+.modal{
+  width:100%;max-width:420px;max-height:85dvh;overflow-y:auto;
+  background:linear-gradient(180deg,#1e2a36,#141c24);
+  border:2.5px solid var(--coin);border-radius:22px 22px 18px 18px;
+  padding:16px 14px 20px;box-shadow:0 -8px 40px rgba(0,0,0,.5);
+}
+.modal h2{
+  text-align:center;font-size:1.25rem;color:var(--coin);margin-bottom:4px;
+}
+.modal .coin-big{
+  text-align:center;font-size:1.8rem;font-weight:900;color:var(--coin);
+  margin-bottom:12px;
+}
+.shop-item{
+  display:flex;align-items:center;gap:10px;
+  padding:12px;margin-bottom:8px;border-radius:14px;
+  background:rgba(255,255,255,.06);border:1.5px solid var(--steel);
+}
+.shop-item .ico{font-size:1.8rem;flex:0 0 auto;width:2.2em;text-align:center}
+.shop-item .info{flex:1;min-width:0}
+.shop-item .name{font-size:1rem;font-weight:900;color:#fff}
+.shop-item .desc{font-size:.72rem;font-weight:700;color:var(--silver);margin-top:2px;line-height:1.35}
+.shop-item .buy-btn{
+  flex:0 0 auto;background:linear-gradient(135deg,#b45309,#d97706);
+  color:#fff;border:2px solid var(--coin);min-height:44px;padding:8px 14px;font-size:.9rem;
+}
+.shop-item .buy-btn.have{background:rgba(52,211,153,.2);border-color:var(--ok);color:var(--ok)}
+.modal .close-btn{
+  display:block;width:100%;margin-top:10px;
+  background:rgba(255,255,255,.1);border:2px solid var(--silver);color:#fff;
+}
+.toast-buy{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);
+  z-index:70;pointer-events:none;opacity:0;
+  background:rgba(15,20,25,.92);border:2.5px solid var(--coin);border-radius:18px;
+  padding:18px 28px;font-size:1.4rem;font-weight:900;color:var(--coin);
+  transition:opacity .25s,transform .25s;
+}
+.toast-buy.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-left">
+    <img class="mascot" src="img/chain-giant-mascot.jpg" alt="鏈巨人" width="48" height="48" />
+    <h1>⛓ 鏈巨人 · 合體翻牌</h1>
+  </div>
+  <div class="top-right">
+    <div class="chip coins">⛓ <span id="coinsN">3</span></div>
+    <div class="chip stars">⭐ <span id="starsN">0</span></div>
+    <button type="button" class="btn-shop" id="btnShop">鏈幣店</button>
+  </div>
+</header>
+
+<div class="app">
+  <div class="stage-prog" id="stageProg">關1/3 · 入門關</div>
+  <div class="stage-row" id="stageRow">
+    <button type="button" class="stage-btn on" data-stage="0" id="stg0">
+      <span class="st-num">關1</span>入門關
+    </button>
+    <button type="button" class="stage-btn locked" data-stage="1" id="stg1">
+      <span class="st-num">關2</span>進階關 🔒
+    </button>
+    <button type="button" class="stage-btn locked" data-stage="2" id="stg2">
+      <span class="st-num">關3</span>Boss關 🔒
+    </button>
+  </div>
+
+  <div class="panel">
+    <div class="target-box">
+      <div class="target-lbl">目標招式</div>
+      <div class="target-word" id="targetWord">—</div>
+      <div class="target-hint" id="targetHint">解開鎖鏈 · 合體出招</div>
+    </div>
+    <div class="status" id="status">撳牌卡，解開鎖鏈！</div>
+    <div class="progress" id="progress"></div>
+    <div class="props-bar" id="propsBar"></div>
+    <div class="board" id="board"></div>
+    <div class="win-banner" id="winBanner">鏈合體成功！合體出招！本關通關！⭐⭐</div>
+    <div class="acts">
+      <button type="button" class="btn-new" id="btnNew">再開鎖鏈</button>
+      <button type="button" class="btn-shuffle" id="btnShuffle">鏈再排</button>
+    </div>
+  </div>
+  <div class="teacher"><strong>老師用</strong>（細字）· 三關：入門（甘心運氣澆水農夫）→進階（撿起突然乾脆幹活費勁）→Boss（專心草叢繼續樹榦）。翻兩張合體成而家目標（前字→後字；相同字可交叉用）。樹榦≠幹活。鏈幣店道具：龍眼3／氣燈2／雙星符4／鏈影現形3。存檔 chainGiantFlipSave。主題：鏈巨人（非進擊）。</div>
+</div>
+
+<div class="modal-bg" id="shopModal">
+  <div class="modal">
+    <h2>⛓ 鏈幣店／買道具</h2>
+    <div class="coin-big">⛓ <span id="shopCoins">0</span></div>
+    <div class="shop-item" data-prop="eye">
+      <div class="ico">👁</div>
+      <div class="info"><div class="name">龍眼</div><div class="desc">一回合：短暫揭開 4 張面朝下嘅牌再蓋返</div></div>
+      <button type="button" class="buy-btn" data-buy="eye">3⛓</button>
+    </div>
+    <div class="shop-item" data-prop="lamp">
+      <div class="ico">💡</div>
+      <div class="info"><div class="name">氣燈</div><div class="desc">高亮現時目標嗰兩張牌嘅邊框（如果喺場上）</div></div>
+      <button type="button" class="buy-btn" data-buy="lamp">2⛓</button>
+    </div>
+    <div class="shop-item" data-prop="double">
+      <div class="ico">⭐</div>
+      <div class="info"><div class="name">雙星符</div><div class="desc">下次合體成功得雙倍鏈幣</div></div>
+      <button type="button" class="buy-btn" data-buy="double">4⛓</button>
+    </div>
+    <div class="shop-item" data-prop="ghostscan">
+      <div class="ico">👻</div>
+      <div class="info"><div class="name">鏈影現形</div><div class="desc">一次揭開場上全部鬼臉干擾牌</div></div>
+      <button type="button" class="buy-btn" data-buy="ghostscan">3⛓</button>
+    </div>
+    <button type="button" class="close-btn" id="shopClose">關閉</button>
+  </div>
+</div>
+<div class="toast-buy" id="toastBuy">買咗！</div>
+<div class="fx" id="fx"></div>
+<div class="fx-banner" id="celebrateBanner" aria-hidden="true"></div>
+
+<script>
+(function(){
+  const STAGES = [
+    {
+      id:0, name:'入門關',
+      words:[
+        {w:'甘心',a:'甘',b:'心'},
+        {w:'運氣',a:'運',b:'氣'},
+        {w:'澆水',a:'澆',b:'水'},
+        {w:'農夫',a:'農',b:'夫'}
+      ],
+      ghosts:1
+    },
+    {
+      id:1, name:'進階關',
+      words:[
+        {w:'撿起',a:'撿',b:'起'},
+        {w:'突然',a:'突',b:'然'},
+        {w:'乾脆',a:'乾',b:'脆'},
+        {w:'幹活',a:'幹',b:'活'},
+        {w:'費勁',a:'費',b:'勁'}
+      ],
+      ghosts:2
+    },
+    {
+      id:2, name:'Boss關',
+      words:[
+        {w:'專心',a:'專',b:'心'},
+        {w:'草叢',a:'草',b:'叢'},
+        {w:'繼續',a:'繼',b:'續'},
+        {w:'樹榦',a:'樹',b:'榦'}
+      ],
+      ghosts:2
+    }
+  ];
+
+  // All words across stages for cross-check of "real wrong word"
+  const ALL_WORDS = STAGES.reduce((acc,s)=>acc.concat(s.words),[]);
+
+  const KEY = 'chainGiantFlipSave';
+  const GHOST = '👻';
+  const GHOST_FAILS = [
+    '嘩！鏈影鬼臉——翻返再嚟！',
+    '中咗搞笑鬼臉！唔扣星～',
+    '鏈影搗蛋！再合體！'
+  ];
+  const SHOP = {
+    eye:       {cost:3, name:'龍眼', ico:'👁'},
+    lamp:      {cost:2, name:'氣燈', ico:'💡'},
+    double:    {cost:4, name:'雙星符', ico:'⭐'},
+    ghostscan: {cost:3, name:'鏈影現形', ico:'👻'}
+  };
+
+  let coins = 3;
+  let stars = 0;
+  let stageUnlocked = 1; // number unlocked (1=only stage0)
+  let ownedProps = {eye:0, lamp:0, double:0, ghostscan:0};
+  let buffs = {double:false}; // active consumable buffs
+
+  let stageIdx = 0;
+  let cards = [];
+  let flipped = [];
+  let busy = false;
+  let remaining = [];
+  let currentTarget = null;
+  let matchedWords = new Set();
+  let stageCleared = [false,false,false];
+
+  const $ = id => document.getElementById(id);
+  const board = $('board');
+  const statusEl = $('status');
+  const targetWord = $('targetWord');
+  const targetHint = $('targetHint');
+  const progress = $('progress');
+  const starsN = $('starsN');
+  const coinsN = $('coinsN');
+  const winBanner = $('winBanner');
+  const fx = $('fx');
+  const propsBar = $('propsBar');
+  const shopModal = $('shopModal');
+  const shopCoins = $('shopCoins');
+  const toastBuy = $('toastBuy');
+  const stageProg = $('stageProg');
+
+  function load(){
+    try{
+      const d = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if(!d){ save(); return; }
+      if(typeof d.stars === 'number') stars = d.stars;
+      if(typeof d.coins === 'number') coins = d.coins;
+      else coins = 3;
+      if(typeof d.stageUnlocked === 'number') stageUnlocked = Math.max(1, Math.min(3, d.stageUnlocked));
+      if(d.ownedProps && typeof d.ownedProps === 'object'){
+        ownedProps = {
+          eye: d.ownedProps.eye|0,
+          lamp: d.ownedProps.lamp|0,
+          double: d.ownedProps.double|0,
+          ghostscan: d.ownedProps.ghostscan|0
+        };
+        // migrate: drop removed shield / chainshield harmlessly
+      }
+      if(Array.isArray(d.stageCleared)) stageCleared = [!!d.stageCleared[0],!!d.stageCleared[1],!!d.stageCleared[2]];
+      if(typeof d.stageIdx === 'number' && d.stageIdx >= 0 && d.stageIdx < stageUnlocked) stageIdx = d.stageIdx;
+    }catch(e){}
+  }
+  function save(){
+    try{
+      localStorage.setItem(KEY, JSON.stringify({
+        coins, stars, stageUnlocked, ownedProps, stageCleared, stageIdx
+      }));
+    }catch(e){}
+  }
+  function renderHUD(){
+    starsN.textContent = String(stars);
+    coinsN.textContent = String(coins);
+    shopCoins.textContent = String(coins);
+  }
+  function addStars(n){
+    stars += n;
+    renderHUD();
+    save();
+    burst(['⭐','★','✨']);
+  }
+  function addCoins(n){
+    coins += n;
+    renderHUD();
+    save();
+    if(n>0) burst(['⛓','💰','✨']);
+  }
+  const MATCH_SHOUTS = [
+    '鏈合體成功！！太勁啦！⭐⛓',
+    '合體出招！鎖鏈亮起！',
+    '打中目標招！威水！'
+  ];
+  const CLEAR_SHOUTS = [
+    '關卡打穿！鏈巨人讚你！',
+    'Boss 關通關！證書級合體！',
+    '全部招式出齊——超級合體！！'
+  ];
+  const celebrateBanner = $('celebrateBanner');
+  const mascotEl = document.querySelector('.mascot');
+
+  function pickShout(arr){
+    return arr[Math.floor(Math.random()*arr.length)];
+  }
+  function burst(icons, count){
+    const list = icons || ['⭐','⛓','★','✨','🎉'];
+    const n = count || 8;
+    for(let i=0;i<n;i++){
+      const c = document.createElement('div');
+      c.className = 'fx-chip';
+      c.textContent = list[i%list.length];
+      c.style.left = (4+Math.random()*92)+'%';
+      c.style.top = (-6+Math.random()*18)+'%';
+      c.style.animationDelay = (Math.random()*0.22)+'s';
+      c.style.animationDuration = (1.05+Math.random()*0.35)+'s';
+      fx.appendChild(c);
+      setTimeout(()=>c.remove(),1400);
+    }
+  }
+  function celebrate(kind){
+    const big = kind === 'clear';
+    const icons = big
+      ? ['⭐','⛓','🎉','✨','★','💫','🏆','💥']
+      : ['⭐','⛓','✨','★','🎉','💫'];
+    burst(icons, big ? 40 : 28);
+    const flash = document.createElement('div');
+    flash.className = 'fx-flash';
+    document.body.appendChild(flash);
+    setTimeout(()=>flash.remove(),1200);
+    const msg = big ? pickShout(CLEAR_SHOUTS) : pickShout(MATCH_SHOUTS);
+    celebrateBanner.textContent = msg;
+    celebrateBanner.classList.remove('big','on');
+    void celebrateBanner.offsetWidth;
+    if(big) celebrateBanner.classList.add('big');
+    celebrateBanner.classList.add('on');
+    // restart CSS animation
+    celebrateBanner.style.animation = 'none';
+    void celebrateBanner.offsetWidth;
+    celebrateBanner.style.animation = '';
+    setTimeout(() => {
+      celebrateBanner.classList.remove('on','big');
+      celebrateBanner.textContent = '';
+    }, big ? 1500 : 1250);
+    if(mascotEl){
+      mascotEl.classList.remove('bounce');
+      void mascotEl.offsetWidth;
+      mascotEl.classList.add('bounce');
+    }
+    return msg;
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function buildDeck(words, ghostCount){
+    const chars = [];
+    words.forEach(w => {
+      chars.push({ch:w.a, kind:'char', word:w.w, half:'a'});
+      chars.push({ch:w.b, kind:'char', word:w.w, half:'b'});
+    });
+    for(let i=0;i<ghostCount;i++){
+      chars.push({ch:GHOST, kind:'ghost', word:null, half:null, gid:i});
+    }
+    return shuffle(chars).map((c,i) => ({...c, id:i, matched:false}));
+  }
+
+  function setStatus(msg, cls){
+    statusEl.textContent = msg;
+    statusEl.className = 'status' + (cls ? ' '+cls : '');
+  }
+
+  function pickNextTarget(){
+    const left = remaining.filter(w => !matchedWords.has(w.w));
+    if(!left.length){
+      currentTarget = null;
+      targetWord.textContent = '全通關！';
+      targetHint.textContent = '鏈巨人合體成功！';
+      return;
+    }
+    currentTarget = left[0];
+    targetWord.textContent = currentTarget.w;
+    targetHint.textContent = currentTarget.a + '＋' + currentTarget.b + ' · 解開鎖鏈';
+  }
+
+  function renderProgress(){
+    progress.innerHTML = '';
+    remaining.forEach(w => {
+      const s = document.createElement('span');
+      s.className = 'pw';
+      if(matchedWords.has(w.w)) s.classList.add('done');
+      else if(currentTarget && currentTarget.w === w.w) s.classList.add('cur');
+      s.textContent = w.w;
+      progress.appendChild(s);
+    });
+  }
+
+  function boardClass(n){
+    if(n <= 10) return 'n10';
+    if(n <= 12) return 'n12';
+    return 'n14';
+  }
+
+  function renderBoard(){
+    board.className = 'board ' + boardClass(cards.length);
+    board.innerHTML = '';
+    cards.forEach((c, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'card';
+      btn.dataset.idx = String(idx);
+      if(c.matched) btn.classList.add('matched','flipped');
+      if(c.kind === 'ghost' && c.ghostMarked) btn.classList.add('ghost-marked');
+      const inner = document.createElement('div');
+      inner.className = 'card-inner';
+      const back = document.createElement('div');
+      back.className = 'face back';
+      const front = document.createElement('div');
+      front.className = 'face front';
+      if(c.kind === 'ghost'){
+        front.innerHTML = '<div class="ghost-face"><span class="eyes">◉ ◉</span><span class="mouth">ヮ</span><span style="font-size:.55em;margin-top:4px">鬼</span></div>';
+      } else {
+        front.textContent = c.ch;
+      }
+      inner.appendChild(back);
+      inner.appendChild(front);
+      btn.appendChild(inner);
+      btn.addEventListener('click', () => onFlip(idx));
+      if(c.matched) btn.disabled = true;
+      board.appendChild(btn);
+    });
+  }
+
+  function cardEl(idx){ return board.querySelector('[data-idx="'+idx+'"]'); }
+
+  function renderStageButtons(){
+    STAGES.forEach((s,i) => {
+      const btn = $('stg'+i);
+      btn.classList.remove('on','locked','cleared');
+      const unlocked = i < stageUnlocked;
+      if(!unlocked){
+        btn.classList.add('locked');
+        btn.innerHTML = '<span class="st-num">關'+(i+1)+'</span>'+s.name+' 🔒';
+      } else {
+        btn.innerHTML = '<span class="st-num">關'+(i+1)+'</span>'+s.name+(stageCleared[i]?' ✓':'');
+        if(stageCleared[i]) btn.classList.add('cleared');
+        if(i === stageIdx) btn.classList.add('on');
+      }
+    });
+    stageProg.textContent = '關'+(stageIdx+1)+'/3 · '+STAGES[stageIdx].name;
+  }
+
+  function renderPropsBar(){
+    propsBar.innerHTML = '';
+    const entries = [
+      {k:'eye', label:'👁 龍眼'},
+      {k:'lamp', label:'💡 氣燈'},
+      {k:'double', label:'⭐ 雙星符'},
+      {k:'ghostscan', label:'👻 鏈影現形'}
+    ];
+    entries.forEach(e => {
+      const n = ownedProps[e.k]|0;
+      if(n <= 0 && !(e.k==='double' && buffs.double)) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'prop-use';
+      if(e.k === 'double'){
+        // auto-buff props: show count / armed state
+        const armed = buffs.double;
+        btn.textContent = e.label + (armed ? ' ✓待命' : ' ×'+n);
+        btn.disabled = armed || n<=0;
+        btn.onclick = () => armBuff(e.k);
+      } else {
+        btn.textContent = e.label + ' ×'+n;
+        btn.disabled = n<=0 || busy;
+        btn.onclick = () => useProp(e.k);
+      }
+      propsBar.appendChild(btn);
+    });
+  }
+
+  function armBuff(k){
+    if((ownedProps[k]|0) <= 0) return;
+    if(k==='double' && buffs.double) return;
+    ownedProps[k]--;
+    buffs[k] = true;
+    save();
+    renderPropsBar();
+    setStatus(SHOP[k].ico+' '+SHOP[k].name+' 已裝備！', 'buy');
+  }
+
+  function useProp(k){
+    if(busy) return;
+    if((ownedProps[k]|0) <= 0) return;
+    if(k === 'eye'){
+      ownedProps.eye--;
+      save();
+      renderPropsBar();
+      doEyeReveal();
+    } else if(k === 'lamp'){
+      ownedProps.lamp--;
+      save();
+      renderPropsBar();
+      doLampGlow();
+    } else if(k === 'ghostscan'){
+      ownedProps.ghostscan--;
+      save();
+      renderPropsBar();
+      doGhostScan();
+    }
+  }
+
+  function doEyeReveal(){
+    busy = true;
+    setStatus('👁 龍眼開眼！', 'buy');
+    const faceDown = cards
+      .map((c,i)=>({c,i}))
+      .filter(x => !x.c.matched && !flipped.includes(x.i));
+    const pick = shuffle(faceDown).slice(0, Math.min(4, faceDown.length));
+    pick.forEach(x => {
+      const el = cardEl(x.i);
+      if(el) el.classList.add('peek');
+    });
+    setTimeout(() => {
+      pick.forEach(x => {
+        const el = cardEl(x.i);
+        if(el) el.classList.remove('peek');
+      });
+      busy = false;
+      setStatus('撳牌卡，解開鎖鏈！');
+    }, 1600);
+  }
+
+  function doLampGlow(){
+    if(!currentTarget){
+      setStatus('而家冇目標啦！', 'bad');
+      return;
+    }
+    // Find unmatched cards that match target a and b (prefer one of each)
+    document.querySelectorAll('.card.glow').forEach(el => el.classList.remove('glow'));
+    const needA = currentTarget.a, needB = currentTarget.b;
+    let foundA = -1, foundB = -1;
+    cards.forEach((c,i) => {
+      if(c.matched || c.kind!=='char') return;
+      if(foundA<0 && c.ch === needA) foundA = i;
+      else if(foundB<0 && c.ch === needB) foundB = i;
+    });
+    // If same char somehow, allow two different indices
+    if(foundA>=0 && foundB<0){
+      cards.forEach((c,i) => {
+        if(i!==foundA && !c.matched && c.kind==='char' && c.ch===needB && foundB<0) foundB=i;
+      });
+    }
+    let lit = 0;
+    [foundA, foundB].forEach(idx => {
+      if(idx>=0){
+        const el = cardEl(idx);
+        if(el){ el.classList.add('glow'); lit++; }
+      }
+    });
+    setStatus(lit ? '💡 氣燈照住目標鏈！' : '💡 氣燈搵唔到目標牌…', lit?'buy':'bad');
+    setTimeout(() => {
+      document.querySelectorAll('.card.glow').forEach(el => el.classList.remove('glow'));
+    }, 2800);
+  }
+
+  function doGhostScan(){
+    const ghosts = cards
+      .map((c,i)=>({c,i}))
+      .filter(x => x.c.kind === 'ghost' && !x.c.matched && !flipped.includes(x.i));
+    if(!ghosts.length){
+      setStatus('而家冇鬼臉呀～', 'ghost');
+      return;
+    }
+    busy = true;
+    setStatus('鏈影現形！鬼臉全部翻開！', 'ghost');
+    ghosts.forEach(x => {
+      x.c.ghostMarked = true;
+      const el = cardEl(x.i);
+      if(el){
+        el.classList.add('peek', 'ghost-marked');
+      }
+    });
+    setTimeout(() => {
+      ghosts.forEach(x => {
+        const el = cardEl(x.i);
+        if(el){
+          el.classList.remove('peek');
+          // lasting mark stays
+          el.classList.add('ghost-marked');
+        }
+      });
+      busy = false;
+      setStatus('撳牌卡，解開鎖鏈！');
+    }, 1500);
+  }
+
+  function onFlip(idx){
+    if(busy) return;
+    const c = cards[idx];
+    if(!c || c.matched) return;
+    if(flipped.includes(idx)) return;
+    if(flipped.length >= 2) return;
+
+    const el = cardEl(idx);
+    el.classList.remove('glow','peek');
+    el.classList.add('flipped');
+    flipped.push(idx);
+
+    if(c.kind === 'ghost'){
+      busy = true;
+      setStatus(GHOST_FAILS[Math.floor(Math.random()*GHOST_FAILS.length)], 'ghost');
+      el.classList.add('ghost-hit');
+      setTimeout(() => {
+        el.classList.remove('flipped','ghost-hit');
+        flipped = flipped.filter(i => i !== idx);
+        busy = false;
+        if(flipped.length === 0) setStatus('撳牌卡，解開鎖鏈！');
+      }, 900);
+      return;
+    }
+
+    if(flipped.length === 1){
+      setStatus('解開鎖鏈… 再揀一張！');
+      return;
+    }
+
+    busy = true;
+    const i0 = flipped[0], i1 = flipped[1];
+    const a = cards[i0], b = cards[i1];
+
+    if(a.kind === 'ghost' || b.kind === 'ghost'){
+      failPair(i0,i1,'鏈影干擾！');
+      return;
+    }
+
+    const ok = checkCombine(a,b);
+    if(ok){
+      if(!currentTarget || ok.w !== currentTarget.w){
+        failPair(i0,i1,'呢條鏈唔係目標招——再合體！');
+        return;
+      }
+      a.matched = b.matched = true;
+      matchedWords.add(ok.w);
+      cardEl(i0).classList.add('matched');
+      cardEl(i1).classList.add('matched');
+      cardEl(i0).disabled = true;
+      cardEl(i1).disabled = true;
+
+      let coinGain = 2;
+      if(buffs.double){
+        coinGain = 4;
+        buffs.double = false;
+      }
+      addStars(2);
+      addCoins(coinGain);
+      const shout = celebrate('match');
+      setStatus(shout+' ＋'+coinGain+'⛓ ＋2⭐', 'ok');
+      flipped = [];
+      pickNextTarget();
+      renderProgress();
+      renderPropsBar();
+      setTimeout(() => {
+        busy = false;
+        if(matchedWords.size >= remaining.length){
+          onStageClear();
+        } else {
+          setStatus('撳牌卡，解開鎖鏈！');
+        }
+      }, 1200);
+    } else {
+      failPair(i0,i1,'鏈斷咗，再合體！');
+    }
+  }
+
+  function checkCombine(a,b){
+    if(a.kind === 'ghost' || b.kind === 'ghost') return null;
+    // Order: first flip = first char, second = second. Cross-use identical chars.
+    const formed = ALL_WORDS.find(w => w.a === a.ch && w.b === b.ch);
+    return formed ? {w:formed.w} : null;
+  }
+
+  function failPair(i0,i1,msg){
+    setStatus(msg, 'bad');
+    setTimeout(() => {
+      const e0 = cardEl(i0), e1 = cardEl(i1);
+      if(e0) e0.classList.remove('flipped');
+      if(e1) e1.classList.remove('flipped');
+      flipped = [];
+      busy = false;
+      setStatus('撳牌卡，解開鎖鏈！');
+    }, 850);
+  }
+
+  function onStageClear(){
+    const shout = celebrate('clear');
+    winBanner.classList.add('on');
+    winBanner.textContent = shout+' ＋3⛓';
+    setStatus(shout, 'ok');
+
+    if(!stageCleared[stageIdx]){
+      stageCleared[stageIdx] = true;
+      addCoins(3);
+    }
+    // Unlock next
+    if(stageIdx + 1 < STAGES.length && stageUnlocked < stageIdx + 2){
+      stageUnlocked = stageIdx + 2;
+      setStatus(shout+' 下一關解鎖！＋3⛓', 'ok');
+    }
+    save();
+    renderStageButtons();
+    renderHUD();
+  }
+
+  function startGame(idx){
+    if(typeof idx === 'number'){
+      if(idx >= stageUnlocked) return;
+      stageIdx = idx;
+    }
+    flipped = [];
+    busy = false;
+    matchedWords = new Set();
+    winBanner.classList.remove('on');
+    // Keep buffs across restart within session; props stay
+    const st = STAGES[stageIdx];
+    remaining = st.words.slice();
+    cards = buildDeck(remaining, st.ghosts);
+    pickNextTarget();
+    renderProgress();
+    renderBoard();
+    renderStageButtons();
+    renderPropsBar();
+    setStatus('撳牌卡，解開鎖鏈！');
+    save();
+  }
+
+  // Shop
+  function openShop(){
+    renderHUD();
+    updateShopButtons();
+    shopModal.classList.add('on');
+  }
+  function closeShop(){ shopModal.classList.remove('on'); }
+  function updateShopButtons(){
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+      const k = btn.getAttribute('data-buy');
+      const cost = SHOP[k].cost;
+      const have = ownedProps[k]|0;
+      btn.textContent = cost + '⛓' + (have ? '（×'+have+'）' : '');
+      btn.disabled = coins < cost;
+      btn.classList.toggle('have', have > 0);
+    });
+  }
+  function buyProp(k){
+    const item = SHOP[k];
+    if(!item) return;
+    if(coins < item.cost){
+      setStatus('鏈幣唔夠呀！', 'bad');
+      return;
+    }
+    coins -= item.cost;
+    ownedProps[k] = (ownedProps[k]|0) + 1;
+    save();
+    renderHUD();
+    updateShopButtons();
+    renderPropsBar();
+    showBuyToast();
+    setStatus('買咗！'+item.ico+' '+item.name, 'buy');
+  }
+  function showBuyToast(){
+    toastBuy.classList.add('on');
+    setTimeout(() => toastBuy.classList.remove('on'), 900);
+  }
+
+  // Events
+  STAGES.forEach((_,i) => {
+    $('stg'+i).onclick = () => {
+      if(i < stageUnlocked) startGame(i);
+    };
+  });
+  $('btnNew').onclick = () => startGame(stageIdx);
+  $('btnShuffle').onclick = () => {
+    if(busy) return;
+    const kept = cards.filter(c => c.matched);
+    const open = cards.filter(c => !c.matched);
+    const reshuffled = shuffle(open);
+    cards = kept.concat(reshuffled).map((c,i) => ({...c, id:i}));
+    flipped = [];
+    renderBoard();
+    setStatus('鏈再排好！解開鎖鏈！');
+  };
+  $('btnShop').onclick = openShop;
+  $('shopClose').onclick = closeShop;
+  shopModal.addEventListener('click', e => { if(e.target === shopModal) closeShop(); });
+  document.querySelectorAll('.buy-btn').forEach(btn => {
+    btn.onclick = () => buyProp(btn.getAttribute('data-buy'));
+  });
+
+  load();
+  renderHUD();
+  startGame(stageIdx);
+})();
+</script>
+</body>
+</html>
