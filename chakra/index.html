@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>查克拉認招 · 打怪王</title>
+<title>查克拉認招 · 打怪王</title><!-- SINGLE v1.2r -->
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet" />
 <style>
 :root{
@@ -37,7 +37,7 @@ button:active{transform:scale(.97)}button:disabled{opacity:.45;cursor:default;tr
 .chip.coins{border:2px solid var(--coin);color:var(--coin)}
 .btn-shop{background:linear-gradient(135deg,#b45309,#d97706);color:#fff;border:2px solid var(--coin);min-height:40px;padding:6px 10px;font-size:.85rem}
 
-/* HP + VS arena (v1.2p) — hub-compact hides portraits */
+/* HP + VS arena (v1.2r) — hub-compact hides portraits */
 .hp-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
 .hp-label .bn{font-size:clamp(.78rem,3.2vw,1.05rem);font-weight:900;color:#d8b4fe}
 .hp-label .hn{font-size:clamp(.9rem,3.6vw,1.15rem);font-weight:900;color:#fff}
@@ -178,18 +178,18 @@ button:active{transform:scale(.97)}button:disabled{opacity:.45;cursor:default;tr
 .listen-hint{margin:10px auto 4px;padding:10px 12px;max-width:340px;border-radius:16px;background:rgba(15,23,42,.55);border:2px solid #34d399;text-align:center;}
 .listen-hint .hint-emoji{font-size:2.8rem;line-height:1.2;margin:2px 0 6px;}
 .listen-hint .hint-cap{font-size:.95rem;font-weight:800;color:#a7f3d0;line-height:1.35;}
-.mg-layout{display:flex;align-items:stretch;gap:12px;justify-content:center;flex-wrap:wrap;}
-/* Task buddy: top-right chip — never cover answer options */
-.mg-buddy-bar{position:fixed;right:10px;top:58px;left:auto;bottom:auto;z-index:40;width:auto;max-width:42vw;text-align:right;pointer-events:none;display:flex;flex-direction:row-reverse;align-items:center;gap:6px;background:rgba(15,23,42,.88);border:2px solid #f59e0b;border-radius:999px;padding:4px 10px 4px 4px;}
-.mg-buddy-bar img{width:52px;height:52px;aspect-ratio:1;object-fit:cover;border-radius:50%;border:3px solid #f59e0b;animation:buddyPulse 1.6s ease-in-out infinite;flex:0 0 auto;}
-.mg-buddy-bar .buddy-name{margin:0;font-weight:900;color:#fde68a;font-size:.78rem;text-shadow:0 2px 6px #000;line-height:1.2;max-width:9em;}
-@media (min-width:700px){.mg-buddy-bar{right:16px;top:64px;}.mg-buddy-bar img{width:60px;height:60px;}.mg-buddy-bar .buddy-name{font-size:.85rem;}}
-body.task-hud .mg-buddy-bar{top:52px;}
-.mg-buddy{flex:0 0 auto;width:min(38vw,200px);text-align:center;}
-.mg-buddy img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:20px;border:4px solid #f59e0b;box-shadow:0 0 24px rgba(245,158,11,.45);animation:buddyPulse 1.6s ease-in-out infinite;}
-.mg-buddy .buddy-name{margin-top:6px;font-weight:900;color:#fde68a;font-size:1.05rem;}
-@keyframes buddyPulse{0%,100%{transform:scale(1);box-shadow:0 0 18px rgba(245,158,11,.35)}50%{transform:scale(1.06);box-shadow:0 0 32px rgba(251,191,36,.7)}}
-.mg-main{flex:1 1 220px;min-width:min(100%,260px);}
+/* Task buddy: free-floating portrait beside question (v1.2r) — no square frame; never covers answer opts */
+.mg-layout{display:flex;align-items:flex-start;gap:12px;justify-content:center;flex-wrap:nowrap;}
+.mg-buddy{flex:0 0 auto;width:clamp(120px,22vw,160px);text-align:center;display:none;flex-direction:column;align-items:center;pointer-events:none;}
+.mg-buddy.on{display:flex;}
+.mg-buddy img{width:100%;height:auto;max-height:min(42vh,280px);object-fit:contain;object-position:center bottom;border:none;border-radius:0;background:transparent;box-shadow:none;filter:drop-shadow(0 0 14px rgba(245,158,11,.55));animation:buddyPulse 1.6s ease-in-out infinite;}
+.mg-buddy .buddy-name{margin-top:6px;font-weight:900;color:#fde68a;font-size:clamp(.78rem,2.8vw,.95rem);text-shadow:0 2px 6px #000;line-height:1.25;max-width:11em;}
+@keyframes buddyPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.mg-main{flex:1 1 0;min-width:0;}
+@media (max-width:420px){
+  .mg-layout{gap:8px;}
+  .mg-buddy{width:clamp(100px,28vw,130px);}
+}
 .hint-pic{width:min(70%,220px);height:120px;object-fit:contain;display:block;margin:8px auto;border-radius:12px;background:rgba(255,255,255,.06);border:2px solid #475569}
 
 /* Reward 二選一 */
@@ -277,7 +277,7 @@ body.task-hud .top{padding-bottom:6px}
 body.task-hud .app{padding-top:8px}
 
 
-/* Hub / partner-pick: slim dual HP only — no VS portraits / badge (v1.2p) */
+/* Hub / partner-pick: slim dual HP only — no VS portraits / badge (v1.2r) */
 body.hub-compact .vs-portrait,
 body.hub-compact .vs-col{display:none!important}
 body.hub-compact .vs-row{grid-template-columns:1fr 1fr;gap:14px;align-items:end}
@@ -371,7 +371,7 @@ body.hub-compact .partner .plock{font-size:.7rem}
       </div>
       <button type="button" class="btn-go" id="btnStart">開始對決</button>
     </div>
-    <div class="teacher"><strong>老師用</strong>· v1.2p · Hub 無 VS（只留雙血條＋放大夥伴）；開場村子召集保留完整 VS；VS 左右鎖高≤220；任務頁只留血條；夥伴右上小圓不擋選項；畫氣30秒／選擇10秒；超時魔忍連擊扣村子氣力；膠布＋30。書面語。協作：共用 Boss HP／星／忍幣；軟失敗同一人再試 1 次再交棒。解鎖 3/5/8/12/16/20＋對應攻擊。二選一：打怪＝夥伴攻擊；存星＝星星＋忍幣（微傷）。聽句填空 13 句書面語庫（Chinese v1.2 鎖定）。存檔 chakraRaidSave。圖示優先 *-v2.png（動畫寫實肖像待放入）。主題原創忍者村。</div>
+    <div class="teacher"><strong>老師用</strong>· v1.2r · Hub 無 VS（只留雙血條＋放大夥伴）；開場村子召集保留完整 VS；VS 左右鎖高≤220；任務頁只留血條；答題旁大立繪夥伴（脈動）不擋選項；畫氣30秒／選擇10秒；超時魔忍連擊扣村子氣力；膠布＋30。書面語。協作：共用 Boss HP／星／忍幣；軟失敗同一人再試 1 次再交棒。解鎖 3/5/8/12/16/20＋對應攻擊。二選一：打怪＝夥伴攻擊；存星＝星星＋忍幣（微傷）。聽句填空 13 句書面語庫（Chinese v1.2 鎖定）。存檔 chakraRaidSave。圖示優先 *-v2.png（動畫寫實肖像待放入）。主題原創忍者村。</div>
   </div>
 
   <div class="screen" id="screenHub">
@@ -390,27 +390,37 @@ body.hub-compact .partner .plock{font-size:.7rem}
       </div>
       <button type="button" class="btn-auto" id="btnAutoNext" style="display:block;width:100%;font-size:1.35rem;padding:18px 16px;margin-top:8px">下一任務 · 出招！</button>
     </div>
-    <div class="teacher"><strong>老師用</strong>· v1.2p · Hub 無 VS 立繪；Boss HP 120；夥伴攻擊約 10–18（氣藥水＋10）。四人各一職預設 4 人局。</div>
+    <div class="teacher"><strong>老師用</strong>· v1.2r · Hub 無 VS 立繪；Boss HP 120；夥伴攻擊約 10–18（氣藥水＋10）。四人各一職預設 4 人局。</div>
   </div>
 
   <div class="screen" id="screenRec">
     <div class="panel">
       <button type="button" class="btn-back" id="recBack">← 返回</button>
-      <div class="target-box"><div class="target-lbl">目標忍術</div><div class="target-word" id="recTarget">—</div></div>
-      <div class="shout" id="recShout">選詞出招！</div>
-      <div class="opts" id="recOpts"></div>
+      <div class="mg-layout">
+        <div class="mg-buddy" data-buddy-host="rec" aria-hidden="true"></div>
+        <div class="mg-main">
+          <div class="target-box"><div class="target-lbl">目標忍術</div><div class="target-word" id="recTarget">—</div></div>
+          <div class="shout" id="recShout">選詞出招！</div>
+          <div class="opts" id="recOpts"></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="screen" id="screenDraw">
     <div class="panel">
       <button type="button" class="btn-back" id="drawBack">← 返回</button>
-      <div class="target-box"><div class="target-lbl">畫氣結印</div><div class="target-word" id="drawTarget">—</div></div>
-      <div class="shout" id="drawShout">選詞出招！</div>
-      <div class="canvas-wrap"><div class="canvas-ghost" id="canvasGhost"></div><canvas id="kiCanvas" width="360" height="240"></canvas></div>
-      <div class="draw-btns">
-        <button type="button" class="btn-clear" id="btnClear">清除重畫</button>
-        <button type="button" class="btn-cast" id="btnCast">出招完成</button>
+      <div class="mg-layout">
+        <div class="mg-buddy" data-buddy-host="draw" aria-hidden="true"></div>
+        <div class="mg-main">
+          <div class="target-box"><div class="target-lbl">畫氣結印</div><div class="target-word" id="drawTarget">—</div></div>
+          <div class="shout" id="drawShout">選詞出招！</div>
+          <div class="canvas-wrap"><div class="canvas-ghost" id="canvasGhost"></div><canvas id="kiCanvas" width="360" height="240"></canvas></div>
+          <div class="draw-btns">
+            <button type="button" class="btn-clear" id="btnClear">清除重畫</button>
+            <button type="button" class="btn-cast" id="btnCast">出招完成</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -418,24 +428,34 @@ body.hub-compact .partner .plock{font-size:.7rem}
   <div class="screen" id="screenFlip">
     <div class="panel">
       <button type="button" class="btn-back" id="flipBack">← 返回</button>
-      <div class="target-box"><div class="target-lbl">合體目標</div><div class="target-word" id="flipTarget">—</div></div>
-      <div class="shout" id="flipShout">選詞出招！</div>
-      <div class="props-bar" id="flipProps"></div>
-      <div class="flip-board" id="flipBoard"></div>
+      <div class="mg-layout">
+        <div class="mg-buddy" data-buddy-host="flip" aria-hidden="true"></div>
+        <div class="mg-main">
+          <div class="target-box"><div class="target-lbl">合體目標</div><div class="target-word" id="flipTarget">—</div></div>
+          <div class="shout" id="flipShout">選詞出招！</div>
+          <div class="props-bar" id="flipProps"></div>
+          <div class="flip-board" id="flipBoard"></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="screen" id="screenListen">
     <div class="panel">
       <button type="button" class="btn-back" id="listenBack">← 返回</button>
-      <div class="sent-box">
-        <div class="target-lbl" style="color:#6ee7b7;margin-bottom:8px">聽句填空</div>
-        <div class="sent-text" id="listenSent">—</div>
-        <div id="listenHint" class="listen-hint" aria-hidden="true"></div>
+      <div class="mg-layout">
+        <div class="mg-buddy" data-buddy-host="listen" aria-hidden="true"></div>
+        <div class="mg-main">
+          <div class="sent-box">
+            <div class="target-lbl" style="color:#6ee7b7;margin-bottom:8px">聽句填空</div>
+            <div class="sent-text" id="listenSent">—</div>
+            <div id="listenHint" class="listen-hint" aria-hidden="true"></div>
+          </div>
+          <button type="button" class="btn-speak" id="btnSpeak">🔊 再聽一次</button>
+          <div class="shout" id="listenShout">聽句子，選正確的詞！</div>
+          <div class="opts" id="listenOpts"></div>
+        </div>
       </div>
-      <button type="button" class="btn-speak" id="btnSpeak">🔊 再聽一次</button>
-      <div class="shout" id="listenShout">聽句子，選正確的詞！</div>
-      <div class="opts" id="listenOpts"></div>
     </div>
   </div>
 
@@ -488,7 +508,7 @@ body.hub-compact .partner .plock{font-size:.7rem}
   </div>
 </div>
 
-<div id="mgBuddyBar" class="mg-buddy-bar" style="display:none">
+<div id="mgBuddyBar" class="mg-buddy" style="display:none" aria-hidden="true">
   <img id="mgBuddyImg" alt="夥伴" />
   <div id="mgBuddyName" class="buddy-name"></div>
 </div>
@@ -850,11 +870,32 @@ body.hub-compact .partner .plock{font-size:.7rem}
   }
   function showMgBuddy(on){
     var bar=$('mgBuddyBar'); if(!bar) return;
-    if(!on){ bar.style.display='none'; return; }
+    if(!on){
+      bar.classList.remove('on');
+      bar.style.display='none';
+      bar.setAttribute('aria-hidden','true');
+      return;
+    }
     var p = PARTNERS.find(function(x){ return x.id===activePartner; }) || PARTNERS[0];
-    $('mgBuddyImg').src = p.img;
+    var imgEl=$('mgBuddyImg');
+    if(p.img && String(p.img).indexOf('data:')===0){
+      imgEl.onerror=null;
+      imgEl.src=p.img;
+    }else{
+      setImgWithV2(imgEl, p.img);
+    }
     $('mgBuddyName').textContent = p.name + ' · 攻擊' + currentAtk();
-    bar.style.display='block';
+    // Park into active task's .mg-layout (portrait | question) — never cover opts
+    var host=document.querySelector('.screen.on .mg-buddy[data-buddy-host]');
+    if(host && host.parentNode){
+      host.parentNode.insertBefore(bar, host);
+    }else{
+      var layout=document.querySelector('.screen.on .mg-layout');
+      if(layout) layout.insertBefore(bar, layout.firstChild);
+    }
+    bar.classList.add('on');
+    bar.style.display='flex';
+    bar.setAttribute('aria-hidden','false');
   }
   function shuffle(a){ var arr=a.slice(); for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; }
 
@@ -959,13 +1000,14 @@ body.hub-compact .partner .plock{font-size:.7rem}
 
   function launchMg(kind){
     busy=false; turnMisses=0;
-    showMgBuddy(true);
     // 畫氣 30 秒；其餘選擇題 10 秒（Wing Yi）
     startTaskClock(kind==='draw' ? TASK_SECS_DRAW : TASK_SECS_CHOICE);
     if(kind==='rec') startRec();
     else if(kind==='draw') startDraw();
     else if(kind==='flip') startFlip();
     else startListen();
+    // After showScreen so buddy parks into .mg-layout (portrait | question)
+    showMgBuddy(true);
   }
 
   /* 認招 */
