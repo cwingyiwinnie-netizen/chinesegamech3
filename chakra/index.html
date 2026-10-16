@@ -216,6 +216,9 @@ button:active{transform:scale(.97)}button:disabled{opacity:.45;cursor:default;tr
 .win-panel{text-align:center;padding:20px 14px}
 .win-panel h2{font-size:clamp(1.4rem,6vw,2rem);color:var(--gold);margin-bottom:8px}
 .btn-again{width:100%;font-size:1.2rem;background:linear-gradient(135deg,#ea580c,#f59e0b);color:#1a1200}
+.btn-retry{width:100%;margin-top:12px;font-size:1.15rem;padding:14px 16px;min-height:52px;
+  background:linear-gradient(135deg,#0f766e,#14b8a6);color:#042f2e;border:3px solid #5eead4;
+  box-shadow:0 4px 16px rgba(20,184,166,.35)}
 
 .modal-bg{display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.65);align-items:flex-end;justify-content:center;padding:12px}
 .modal-bg.on{display:flex}
@@ -389,6 +392,7 @@ body.hub-compact .partner .plock{font-size:.7rem}
         <button type="button" class="mg-btn listen" data-mg="listen"><span class="ico">🔊</span>聽句填空</button>
       </div>
       <button type="button" class="btn-auto" id="btnAutoNext" style="display:block;width:100%;font-size:1.35rem;padding:18px 16px;margin-top:8px">下一任務 · 出招！</button>
+      <button type="button" class="btn-retry" id="btnRetryHub">重新挑戰！</button>
     </div>
     <div class="teacher"><strong>老師用</strong>· v1.2r · Hub 無 VS 立繪；Boss HP 120；夥伴攻擊約 10–18（氣藥水＋10）。四人各一職預設 4 人局。</div>
   </div>
@@ -464,7 +468,7 @@ body.hub-compact .partner .plock{font-size:.7rem}
       <h2>🏘 村子勝利！</h2>
       <p id="winText" style="font-weight:800;margin:10px 0 16px;line-height:1.45">村子勝利！</p>
       <div class="partners" id="winPartners" style="justify-content:center"></div>
-      <button type="button" class="btn-again" id="btnAgain">再開一局</button>
+      <button type="button" class="btn-again" id="btnAgain">重新挑戰！</button>
     </div>
   </div>
 </div>
@@ -1246,12 +1250,43 @@ body.hub-compact .partner .plock{font-size:.7rem}
     });
   });
 
-  $('btnAgain').onclick=function(){
-    bossHp=BOSS_MAX; villageHp=VILLAGE_MAX; currentPlayer=0; sessionHits=0; autoIdx=0; turnMisses=0;
+  function fullRaidReset(){
+    if(!window.confirm('確定重新挑戰？全部進度將重置。')) return;
+    try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+    playerCount=4;
+    turnMode='auto';
+    currentPlayer=0;
+    bossHp=BOSS_MAX;
+    villageHp=VILLAGE_MAX;
+    stars=0;
+    coins=2;
+    unlocked={chengying:true};
+    activePartner='chengying';
+    owned={potion:0, double:0, bag:0, bandage:0};
+    buffs={potion:false, double:false};
+    autoIdx=0;
+    sessionHits=0;
+    turnMisses=0;
+    busy=false;
+    pendingKind=null;
+    mgDeck=[];
+    flipCards=[]; flipFlipped=[]; flipTarget=null; flipBusy=false;
+    drawing=false; hasInk=false; drawWord=null;
+    recAnswer=null; listenItem=null;
     clearTaskClock();
-    renderHUD(); renderVsTeam(); updateTurnBanner('結印準備！合力打怪！');
-    fillShowcaseIn(); showScreen('showcase');
-  };
+    showMgBuddy(false);
+    var shop=$('shopModal'); if(shop) shop.classList.remove('on');
+    var reward=$('rewardBg'); if(reward) reward.classList.remove('on');
+    document.querySelectorAll('#pcount button').forEach(function(b){ b.classList.toggle('on', parseInt(b.dataset.n,10)===playerCount); });
+    syncModeBtns();
+    renderHUD(); renderVsTeam(); renderPartners(); renderSeats(); renderPropsBar();
+    updateTurnBanner('結印準備！合力打怪！');
+    banner('重新挑戰！進度已重置。', true);
+    showScreen('setup');
+  }
+  $('btnAgain').onclick=fullRaidReset;
+  var btnRetryHub=$('btnRetryHub');
+  if(btnRetryHub) btnRetryHub.onclick=fullRaidReset;
 
 
   function fillShowcaseIn(){
