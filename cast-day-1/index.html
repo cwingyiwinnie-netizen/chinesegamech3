@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>出招日 · 週一</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans TC','PingFang HK',sans-serif;background:#F7F3EB;color:#1a4a6e;min-height:100vh}
+.screen{display:none;padding:14px 14px 28px;max-width:720px;margin:0 auto}
+.screen.active{display:block}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.pill{background:#fff;border:1px solid #e8e0d4;border-radius:999px;padding:6px 12px;font-weight:800;font-size:.9rem}
+h1{font-size:1.55rem;font-weight:900;line-height:1.25;margin:8px 0}
+h1 span{color:#e65c00}
+.sub{color:#5a6a7a;line-height:1.5;margin-bottom:14px}
+.btn{display:block;width:100%;border:none;border-radius:16px;padding:14px 16px;font-size:1.1rem;font-weight:900;font-family:inherit;cursor:pointer;margin:8px 0}
+.btn-main{background:linear-gradient(135deg,#1a6b8a,#0d4a66);color:#fff}
+.btn-orange{background:linear-gradient(135deg,#ff6b00,#ffd700);color:#1a1a2e}
+.btn-ghost{background:#fff;border:2px solid #c5d4e0;color:#1a4a6e}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.45;cursor:default}
+.word-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.word-card{background:#fff;border:2px solid #f0e6d8;border-radius:16px;padding:12px;text-align:center}
+.word-card.done{border-color:#86efac;background:#f0fdf4}
+.word-card .w{font-size:1.35rem;font-weight:900}
+.word-card .st{font-size:.8rem;color:#64748b;margin-top:4px}
+.flip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.flip{aspect-ratio:1;border-radius:14px;border:2px solid #d4a017;background:#fff;color:#1a4a6e;font-size:1.85rem;font-weight:900;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s,opacity .2s}
+.flip.used{opacity:.35;pointer-events:none;border-color:#86efac;background:#f0fdf4}
+.flip.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.build-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;min-height:64px;margin:10px 0;padding:10px;background:#fff;border:2px dashed #d4a017;border-radius:14px}
+.build-slot{min-width:52px;height:52px;border-radius:12px;background:#fff7ed;border:2px solid #fdba74;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:900;color:#e65c00}
+.hint{background:#fff7ed;border-left:4px solid #e65c00;padding:10px 12px;border-radius:10px;margin:10px 0;font-weight:700}
+#fb{min-height:28px;text-align:center;font-weight:800;margin:8px 0}
+.canvas-wrap{background:#fff;border:2px solid #e8e0d4;border-radius:16px;overflow:hidden;touch-action:none}
+#writeCanvas{width:100%;height:280px;display:block;background:repeating-linear-gradient(transparent,transparent 69px,#f1e8dc 69px,#f1e8dc 70px)}
+.model{text-align:center;font-size:3.2rem;font-weight:900;color:rgba(26,74,110,.18);position:relative;height:0;top:90px;pointer-events:none;z-index:0}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1;min-width:120px}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.shop-item{background:#fff;border:2px solid #f0e6d8;border-radius:16px;padding:14px;text-align:center}
+.shop-item.owned{border-color:#86efac;background:#f0fdf4}
+.shop-item .ico{font-size:2rem}
+.shop-item .nm{font-weight:900;margin:6px 0}
+.teacher{margin:20px 14px;padding:12px;background:#f8fafc;border:1px dashed #94a3b8;border-radius:12px;font-size:.78rem;color:#64748b;line-height:1.55}
+.reward{display:none;position:fixed;inset:0;z-index:100;background:rgba(10,30,50,.88);align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;padding:24px}
+.reward.on{display:flex}
+.reward .big{font-size:5rem;line-height:1;margin-bottom:8px;animation:pop .45s ease}
+.reward .ttl{font-size:2rem;font-weight:900;margin:8px 0;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.reward .subr{font-size:1.15rem;font-weight:700;opacity:.95;margin-top:6px}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+<div class="screen active" id="sc-hub">
+  <div class="top">
+    <div class="pill" id="hubStars">⭐ 0</div>
+    <div class="pill" id="hubCoins">💎 0</div>
+  </div>
+  <h1>出招日<br><span>· 週一</span></h1>
+  <p class="sub">翻牌砌詞 → 畫氣出招 → 收集查克拉星 → 忍具店換裝備</p>
+  <div class="word-list" id="wordList"></div>
+  <button class="btn btn-main" id="btnContinue">繼續出招</button>
+  <button class="btn btn-orange" id="btnShop">忍具店</button>
+  <button class="btn btn-ghost" id="btnMorningRestart">重新開始</button>
+</div>
+
+<div class="screen" id="sc-flip">
+  <div class="top">
+    <button class="btn btn-ghost" style="width:auto;padding:8px 12px;margin:0" id="flipBack">← 返回</button>
+    <div class="pill" id="flipProg">翻牌砌詞</div>
+  </div>
+  <div class="hint" id="flipHint">按順序點字，砌出正確的詞！</div>
+  <div class="build-row" id="buildRow"></div>
+  <div class="flip-grid" id="flipGrid"></div>
+  <div id="fb"></div>
+  <button class="btn btn-orange" id="btnGoWrite" style="display:none">去畫氣！</button>
+</div>
+
+<div class="screen" id="sc-write">
+  <div class="top">
+    <button class="btn btn-ghost" style="width:auto;padding:8px 12px;margin:0" id="writeBack">← 返回</button>
+    <div class="pill">出招畫氣</div>
+  </div>
+  <div class="hint" id="writeHint">用手指沿著淡字畫氣出招！</div>
+  <div class="canvas-wrap">
+    <div class="model" id="writeModel"></div>
+    <canvas id="writeCanvas" width="640" height="280"></canvas>
+  </div>
+  <div class="row">
+    <button class="btn btn-ghost" id="btnClear">清空</button>
+    <button class="btn btn-orange" id="btnCast">出招！</button>
+  </div>
+  <div id="fb2"></div>
+</div>
+
+<div class="screen" id="sc-shop">
+  <div class="top">
+    <button class="btn btn-ghost" style="width:auto;padding:8px 12px;margin:0" id="shopBack">← 返回</button>
+    <div class="pill" id="shopStars">⭐ 0</div>
+  </div>
+  <h1 style="font-size:1.3rem">忍具店</h1>
+  <p class="sub">用查克拉星換裝備</p>
+  <div class="shop-grid" id="shopGrid"></div>
+</div>
+
+<div class="reward" id="reward">
+  <div class="big" id="rewardBig">⭐</div>
+  <div class="ttl" id="rewardTitle">配對成功！</div>
+  <div class="subr" id="rewardSub">翻牌完成！去畫氣出招！</div>
+</div>
+
+<div class="teacher">
+  <strong>老師用</strong>· v0.1.0 出招日 · 週一（NCS Art 日一）· 詞：打滾、手術、一位。
+  教學：新詞出招循環（翻牌砌詞 → 畫氣 → 查克拉星 → 忍具店），鞏固形音義。學生介面禁溫習／默寫／練習／訓練。存檔 morningCh8_day1_v01。
+</div>
+
+<script>
+const WORDS = [
+  {w:'打滾', m:'在地上滾來滾去'},
+  {w:'手術', m:'醫生開刀治病'},
+  {w:'一位', m:'對人的敬稱'}
+];
+const SHOP = [
+  {id:'kunai', name:'苦無', ico:'🗡️', cost:2},
+  {id:'scroll', name:'忍術卷軸', ico:'📜', cost:3},
+  {id:'band', name:'護額', ico:'🎽', cost:3},
+  {id:'cloak', name:'斗篷', ico:'🧥', cost:4},
+  {id:'shuriken', name:'手裏劍', ico:'✶', cost:2},
+  {id:'gourd', name:'查克拉壺', ico:'🏺', cost:5}
+];
+const SAVE='morningCh8_day1_v01';
+let state = load();
+let cur = null;
+let flipLock=false;
+let buildChars=[];
+let targetChars=[];
+let flipDone=false;
+let drawing=false;
+let goWriteTimer=null;
+
+function load(){
+  try{ return Object.assign({stars:0,coins:0,done:{},owned:[]}, JSON.parse(localStorage.getItem(SAVE)||'{}')); }
+  catch(e){ return {stars:0,coins:0,done:{},owned:[]}; }
+}
+function save(){ localStorage.setItem(SAVE, JSON.stringify(state)); }
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function shuffle(a){ const x=[...a]; for(let i=x.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [x[i],x[j]]=[x[j],x[i]]; } return x; }
+function doneCount(){ return WORDS.filter((_,i)=>state.done[i]===2).length; }
+function nextWord(){
+  for(let i=0;i<WORDS.length;i++){ if(state.done[i]!==2) return i; }
+  return 0;
+}
+function updateHub(){
+  document.getElementById('hubStars').textContent='⭐ '+state.stars;
+  document.getElementById('hubCoins').textContent='💎 '+state.coins;
+  document.getElementById('shopStars').textContent='⭐ '+state.stars;
+  const box=document.getElementById('wordList');
+  box.innerHTML=WORDS.map((x,i)=>{
+    const st=state.done[i]||0;
+    const label=st===2?'✅ 完成':(st===1?'▶️ 去畫氣':'🔒 待挑戰');
+    return `<div class="word-card ${st===2?'done':''}" data-i="${i}"><div class="w">${x.w}</div><div class="st">${label}</div></div>`;
+  }).join('');
+  box.querySelectorAll('.word-card').forEach(el=>{
+    el.onclick=()=>{
+      const i=+el.dataset.i;
+      const st=state.done[i]||0;
+      if(st===2) return;
+      if(st===1) startWrite(i); else startFlip(i);
+    };
+  });
+  document.getElementById('btnContinue').textContent = doneCount()===WORDS.length ? '全部完成！再玩一輪' : '繼續出招';
+}
+function renderBuild(){
+  const row=document.getElementById('buildRow');
+  row.innerHTML=targetChars.map((_,i)=>{
+    const ch=buildChars[i]||'';
+    return `<div class="build-slot">${ch}</div>`;
+  }).join('');
+}
+function distractorPool(i){
+  const chars=[];
+  WORDS.forEach((x,j)=>{ if(j!==i){ [...x.w].forEach(c=>chars.push(c)); } });
+  return shuffle(chars);
+}
+function startFlip(i){
+  cur=i; flipLock=false; buildChars=[]; flipDone=false;
+  if(goWriteTimer){ clearTimeout(goWriteTimer); goWriteTimer=null; }
+  const word=WORDS[i];
+  targetChars=[...word.w];
+  const needDist = word.w.length===1 ? 5 : 3;
+  let dist=distractorPool(i).filter(c=>!targetChars.includes(c));
+  if(dist.length<needDist) dist=distractorPool(i);
+  dist=dist.slice(0,needDist);
+  const cards=shuffle([...targetChars, ...dist]);
+  document.getElementById('flipHint').textContent=
+    word.w.length===1
+      ? `找出「${word.w}」——點正確的字！`
+      : `砌出「${word.w}」——按順序點字！`;
+  document.getElementById('fb').textContent='';
+  document.getElementById('btnGoWrite').style.display='none';
+  renderBuild();
+  const grid=document.getElementById('flipGrid');
+  grid.innerHTML='';
+  cards.forEach((ch,idx)=>{
+    const b=document.createElement('button');
+    b.className='flip'; b.type='button'; b.textContent=ch;
+    b.dataset.ch=ch; b.dataset.i=idx;
+    b.onclick=()=>tapBuild(b);
+    grid.appendChild(b);
+  });
+  show('sc-flip');
+}
+function tapBuild(b){
+  if(flipLock||flipDone||b.classList.contains('used')) return;
+  const expect=targetChars[buildChars.length];
+  const ch=b.dataset.ch;
+  if(ch===expect){
+    buildChars.push(ch);
+    b.classList.add('used');
+    renderBuild();
+    document.getElementById('fb').textContent='對！';
+    document.getElementById('fb').style.color='#15803d';
+    if(buildChars.length===targetChars.length){
+      onFlipSuccess();
+    }
+  } else {
+    flipLock=true;
+    b.classList.add('shake');
+    document.getElementById('fb').textContent='再試一次！';
+    document.getElementById('fb').style.color='#c2410c';
+    buildChars=[];
+    renderBuild();
+    document.querySelectorAll('#flipGrid .flip.used').forEach(el=>el.classList.remove('used'));
+    setTimeout(()=>{
+      b.classList.remove('shake');
+      flipLock=false;
+    }, 400);
+  }
+}
+function onFlipSuccess(){
+  if(flipDone) return;
+  flipDone=true; flipLock=true;
+  state.done[cur]=1; save();
+  document.getElementById('fb').textContent='翻牌完成！去畫氣出招！';
+  document.getElementById('fb').style.color='#15803d';
+  const go=document.getElementById('btnGoWrite');
+  go.style.display='block';
+  showReward('⭐','配對成功！','翻牌完成！去畫氣出招！', 700, ()=>{
+    hideReward();
+    startWrite(cur);
+  });
+}
+function showReward(big, title, sub, ms, then){
+  const el=document.getElementById('reward');
+  document.getElementById('rewardBig').textContent=big;
+  document.getElementById('rewardTitle').textContent=title;
+  document.getElementById('rewardSub').textContent=sub||'';
+  el.classList.add('on');
+  if(goWriteTimer) clearTimeout(goWriteTimer);
+  goWriteTimer=setTimeout(()=>{ then&&then(); }, ms);
+}
+function hideReward(){ document.getElementById('reward').classList.remove('on'); }
+
+function startWrite(i){
+  if(goWriteTimer){ clearTimeout(goWriteTimer); goWriteTimer=null; }
+  hideReward();
+  cur=i;
+  const word=WORDS[i];
+  document.getElementById('writeHint').textContent=`畫出「${word.w}」——（${word.m}）`;
+  document.getElementById('writeModel').textContent=word.w;
+  document.getElementById('fb2').textContent='';
+  clearCanvas();
+  show('sc-write');
+  resizeCanvas();
+}
+
+const canvas=document.getElementById('writeCanvas');
+const ctx=canvas.getContext('2d');
+let strokes=0;
+function resizeCanvas(){
+  const r=canvas.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=Math.floor(r.width*dpr);
+  canvas.height=Math.floor(r.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#e65c00'; ctx.lineWidth=5;
+}
+function pos(e){
+  const r=canvas.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return {x:t.clientX-r.left, y:t.clientY-r.top};
+}
+function clearCanvas(){
+  strokes=0;
+  const r=canvas.getBoundingClientRect();
+  ctx.clearRect(0,0,r.width||640,r.height||280);
+}
+function startDraw(e){ e.preventDefault(); drawing=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }
+function moveDraw(e){ if(!drawing)return; e.preventDefault(); const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); strokes++; }
+function endDraw(){ drawing=false; }
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', moveDraw);
+canvas.addEventListener('mouseup', endDraw);
+canvas.addEventListener('mouseleave', endDraw);
+canvas.addEventListener('touchstart', startDraw, {passive:false});
+canvas.addEventListener('touchmove', moveDraw, {passive:false});
+canvas.addEventListener('touchend', endDraw);
+
+function finishWrite(){
+  if(strokes<8){
+    document.getElementById('fb2').textContent='再畫清楚一點！';
+    document.getElementById('fb2').style.color='#c2410c';
+    return;
+  }
+  const already = state.done[cur]===2;
+  state.done[cur]=2;
+  if(!already){ state.stars+=2; state.coins+=1; }
+  save();
+  document.getElementById('fb2').textContent= already ? '已完成過這詞！' : '出招成功！⭐+2';
+  document.getElementById('fb2').style.color='#15803d';
+  showReward('⭐⭐','出招成功！', already ? '已完成過這詞！' : '⭐+2　查克拉星增加！', 1100, ()=>{
+    hideReward();
+    updateHub();
+    show('sc-hub');
+  });
+}
+
+function renderShop(){
+  const g=document.getElementById('shopGrid');
+  g.innerHTML=SHOP.map(it=>{
+    const owned=state.owned.includes(it.id);
+    return `<div class="shop-item ${owned?'owned':''}">
+      <div class="ico">${it.ico}</div>
+      <div class="nm">${it.name}</div>
+      <div style="color:#64748b;font-size:.85rem;margin-bottom:8px">${owned?'已擁有':'⭐ '+it.cost}</div>
+      <button class="btn ${owned?'btn-ghost':'btn-main'}" style="margin:0;padding:10px" data-id="${it.id}" ${owned?'disabled':''}>${owned?'✓':'換取'}</button>
+    </div>`;
+  }).join('');
+  g.querySelectorAll('button[data-id]').forEach(b=>{
+    b.onclick=()=>{
+      const it=SHOP.find(x=>x.id===b.dataset.id);
+      if(!it||state.owned.includes(it.id)) return;
+      if(state.stars<it.cost){ alert('查克拉星不足！'); return; }
+      state.stars-=it.cost; state.owned.push(it.id); save();
+      updateHub(); renderShop();
+    };
+  });
+}
+
+document.getElementById('btnContinue').onclick=()=>{
+  if(doneCount()===WORDS.length){
+    state.done={}; save(); updateHub();
+  }
+  const i=nextWord();
+  const st=state.done[i]||0;
+  if(st===1) startWrite(i); else startFlip(i);
+};
+document.getElementById('btnShop').onclick=()=>{ updateHub(); renderShop(); show('sc-shop'); };
+document.getElementById('flipBack').onclick=()=>{ if(goWriteTimer){clearTimeout(goWriteTimer);goWriteTimer=null;} hideReward(); updateHub(); show('sc-hub'); };
+document.getElementById('writeBack').onclick=()=>{ if(goWriteTimer){clearTimeout(goWriteTimer);goWriteTimer=null;} hideReward(); updateHub(); show('sc-hub'); };
+document.getElementById('shopBack').onclick=()=>{ updateHub(); show('sc-hub'); };
+document.getElementById('btnClear').onclick=clearCanvas;
+document.getElementById('btnCast').onclick=finishWrite;
+document.getElementById('btnGoWrite').onclick=()=>{
+  if(goWriteTimer){ clearTimeout(goWriteTimer); goWriteTimer=null; }
+  hideReward();
+  startWrite(cur);
+};
+window.addEventListener('resize', ()=>{ if(document.getElementById('sc-write').classList.contains('active')) resizeCanvas(); });
+
+
+document.getElementById('btnMorningRestart').onclick=function(){
+  try{ localStorage.removeItem(SAVE); }catch(e){}
+  state={stars:0,coins:0,done:{},owned:[]};
+  save(); updateHub(); show('sc-hub');
+};
+
+updateHub();
+</script>
+</body>
+</html>
