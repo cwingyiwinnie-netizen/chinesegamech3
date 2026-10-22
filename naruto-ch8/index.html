@@ -271,6 +271,7 @@ document.addEventListener('DOMContentLoaded', function(){
           <span class="pill">不用拼音</span>
         </div>
         <button class="start-btn" id="btnStart" type="button">START</button>
+        <button class="btn" id="btnRestart" type="button" onclick="restart()" style="margin-top:10px;width:100%;max-width:280px;background:#fff;border:2px solid #e65c00;color:#e65c00;font-weight:900;">重新開始</button>
         <div id="navReadyHint" style="margin-top:8px;font-size:.85rem;color:#c2410c;font-weight:700;">載入中…請稍候再按</div>
         <div style="margin-top:14px;font-size:1.15rem;color:#d4a017;" id="totalStars">☆☆☆☆☆</div>
         <div style="font-size:.9rem;color:#8a9aaa;margin-top:4px;">準備好就出發！</div>
@@ -326,7 +327,10 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="screen" id="sc-map">
     <h2 style="text-align:center;color:#1a4a6e;margin:8px 0 16px;">🗺️ 冒險地圖</h2>
     <div class="levels" id="mapLevels"></div>
-    <div class="btn-group"><button class="btn" onclick="show('sc-title')">返回封面</button></div>
+    <div class="btn-group">
+      <button class="btn" onclick="show('sc-title')">返回封面</button>
+      <button class="btn btn-orange" type="button" onclick="restart()">重新開始</button>
+    </div>
   </div>
   
   <!-- MISSION INTRO -->
@@ -1088,7 +1092,23 @@ function finish(){
 }
 
 function nextMission(){ openMission(curM+1); }
-function restart(){ done=[]; localStorage.setItem('narutoCh8_v013_done','[]'); updateProgress(); applyPartnerCover(); show('sc-title'); }
+function restart(){
+  done=[];
+  try{
+    const keys=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k && k.indexOf('narutoCh8_')===0) keys.push(k);
+    }
+    keys.forEach(k=>localStorage.removeItem(k));
+  }catch(e){}
+  localStorage.setItem('narutoCh8_v013_done','[]');
+  updateProgress();
+  if(typeof applyPartnerCover==='function') applyPartnerCover();
+  const ts=document.getElementById('totalStars'); if(ts) ts.textContent='☆☆☆☆☆';
+  const nm=document.getElementById('playerName'); if(nm) nm.value='';
+  show('sc-title');
+}
 
 try{ updateProgress(); applyPartnerCover(); }catch(e){ console.error(e); }
 window.__nvFns = { show: show, goMap: goMap, openMission: openMission, startPlay: startPlay };
