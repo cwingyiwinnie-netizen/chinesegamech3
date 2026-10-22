@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>出招日 · 週二</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans TC','PingFang HK',sans-serif;background:#F7F3EB;color:#1a4a6e;min-height:100vh}
+.screen{display:none;padding:14px 14px 28px;max-width:720px;margin:0 auto}
+.screen.active{display:block}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.pill{background:#fff;border:1px solid #e8e0d4;border-radius:999px;padding:6px 12px;font-weight:800;font-size:.9rem}
+h1{font-size:1.55rem;font-weight:900;line-height:1.25;margin:8px 0}
+h1 span{color:#e65c00}
+.sub{color:#5a6a7a;line-height:1.5;margin-bottom:14px}
+.btn{display:block;width:100%;border:none;border-radius:16px;padding:14px 16px;font-size:1.1rem;font-weight:900;font-family:inherit;cursor:pointer;margin:8px 0}
+.btn-main{background:linear-gradient(135deg,#1a6b8a,#0d4a66);color:#fff}
+.btn-orange{background:linear-gradient(135deg,#ff6b00,#ffd700);color:#1a1a2e}
+.btn-ghost{background:#fff;border:2px solid #c5d4e0;color:#1a4a6e}
+.btn-ok{background:linear-gradient(135deg,#16a34a,#86efac);color:#052e16}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.45;cursor:default}
+.word-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.word-card{background:#fff;border:2px solid #f0e6d8;border-radius:16px;padding:12px;text-align:center}
+.word-card.done{border-color:#86efac;background:#f0fdf4}
+.word-card .w{font-size:1.35rem;font-weight:900}
+.word-card .st{font-size:.8rem;color:#64748b;margin-top:4px}
+.flip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.flip{aspect-ratio:1;border-radius:14px;border:2px solid #d4a017;background:#fff;color:#1a4a6e;font-size:1.85rem;font-weight:900;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s,opacity .2s}
+.flip.used{opacity:.35;pointer-events:none;border-color:#86efac;background:#f0fdf4}
+.flip.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.build-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;min-height:64px;margin:10px 0;padding:10px;background:#fff;border:2px dashed #d4a017;border-radius:14px}
+.build-slot{min-width:52px;height:52px;border-radius:12px;background:#fff7ed;border:2px solid #fdba74;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:900;color:#e65c00}
+.hint{background:#fff7ed;border-left:4px solid #e65c00;padding:10px 12px;border-radius:10px;margin:10px 0;font-weight:700}
+#fb,#fb2,#wsFb{min-height:28px;text-align:center;font-weight:800;margin:8px 0}
+.canvas-wrap{background:#fff;border:2px solid #e8e0d4;border-radius:16px;overflow:hidden;touch-action:none;position:relative}
+#writeCanvas,#wsCv{width:100%;height:280px;display:block;background:repeating-linear-gradient(transparent,transparent 69px,#f1e8dc 69px,#f1e8dc 70px)}
+.model{text-align:center;font-size:3.2rem;font-weight:900;color:rgba(26,74,110,.18);position:relative;height:0;top:90px;pointer-events:none;z-index:0}
+.ws-model{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(2.8rem,11vw,4.5rem);font-weight:900;color:rgba(26,74,110,.16);pointer-events:none}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1;min-width:120px}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.shop-item{background:#fff;border:2px solid #f0e6d8;border-radius:16px;padding:14px;text-align:center}
+.shop-item.owned{border-color:#86efac;background:#f0fdf4}
+.shop-item .ico{font-size:2rem}
+.shop-item .nm{font-weight:900;margin:6px 0}
+.teacher{margin:20px 14px;padding:12px;background:#f8fafc;border:1px dashed #94a3b8;border-radius:12px;font-size:.78rem;color:#64748b;line-height:1.55}
+.reward{display:none;position:fixed;inset:0;z-index:100;background:rgba(10,30,50,.88);align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;padding:24px}
+.reward.on{display:flex}
+.reward .big{font-size:5rem;line-height:1;margin-bottom:8px;animation:pop .45s ease}
+.reward .ttl{font-size:2rem;font-weight:900;margin:8px 0;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.reward .subr{font-size:1.15rem;font-weight:700;opacity:.95;margin-top:6px}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+/* write-star */
+#sc-ws-hub,#sc-ws-play,#sc-ws-shop{background:#0f2740;color:#fff;min-height:100vh;max-width:980px}
+#sc-ws-hub .pill,#sc-ws-play .pill,#sc-ws-shop .pill{background:rgba(255,255,255,.12);border-color:transparent;color:#fff}
+#sc-ws-hub .btn-ghost,#sc-ws-play .btn-ghost,#sc-ws-shop .btn-ghost{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:#fff}
+#sc-ws-hub .sub,#sc-ws-play .sub,#sc-ws-shop .sub{color:rgba(255,255,255,.85)}
+.ws-words{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+@media (max-width:500px){.ws-words{grid-template-columns:repeat(3,1fr)}}
+.ws-words div{background:rgba(255,255,255,.1);border-radius:12px;padding:10px 4px;text-align:center;font-weight:900;font-size:.95rem}
+.ws-words .done{background:rgba(134,239,172,.25);border:1px solid #86efac}
+.ws-play{display:grid;grid-template-columns:1.2fr .9fr;gap:12px}
+@media (max-width:700px){.ws-play{grid-template-columns:1fr}}
+.write-panel,.ninja-panel{background:rgba(255,255,255,.08);border-radius:18px;padding:12px;border:1px solid rgba(255,255,255,.15)}
+.timer{font-size:1.15rem;font-weight:900;color:#ffd700}
+.timer.danger{color:#fb7185;animation:blink .5s infinite}
+@keyframes blink{50%{opacity:.5}}
+.ninja{text-align:center;padding-top:8px}
+.avatar{width:140px;height:140px;margin:0 auto 10px;border-radius:20px;background:linear-gradient(160deg,#1a4a6e,#0d4a66);display:flex;align-items:center;justify-content:center;border:3px solid #ffd700;font-size:4rem;position:relative;overflow:hidden}
+.avatar.gear-kunai::after{content:'🗡️';position:absolute;right:2px;bottom:10px;font-size:1.6rem;z-index:2}
+.avatar.gear-band::before{content:'🎽';position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:1.3rem;z-index:2}
+.avatar.gear-cloak{box-shadow:inset 0 0 0 8px #7c2d12}
+.avatar.gear-scroll::after{content:'📜';position:absolute;left:2px;bottom:12px;font-size:1.5rem;z-index:2}
+.bubble{background:#fff;color:#1a4a6e;border-radius:16px;padding:14px 16px;font-weight:900;font-size:1.25rem;position:relative;margin:10px 8px;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.35}
+.bubble:after{content:'';position:absolute;right:28px;bottom:-10px;border:10px solid transparent;border-top-color:#fff;border-bottom:0}
+.ninja-name{font-weight:900;margin-top:4px;opacity:.95}
+#sc-ws-shop .shop-item{background:rgba(255,255,255,.1);border-color:transparent;color:#fff}
+#sc-ws-shop .shop-item.owned{border:2px solid #86efac;background:rgba(134,239,172,.15)}
+.tag-new{display:inline-block;font-size:.65rem;background:#ff6b00;color:#fff;border-radius:6px;padding:1px 5px;margin-left:2px;vertical-align:middle}
+.tag-old{display:inline-block;font-size:.65rem;background:#64748b;color:#fff;border-radius:6px;padding:1px 5px;margin-left:2px;vertical-align:middle}
+</style>
+</head>
+<body>
+<!-- ===== MORNING HUB ===== -->
+<div class="screen active" id="sc-hub">
+  <div class="top">
+    <div class="pill" id="hubStars">⭐ 0</div>
+    <div class="pill" id="hubCoins">💎 0</div>
+  </div>
+  <h1>出招日<br><span>· 週二</span></h1>
+  <p class="sub">翻牌砌詞 → 畫氣出招 → 收集查克拉星 → 忍具店換裝備<br>完成後可挑戰「寫字搶星」混合詞</p>
+  <div class="word-list" id="wordList"></div>
+  <button class="btn btn-main" id="btnContinue">繼續出招</button>
+  <button class="btn btn-orange" id="btnWriteStar">寫字搶星 · 混合詞</button>
+  <button class="btn btn-ghost" id="btnShop">忍具店</button>
+  <button class="btn btn-ghost" id="btnMorningRestart">重新開始</button>
+</div>
+
+<div class="screen" id="sc-flip">
+  <div class="top">
+    <button class="btn btn-ghost" style="width:auto;padding:8px 12px;margin:0" id="flipBack">← 返回</button>
+    <div class="pill" id="flipProg">翻牌砌詞</div>
+  </div>
+  <div class="hint" id="flipHint">按順序點字，砌出正確的詞！</div>
+  <div class="build-row" id="buildRow"></div>
+  <div class="flip-grid" id="flipGrid"></div>
+  <div id="fb"></div>
+  <button class="btn btn-orange" id="btnGoWrite" style="display:none">去畫氣！</button>
+</div>
+
+<div class="screen" id="sc-write">
+  <div class="top">
+    <button class="btn btn-ghost" style="width:auto;padding:8px 12px;margin:0" id="writeBack">← 返回</button>
+    <div class="pill">出招畫氣</div>
+  </div>
+  <div class="hint" id="writeHint">用手指沿著淡字畫氣出招！</div>
+  <div class="canvas-wrap">
+    <div class="model" id="writeModel"></div>
+    <canvas id="writeCanvas" width="640" height="280"></canvas>
+  </div>
+  <div class="row">
+    <button class="btn btn-ghost" id="btnClear">清空</button>
+    <button class="btn btn-orange" id="btnCast">出招！</button>
+  </div>
+  <div id="fb2"></div>
+</div>
+
+<div class="screen" id="sc-shop">
+  <div class="top">
+    <button class="btn btn-ghost" style="width:auto;padding:8px 12px;margin:0" id="shopBack">← 返回</button>
+    <div class="pill" id="shopStars">⭐ 0</div>
+  </div>
+  <h1 style="font-size:1.3rem">忍具店</h1>
+  <p class="sub">用查克拉星換裝備</p>
+  <div class="shop-grid" id="shopGrid"></div>
+</div>
+
+<!-- ===== WRITE-STAR MIX ===== -->
+<div class="screen" id="sc-ws-hub">
+  <div class="top">
+    <button class="btn btn-ghost" style="width:auto;padding:8px 12px;margin:0" id="wsBackHub">← 出招日</button>
+    <div class="pill" id="wsHubStars">⭐ 0</div>
+  </div>
+  <h1 style="color:#fff">寫字搶星<br><span>混合詞 · 週二</span></h1>
+  <div style="text-align:center;margin:8px 0">
+    <div class="avatar" id="wsHubAvatar">🥷</div>
+    <div class="ninja-name" id="wsHubName">橙影</div>
+  </div>
+  <p class="sub">15 秒內寫出詞 · 新詞＋舊詞混合 · 集星幫忍者換裝備</p>
+  <div class="ws-words" id="wsWords"></div>
+  <button class="btn btn-orange" id="wsBtnGo">開始挑戰</button>
+  <button class="btn btn-ghost" id="wsBtnShop">幫忍者換裝備</button>
+  <button class="btn btn-ghost" id="wsBtnReset">重新開始</button>
+</div>
+
+<div class="screen" id="sc-ws-play">
+  <div class="ws-play">
+    <div class="write-panel">
+      <div class="top">
+        <button class="btn btn-ghost" style="width:auto;padding:8px 12px;margin:0" id="wsPlayBack">返回</button>
+        <div class="pill" id="wsStagePill">第 1 關</div>
+        <div class="timer" id="wsTimer">剩餘 15 秒</div>
+      </div>
+      <div class="canvas-wrap" style="border:3px solid #d4a017;background:#F7F3EB">
+        <div class="ws-model" id="wsModel"></div>
+        <canvas id="wsCv" width="720" height="280"></canvas>
+      </div>
+      <div class="row">
+        <button class="btn btn-ghost" id="wsBtnClear">清空</button>
+        <button class="btn btn-ok" id="wsBtnCast">出招！</button>
+      </div>
+      <div id="wsFb"></div>
+    </div>
+    <div class="ninja-panel">
+      <div class="ninja">
+        <div class="avatar" id="wsAvatar">🥷</div>
+        <div class="ninja-name" id="wsPlayName">橙影</div>
+        <div class="bubble" id="wsBubble">準備好了嗎？</div>
+        <p class="sub" style="margin-top:8px;font-size:.85rem">出招畫氣 · 寫在左邊框裡</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="sc-ws-shop">
+  <div class="top">
+    <button class="btn btn-ghost" style="width:auto;padding:8px 12px;margin:0" id="wsShopBack">← 返回</button>
+    <div class="pill" id="wsShopStars">⭐ 0</div>
+  </div>
+  <h1 style="font-size:1.25rem;color:#fff">忍具店 · 幫忍者換裝備</h1>
+  <div style="text-align:center;margin:8px 0">
+    <div class="avatar" id="wsShopAvatar">🥷</div>
+    <div class="ninja-name" id="wsShopName">橙影</div>
+  </div>
+  <div class="shop-grid" id="wsShopGrid"></div>
+</div>
+
+<div class="reward" id="reward">
+  <div class="big" id="rewardBig">⭐</div>
+  <div class="ttl" id="rewardTitle">配對成功！</div>
+  <div class="subr" id="rewardSub">翻牌完成！去畫氣出招！</div>
+</div>
+
+<div class="teacher">
+  <strong>老師用</strong>· v0.1.0 出招日 · 週二（NCS Art 日二）· 新詞：四周、原來、必須。
+  教學：新詞出招循環（翻牌砌詞 → 畫氣 → 查克拉星 → 忍具店）＋寫字搶星混合詞（日二新詞＋舊晨讀五：暗救醫生鏡子成功；可加日一複習）。
+  學生介面禁溫習／默寫／練習／訓練。存檔 morningCh8_day2_v01｜寫字搶星 morningCh8_day2_write_v01。
+</div>
+
+<script>
+/* ===== Morning loop (day 2 new words) ===== */
+const WORDS = [
+  {w:'四周', m:'周圍'},
+  {w:'原來', m:'事先不知道，現在才明白'},
+  {w:'必須', m:'一定要'}
+];
+const SHOP = [
+  {id:'kunai', name:'苦無', ico:'🗡️', cost:2},
+  {id:'scroll', name:'忍術卷軸', ico:'📜', cost:3},
+  {id:'band', name:'護額', ico:'🎽', cost:3},
+  {id:'cloak', name:'斗篷', ico:'🧥', cost:4},
+  {id:'shuriken', name:'手裏劍', ico:'✶', cost:2},
+  {id:'gourd', name:'查克拉壺', ico:'🏺', cost:5}
+];
+const SAVE='morningCh8_day2_v01';
+let state = load();
+let cur = null;
+let flipLock=false;
+let buildChars=[];
+let targetChars=[];
+let flipDone=false;
+let drawing=false;
+let goWriteTimer=null;
+
+function load(){
+  try{ return Object.assign({stars:0,coins:0,done:{},owned:[]}, JSON.parse(localStorage.getItem(SAVE)||'{}')); }
+  catch(e){ return {stars:0,coins:0,done:{},owned:[]}; }
+}
+function save(){ localStorage.setItem(SAVE, JSON.stringify(state)); }
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function shuffle(a){ const x=[...a]; for(let i=x.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [x[i],x[j]]=[x[j],x[i]]; } return x; }
+function doneCount(){ return WORDS.filter((_,i)=>state.done[i]===2).length; }
+function nextWord(){
+  for(let i=0;i<WORDS.length;i++){ if(state.done[i]!==2) return i; }
+  return 0;
+}
+function updateHub(){
+  document.getElementById('hubStars').textContent='⭐ '+state.stars;
+  document.getElementById('hubCoins').textContent='💎 '+state.coins;
+  document.getElementById('shopStars').textContent='⭐ '+state.stars;
+  const box=document.getElementById('wordList');
+  box.innerHTML=WORDS.map((x,i)=>{
+    const st=state.done[i]||0;
+    const label=st===2?'✅ 完成':(st===1?'▶️ 去畫氣':'🔒 待挑戰');
+    return `<div class="word-card ${st===2?'done':''}" data-i="${i}"><div class="w">${x.w}</div><div class="st">${label}</div></div>`;
+  }).join('');
+  box.querySelectorAll('.word-card').forEach(el=>{
+    el.onclick=()=>{
+      const i=+el.dataset.i;
+      const st=state.done[i]||0;
+      if(st===2) return;
+      if(st===1) startWrite(i); else startFlip(i);
+    };
+  });
+  document.getElementById('btnContinue').textContent = doneCount()===WORDS.length ? '全部完成！再玩一輪' : '繼續出招';
+}
+function renderBuild(){
+  const row=document.getElementById('buildRow');
+  row.innerHTML=targetChars.map((_,i)=>{
+    const ch=buildChars[i]||'';
+    return `<div class="build-slot">${ch}</div>`;
+  }).join('');
+}
+function distractorPool(i){
+  const chars=[];
+  WORDS.forEach((x,j)=>{ if(j!==i){ [...x.w].forEach(c=>chars.push(c)); } });
+  /* extra distractors from old words so flip grid stays rich with only 3 new words */
+  ['暗','救','醫','生','鏡','子','成','功','打','滾','手','術'].forEach(c=>chars.push(c));
+  return shuffle(chars);
+}
+function startFlip(i){
+  cur=i; flipLock=false; buildChars=[]; flipDone=false;
+  if(goWriteTimer){ clearTimeout(goWriteTimer); goWriteTimer=null; }
+  const word=WORDS[i];
+  targetChars=[...word.w];
+  const needDist = word.w.length===1 ? 5 : 3;
+  let dist=distractorPool(i).filter(c=>!targetChars.includes(c));
+  if(dist.length<needDist) dist=distractorPool(i);
+  dist=dist.slice(0,needDist);
+  const cards=shuffle([...targetChars, ...dist]);
+  document.getElementById('flipHint').textContent=
+    word.w.length===1
+      ? `找出「${word.w}」——點正確的字！`
+      : `砌出「${word.w}」——按順序點字！（${word.m}）`;
+  document.getElementById('fb').textContent='';
+  document.getElementById('btnGoWrite').style.display='none';
+  renderBuild();
+  const grid=document.getElementById('flipGrid');
+  grid.innerHTML='';
+  cards.forEach((ch,idx)=>{
+    const b=document.createElement('button');
+    b.className='flip'; b.type='button'; b.textContent=ch;
+    b.dataset.ch=ch; b.dataset.i=idx;
+    b.onclick=()=>tapBuild(b);
+    grid.appendChild(b);
+  });
+  show('sc-flip');
+}
+function tapBuild(b){
+  if(flipLock||flipDone||b.classList.contains('used')) return;
+  const expect=targetChars[buildChars.length];
+  const ch=b.dataset.ch;
+  if(ch===expect){
+    buildChars.push(ch);
+    b.classList.add('used');
+    renderBuild();
+    document.getElementById('fb').textContent='對！';
+    document.getElementById('fb').style.color='#15803d';
+    if(buildChars.length===targetChars.length){
+      onFlipSuccess();
+    }
+  } else {
+    flipLock=true;
+    b.classList.add('shake');
+    document.getElementById('fb').textContent='再試一次！';
+    document.getElementById('fb').style.color='#c2410c';
+    buildChars=[];
+    renderBuild();
+    document.querySelectorAll('#flipGrid .flip.used').forEach(el=>el.classList.remove('used'));
+    setTimeout(()=>{
+      b.classList.remove('shake');
+      flipLock=false;
+    }, 400);
+  }
+}
+function onFlipSuccess(){
+  if(flipDone) return;
+  flipDone=true; flipLock=true;
+  state.done[cur]=1; save();
+  document.getElementById('fb').textContent='翻牌完成！去畫氣出招！';
+  document.getElementById('fb').style.color='#15803d';
+  const go=document.getElementById('btnGoWrite');
+  go.style.display='block';
+  showReward('⭐','配對成功！','翻牌完成！去畫氣出招！', 700, ()=>{
+    hideReward();
+    startWrite(cur);
+  });
+}
+function showReward(big, title, sub, ms, then){
+  const el=document.getElementById('reward');
+  document.getElementById('rewardBig').textContent=big;
+  document.getElementById('rewardTitle').textContent=title;
+  document.getElementById('rewardSub').textContent=sub||'';
+  el.classList.add('on');
+  if(goWriteTimer) clearTimeout(goWriteTimer);
+  goWriteTimer=setTimeout(()=>{ then&&then(); }, ms);
+}
+function hideReward(){ document.getElementById('reward').classList.remove('on'); }
+
+function startWrite(i){
+  if(goWriteTimer){ clearTimeout(goWriteTimer); goWriteTimer=null; }
+  hideReward();
+  cur=i;
+  const word=WORDS[i];
+  document.getElementById('writeHint').textContent=`畫出「${word.w}」——（${word.m}）`;
+  document.getElementById('writeModel').textContent=word.w;
+  document.getElementById('fb2').textContent='';
+  clearCanvas();
+  show('sc-write');
+  resizeCanvas();
+}
+
+const canvas=document.getElementById('writeCanvas');
+const ctx=canvas.getContext('2d');
+let strokes=0;
+function resizeCanvas(){
+  const r=canvas.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=Math.floor(r.width*dpr);
+  canvas.height=Math.floor(r.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#e65c00'; ctx.lineWidth=5;
+}
+function pos(e){
+  const r=canvas.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return {x:t.clientX-r.left, y:t.clientY-r.top};
+}
+function clearCanvas(){
+  strokes=0;
+  const r=canvas.getBoundingClientRect();
+  ctx.clearRect(0,0,r.width||640,r.height||280);
+}
+function startDraw(e){ e.preventDefault(); drawing=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }
+function moveDraw(e){ if(!drawing)return; e.preventDefault(); const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); strokes++; }
+function endDraw(){ drawing=false; }
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', moveDraw);
+canvas.addEventListener('mouseup', endDraw);
+canvas.addEventListener('mouseleave', endDraw);
+canvas.addEventListener('touchstart', startDraw, {passive:false});
+canvas.addEventListener('touchmove', moveDraw, {passive:false});
+canvas.addEventListener('touchend', endDraw);
+
+function finishWrite(){
+  if(strokes<8){
+    document.getElementById('fb2').textContent='再畫清楚一點！';
+    document.getElementById('fb2').style.color='#c2410c';
+    return;
+  }
+  const already = state.done[cur]===2;
+  state.done[cur]=2;
+  if(!already){ state.stars+=2; state.coins+=1; }
+  save();
+  document.getElementById('fb2').textContent= already ? '已完成過這詞！' : '出招成功！⭐+2';
+  document.getElementById('fb2').style.color='#15803d';
+  showReward('⭐⭐','出招成功！', already ? '已完成過這詞！' : '⭐+2　查克拉星增加！', 1100, ()=>{
+    hideReward();
+    updateHub();
+    show('sc-hub');
+  });
+}
+
+function renderShop(){
+  const g=document.getElementById('shopGrid');
+  g.innerHTML=SHOP.map(it=>{
+    const owned=state.owned.includes(it.id);
+    return `<div class="shop-item ${owned?'owned':''}">
+      <div class="ico">${it.ico}</div>
+      <div class="nm">${it.name}</div>
+      <div style="color:#64748b;font-size:.85rem;margin-bottom:8px">${owned?'已擁有':'⭐ '+it.cost}</div>
+      <button class="btn ${owned?'btn-ghost':'btn-main'}" style="margin:0;padding:10px" data-id="${it.id}" ${owned?'disabled':''}>${owned?'✓':'換取'}</button>
+    </div>`;
+  }).join('');
+  g.querySelectorAll('button[data-id]').forEach(b=>{
+    b.onclick=()=>{
+      const it=SHOP.find(x=>x.id===b.dataset.id);
+      if(!it||state.owned.includes(it.id)) return;
+      if(state.stars<it.cost){ alert('查克拉星不足！'); return; }
+      state.stars-=it.cost; state.owned.push(it.id); save();
+      updateHub(); renderShop();
+    };
+  });
+}
+
+document.getElementById('btnContinue').onclick=()=>{
+  if(doneCount()===WORDS.length){
+    state.done={}; save(); updateHub();
+  }
+  const i=nextWord();
+  const st=state.done[i]||0;
+  if(st===1) startWrite(i); else startFlip(i);
+};
+document.getElementById('btnShop').onclick=()=>{ updateHub(); renderShop(); show('sc-shop'); };
+document.getElementById('flipBack').onclick=()=>{ if(goWriteTimer){clearTimeout(goWriteTimer);goWriteTimer=null;} hideReward(); updateHub(); show('sc-hub'); };
+document.getElementById('writeBack').onclick=()=>{ if(goWriteTimer){clearTimeout(goWriteTimer);goWriteTimer=null;} hideReward(); updateHub(); show('sc-hub'); };
+document.getElementById('shopBack').onclick=()=>{ updateHub(); show('sc-hub'); };
+document.getElementById('btnClear').onclick=clearCanvas;
+document.getElementById('btnCast').onclick=finishWrite;
+document.getElementById('btnGoWrite').onclick=()=>{
+  if(goWriteTimer){ clearTimeout(goWriteTimer); goWriteTimer=null; }
+  hideReward();
+  startWrite(cur);
+};
+window.addEventListener('resize', ()=>{
+  if(document.getElementById('sc-write').classList.contains('active')) resizeCanvas();
+  if(document.getElementById('sc-ws-play').classList.contains('active')) wsResize();
+});
+
+document.getElementById('btnMorningRestart').onclick=function(){
+  try{ localStorage.removeItem(SAVE); }catch(e){}
+  state={stars:0,coins:0,done:{},owned:[]};
+  save(); updateHub(); show('sc-hub');
+};
+
+/* ===== 寫字搶星 mix: day2 new + old morning five (+ optional day1 review) ===== */
+const WS_WORDS = [
+  {w:'四周', tag:'new'},
+  {w:'原來', tag:'new'},
+  {w:'必須', tag:'new'},
+  {w:'暗', tag:'old'},
+  {w:'救', tag:'old'},
+  {w:'醫生', tag:'old'},
+  {w:'鏡子', tag:'old'},
+  {w:'成功', tag:'old'},
+  {w:'打滾', tag:'rev'},
+  {w:'手術', tag:'rev'},
+  {w:'一位', tag:'rev'}
+];
+const WS_SHOP = [
+  {id:'kunai',name:'苦無',ico:'🗡️',cost:2,cls:'gear-kunai'},
+  {id:'band',name:'護額',ico:'🎽',cost:2,cls:'gear-band'},
+  {id:'cloak',name:'斗篷',ico:'🧥',cost:3,cls:'gear-cloak'},
+  {id:'scroll',name:'卷軸',ico:'📜',cost:3,cls:'gear-scroll'}
+];
+const WS_AVATARS = [
+  {name:'橙影', ico:'🦊'},
+  {name:'粉焰', ico:'🔥'},
+  {name:'光刃', ico:'⚔️'},
+  {name:'藍印', ico:'🌀'},
+  {name:'銀牙', ico:'🐺'},
+  {name:'紫風', ico:'🌪️'}
+];
+const WS_SAVE='morningCh8_day2_write_v01';
+let wsState = wsLoad();
+let wsCur=0, wsLeft=15, wsTimerId=null, wsStrokes=0, wsDrawing=false, wsLock=false, wsAvatarIdx=0;
+
+function wsLoad(){
+  try{return Object.assign({stars:0,done:{},owned:[]},JSON.parse(localStorage.getItem(WS_SAVE)||'{}'));}
+  catch(e){return {stars:0,done:{},owned:[]};}
+}
+function wsSave(){ localStorage.setItem(WS_SAVE, JSON.stringify(wsState)); }
+function speak(t){
+  try{if(!speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.9;speechSynthesis.speak(u);}catch(e){}
+}
+function wsUpdateHub(){
+  document.getElementById('wsHubStars').textContent='⭐ '+wsState.stars;
+  document.getElementById('wsShopStars').textContent='⭐ '+wsState.stars;
+  document.getElementById('wsWords').innerHTML=WS_WORDS.map((x,i)=>{
+    const d=wsState.done[i];
+    const tag = x.tag==='new' ? '<span class="tag-new">新</span>' : (x.tag==='rev' ? '<span class="tag-old">複</span>' : '<span class="tag-old">舊</span>');
+    return `<div class="${d?'done':''}">${x.w}${tag}${d?' ✅':''}</div>`;
+  }).join('');
+  wsApplyGear();
+}
+function wsPaintAvatar(){
+  const a=WS_AVATARS[wsAvatarIdx%WS_AVATARS.length];
+  ['wsAvatar','wsHubAvatar','wsShopAvatar'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.textContent=a.ico; }
+  });
+  document.getElementById('wsHubName').textContent=a.name;
+  document.getElementById('wsPlayName').textContent=a.name;
+  document.getElementById('wsShopName').textContent=a.name;
+  wsApplyGear();
+}
+function wsPickAvatar(){ wsAvatarIdx=Math.floor(Math.random()*WS_AVATARS.length); wsPaintAvatar(); }
+function wsApplyGear(){
+  ['wsAvatar','wsHubAvatar','wsShopAvatar'].forEach(id=>{
+    const av=document.getElementById(id);
+    if(!av) return;
+    const ico = WS_AVATARS[wsAvatarIdx%WS_AVATARS.length].ico;
+    av.className='avatar';
+    av.textContent=ico;
+    WS_SHOP.forEach(it=>{ if(wsState.owned.includes(it.id)) av.classList.add(it.cls); });
+  });
+}
+function wsRemaining(){ const a=[]; for(let i=0;i<WS_WORDS.length;i++) if(!wsState.done[i]) a.push(i); return a; }
+function wsPickStage(){
+  const r=wsRemaining();
+  if(!r.length) return -1;
+  return shuffle(r)[0];
+}
+function wsSetTimerLabel(){
+  const el=document.getElementById('wsTimer');
+  el.textContent='剩餘 '+wsLeft+' 秒';
+  if(wsLeft<=5) el.classList.add('danger'); else el.classList.remove('danger');
+}
+function wsStartStage(i){
+  wsCur=i; wsLock=false; wsStrokes=0; wsLeft=15;
+  wsPickAvatar();
+  const word=WS_WORDS[i].w;
+  const doneN=Object.keys(wsState.done).filter(k=>wsState.done[k]).length;
+  document.getElementById('wsStagePill').textContent='第 '+(doneN+1)+' 關';
+  document.getElementById('wsBubble').textContent='快！寫出『'+word+'』！';
+  document.getElementById('wsModel').textContent=word;
+  document.getElementById('wsFb').textContent='';
+  wsSetTimerLabel();
+  wsApplyGear();
+  show('sc-ws-play');
+  wsClear(); wsResize();
+  speak(word);
+  if(wsTimerId) clearInterval(wsTimerId);
+  wsTimerId=setInterval(()=>{
+    wsLeft--; wsSetTimerLabel();
+    if(wsLeft<=0){ clearInterval(wsTimerId); wsTimerId=null; wsOnTimeout(); }
+  },1000);
+}
+function wsOnTimeout(){
+  if(wsLock) return;
+  document.getElementById('wsFb').textContent='再試一次！';
+  document.getElementById('wsFb').style.color='#fb7185';
+  document.getElementById('wsBubble').textContent='再試一次！';
+  setTimeout(()=>wsStartStage(wsCur),900);
+}
+function wsFinishOk(){
+  if(wsLock) return;
+  if(wsStrokes<8){ document.getElementById('wsFb').textContent='再試一次！'; document.getElementById('wsFb').style.color='#fdba74'; return; }
+  wsLock=true; if(wsTimerId){clearInterval(wsTimerId);wsTimerId=null;}
+  const already=!!wsState.done[wsCur];
+  wsState.done[wsCur]=1;
+  if(!already) wsState.stars+=1;
+  wsSave(); wsUpdateHub();
+  showReward('⭐','查克拉命中！⭐+1', already?'已經過關過！':'去幫忍者換裝備吧！', 1000, ()=>{
+    hideReward();
+    const n=wsPickStage();
+    if(n<0){ wsRenderShop(); show('sc-ws-shop'); }
+    else wsStartStage(n);
+  });
+}
+
+const wsCv=document.getElementById('wsCv');
+const wsCtx=wsCv.getContext('2d');
+function wsResize(){
+  const r=wsCv.getBoundingClientRect(); const dpr=window.devicePixelRatio||1;
+  wsCv.width=Math.floor(r.width*dpr); wsCv.height=Math.floor(r.height*dpr);
+  wsCtx.setTransform(dpr,0,0,dpr,0,0);
+  wsCtx.lineCap='round'; wsCtx.lineJoin='round'; wsCtx.strokeStyle='#e65c00'; wsCtx.lineWidth=6;
+}
+function wsClear(){ wsStrokes=0; const r=wsCv.getBoundingClientRect(); wsCtx.clearRect(0,0,r.width||720,r.height||280); }
+function wsPos(e){ const r=wsCv.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left,y:t.clientY-r.top}; }
+function wsStartDraw(e){ if(wsLock)return; e.preventDefault(); wsDrawing=true; const p=wsPos(e); wsCtx.beginPath(); wsCtx.moveTo(p.x,p.y); }
+function wsMoveDraw(e){ if(!wsDrawing||wsLock)return; e.preventDefault(); const p=wsPos(e); wsCtx.lineTo(p.x,p.y); wsCtx.stroke(); wsStrokes++; }
+function wsEndDraw(){ wsDrawing=false; }
+wsCv.addEventListener('mousedown',wsStartDraw); wsCv.addEventListener('mousemove',wsMoveDraw); wsCv.addEventListener('mouseup',wsEndDraw); wsCv.addEventListener('mouseleave',wsEndDraw);
+wsCv.addEventListener('touchstart',wsStartDraw,{passive:false}); wsCv.addEventListener('touchmove',wsMoveDraw,{passive:false}); wsCv.addEventListener('touchend',wsEndDraw);
+
+function wsRenderShop(){
+  const g=document.getElementById('wsShopGrid');
+  g.innerHTML=WS_SHOP.map(it=>{
+    const owned=wsState.owned.includes(it.id);
+    return `<div class="shop-item ${owned?'owned':''}"><div class="ico">${it.ico}</div><div class="nm">${it.name}</div><div style="opacity:.8;margin-bottom:8px;font-size:.85rem">${owned?'已擁有':'⭐ '+it.cost}</div><button class="btn ${owned?'btn-ghost':'btn-main'}" data-id="${it.id}" ${owned?'disabled':''} style="margin:0;padding:10px">${owned?'✓':'換取'}</button></div>`;
+  }).join('');
+  g.querySelectorAll('button[data-id]').forEach(b=>{
+    b.onclick=()=>{
+      const it=WS_SHOP.find(x=>x.id===b.dataset.id);
+      if(!it||wsState.owned.includes(it.id)) return;
+      if(wsState.stars<it.cost){ alert('查克拉星不足！'); return; }
+      wsState.stars-=it.cost; wsState.owned.push(it.id); wsSave(); wsUpdateHub(); wsRenderShop(); wsApplyGear();
+    };
+  });
+}
+
+document.getElementById('btnWriteStar').onclick=()=>{
+  if(goWriteTimer){clearTimeout(goWriteTimer);goWriteTimer=null;}
+  hideReward();
+  wsUpdateHub(); wsPaintAvatar(); show('sc-ws-hub');
+};
+document.getElementById('wsBackHub').onclick=()=>{
+  if(wsTimerId){clearInterval(wsTimerId);wsTimerId=null;}
+  updateHub(); show('sc-hub');
+};
+document.getElementById('wsBtnGo').onclick=()=>{
+  const n=wsPickStage();
+  if(n<0){ wsState.done={}; wsSave(); wsUpdateHub(); wsStartStage(wsPickStage()); }
+  else wsStartStage(n);
+};
+document.getElementById('wsBtnShop').onclick=()=>{ wsRenderShop(); show('sc-ws-shop'); };
+document.getElementById('wsShopBack').onclick=()=>{ wsUpdateHub(); show('sc-ws-hub'); };
+document.getElementById('wsPlayBack').onclick=()=>{ if(wsTimerId){clearInterval(wsTimerId);wsTimerId=null;} wsUpdateHub(); show('sc-ws-hub'); };
+document.getElementById('wsBtnClear').onclick=wsClear;
+document.getElementById('wsBtnCast').onclick=wsFinishOk;
+document.getElementById('wsBtnReset').onclick=()=>{
+  try{localStorage.removeItem(WS_SAVE);}catch(e){}
+  wsState={stars:0,done:{},owned:[]}; wsSave(); wsUpdateHub(); show('sc-ws-hub');
+};
+
+updateHub();
+</script>
+</body>
+</html>
