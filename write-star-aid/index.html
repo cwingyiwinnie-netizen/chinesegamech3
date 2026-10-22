@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>寫字搶星 · 忍具援助</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans TC','PingFang HK',sans-serif;background:#0f2740;color:#fff;min-height:100vh}
+.screen{display:none;padding:12px;max-width:980px;margin:0 auto}
+.screen.active{display:block}
+h1{font-size:1.45rem;font-weight:900;line-height:1.3}
+h1 span{color:#ffd700}
+.sub{opacity:.85;margin:8px 0 14px;line-height:1.5}
+.btn{border:none;border-radius:14px;padding:12px 16px;font-size:1.05rem;font-weight:900;font-family:inherit;cursor:pointer}
+.btn-main{background:linear-gradient(135deg,#ff6b00,#ffd700);color:#1a1a2e}
+.btn-ghost{background:rgba(255,255,255,.12);color:#fff;border:2px solid rgba(255,255,255,.35)}
+.btn-ok{background:linear-gradient(135deg,#16a34a,#86efac);color:#052e16}
+.pill{display:inline-block;background:rgba(255,255,255,.12);border-radius:999px;padding:6px 12px;font-weight:800;margin-right:6px}
+.hub-words{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}
+.hub-words div{background:rgba(255,255,255,.1);border-radius:12px;padding:10px 4px;text-align:center;font-weight:900}
+.hub-words .done{background:rgba(134,239,172,.25);border:1px solid #86efac}
+.play{display:grid;grid-template-columns:1.2fr .9fr;gap:12px;min-height:70vh}
+@media (max-width:700px){.play{grid-template-columns:1fr}.hub-words{grid-template-columns:repeat(3,1fr)}}
+.write-panel,.ninja-panel{background:rgba(255,255,255,.08);border-radius:18px;padding:12px;border:1px solid rgba(255,255,255,.15)}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.timer{font-size:1.15rem;font-weight:900;color:#ffd700}
+.timer.danger{color:#fb7185;animation:blink .5s infinite}
+@keyframes blink{50%{opacity:.5}}
+.canvas-wrap{position:relative;background:#F7F3EB;border-radius:14px;overflow:hidden;touch-action:none;border:3px solid #d4a017}
+#cv{width:100%;height:min(52vh,420px);display:block}
+.model{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(3rem,12vw,5.5rem);font-weight:900;color:rgba(26,74,110,.16);pointer-events:none}
+.row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.row .btn{flex:1;min-width:100px}
+.ninja{text-align:center;padding-top:8px}
+.avatar{width:140px;height:180px;margin:0 auto 10px;border-radius:20px;background:linear-gradient(160deg,#1a4a6e,#0d4a66);display:flex;align-items:center;justify-content:center;font-size:5rem;border:3px solid #ffd700;position:relative}
+.avatar.gear-kunai::after{content:'🗡️';position:absolute;right:-6px;bottom:20px;font-size:1.8rem}
+.avatar.gear-band::before{content:'🎽';position:absolute;top:8px;font-size:1.4rem}
+.avatar.gear-cloak{box-shadow:inset 0 0 0 8px #7c2d12}
+.avatar.gear-scroll::after{content:'📜';position:absolute;left:-8px;bottom:24px;font-size:1.6rem}
+.bubble{background:#fff;color:#1a4a6e;border-radius:16px;padding:14px 16px;font-weight:900;font-size:1.35rem;position:relative;margin:10px 8px;min-height:72px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.35}
+.bubble:after{content:'';position:absolute;right:28px;bottom:-10px;border:10px solid transparent;border-top-color:#fff;border-bottom:0}
+.hint{font-size:.9rem;opacity:.8;margin-top:8px}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.shop-item{background:rgba(255,255,255,.1);border-radius:14px;padding:12px;text-align:center}
+.shop-item.owned{border:2px solid #86efac}
+.reward{display:none;position:fixed;inset:0;z-index:50;background:rgba(5,20,40,.9);align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.reward.on{display:flex}
+.reward .big{font-size:4.5rem;animation:pop .4s ease}
+@keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.teacher{margin:16px 8px;padding:10px;border:1px dashed #64748b;border-radius:10px;font-size:.75rem;color:#94a3b8;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="screen active" id="sc-hub">
+  <div class="topbar">
+    <div><span class="pill" id="hubStars">⭐ 0</span></div>
+    <button class="btn btn-ghost" id="btnReset" type="button">重新開始</button>
+  </div>
+  <h1>寫字搶星<br><span>忍具援助</span></h1>
+  <p class="sub">右邊忍者出詞 · 左邊出招畫氣 · 15 秒內寫出 · 集星幫忍者換裝備</p>
+  <div class="hub-words" id="hubWords"></div>
+  <button class="btn btn-main" id="btnGo" style="width:100%;margin-top:8px">開始挑戰</button>
+  <button class="btn btn-ghost" id="btnShopHub" style="width:100%;margin-top:8px">幫忍者換裝備</button>
+</div>
+
+<div class="screen" id="sc-play">
+  <div class="play">
+    <div class="write-panel">
+      <div class="topbar">
+        <button class="btn btn-ghost" id="playBack" type="button">返回</button>
+        <div class="pill" id="stagePill">第 1 關</div>
+        <div class="timer" id="timer">剩餘 15 秒</div>
+      </div>
+      <div class="canvas-wrap">
+        <div class="model" id="model"></div>
+        <canvas id="cv" width="720" height="480"></canvas>
+      </div>
+      <div class="row">
+        <button class="btn btn-ghost" id="btnClear" type="button">清空</button>
+        <button class="btn btn-ok" id="btnCast" type="button">出招！</button>
+      </div>
+      <div class="hint" id="fb"></div>
+    </div>
+    <div class="ninja-panel">
+      <div class="ninja">
+        <div class="avatar" id="avatar">🟠</div>
+        <div class="bubble" id="bubble">準備好了嗎？</div>
+        <p class="hint">出招畫氣 · 寫在左邊框裡</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="sc-shop">
+  <div class="topbar">
+    <button class="btn btn-ghost" id="shopBack" type="button">返回</button>
+    <div class="pill" id="shopStars">⭐ 0</div>
+  </div>
+  <h1 style="font-size:1.25rem">忍具店 · 幫忍者換裝備</h1>
+  <div class="shop-grid" id="shopGrid"></div>
+</div>
+
+<div class="reward" id="reward">
+  <div class="big" id="rewardBig">⭐</div>
+  <div style="font-size:1.8rem;font-weight:900;margin:8px" id="rewardTitle">查克拉命中！⭐+1</div>
+  <div id="rewardSub" style="opacity:.9"></div>
+</div>
+
+<div class="teacher">老師用 · v0.1 寫字搶星·忍具援助 · 詞：暗、救、醫生、鏡子、成功。右忍者對話／左出招畫氣／15秒／⭐換裝備。學生介面禁溫習默寫練習。存檔 ninjaWriteDuel_v01。</div>
+
+<script>
+const WORDS=['暗','救','醫生','鏡子','成功'];
+const SHOP=[
+  {id:'kunai',name:'苦無',ico:'🗡️',cost:2,cls:'gear-kunai'},
+  {id:'band',name:'護額',ico:'🎽',cost:2,cls:'gear-band'},
+  {id:'cloak',name:'斗篷',ico:'🧥',cost:3,cls:'gear-cloak'},
+  {id:'scroll',name:'卷軸',ico:'📜',cost:3,cls:'gear-scroll'}
+];
+const SAVE='ninjaWriteDuel_v01';
+let state=load();
+let cur=0, left=15, timerId=null, strokes=0, drawing=false, lock=false;
+
+function load(){
+  try{return Object.assign({stars:0,done:{},owned:[]},JSON.parse(localStorage.getItem(SAVE)||'{}'));}
+  catch(e){return {stars:0,done:{},owned:[]};}
+}
+function save(){localStorage.setItem(SAVE,JSON.stringify(state));}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function speak(t){
+  try{if(!speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.9;speechSynthesis.speak(u);}catch(e){}
+}
+function shuffle(a){const x=[...a];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
+function updateHub(){
+  document.getElementById('hubStars').textContent='⭐ '+state.stars;
+  document.getElementById('shopStars').textContent='⭐ '+state.stars;
+  document.getElementById('hubWords').innerHTML=WORDS.map((w,i)=>{
+    const d=state.done[i];
+    return `<div class="${d?'done':''}">${w}${d?' ✅':''}</div>`;
+  }).join('');
+  applyGear();
+}
+function applyGear(){
+  const av=document.getElementById('avatar');
+  av.className='avatar';
+  SHOP.forEach(it=>{ if(state.owned.includes(it.id)) av.classList.add(it.cls); });
+}
+function remaining(){ const a=[]; for(let i=0;i<WORDS.length;i++) if(!state.done[i]) a.push(i); return a; }
+function pickStage(){
+  const r=remaining();
+  if(!r.length) return -1;
+  return shuffle(r)[0];
+}
+function setTimerLabel(){
+  const el=document.getElementById('timer');
+  el.textContent='剩餘 '+left+' 秒';
+  if(left<=5) el.classList.add('danger'); else el.classList.remove('danger');
+}
+function startStage(i){
+  cur=i; lock=false; strokes=0; left=15;
+  const word=WORDS[i];
+  document.getElementById('stagePill').textContent='第 '+(Object.keys(state.done).filter(k=>state.done[k]).length+1)+' 關';
+  document.getElementById('bubble').textContent='快！寫出『'+word+'』！';
+  document.getElementById('model').textContent=word;
+  document.getElementById('fb').textContent='';
+  setTimerLabel();
+  applyGear();
+  show('sc-play');
+  clearCanvas(); resize();
+  speak(word);
+  if(timerId) clearInterval(timerId);
+  timerId=setInterval(()=>{
+    left--; setTimerLabel();
+    if(left<=0){ clearInterval(timerId); timerId=null; onTimeout(); }
+  },1000);
+}
+function onTimeout(){
+  if(lock) return;
+  document.getElementById('fb').textContent='再試一次！';
+  document.getElementById('fb').style.color='#fb7185';
+  document.getElementById('bubble').textContent='再試一次！';
+  setTimeout(()=>startStage(cur),900);
+}
+function showReward(big,title,sub,ms,then){
+  document.getElementById('rewardBig').textContent=big;
+  document.getElementById('rewardTitle').textContent=title;
+  document.getElementById('rewardSub').textContent=sub||'';
+  document.getElementById('reward').classList.add('on');
+  setTimeout(()=>{ document.getElementById('reward').classList.remove('on'); then&&then(); }, ms);
+}
+function finishOk(){
+  if(lock) return;
+  if(strokes<8){ document.getElementById('fb').textContent='再試一次！'; document.getElementById('fb').style.color='#fdba74'; return; }
+  lock=true; if(timerId){clearInterval(timerId);timerId=null;}
+  const already=!!state.done[cur];
+  state.done[cur]=1;
+  if(!already) state.stars+=1;
+  save(); updateHub();
+  showReward('⭐','查克拉命中！⭐+1', already?'已經過關過！':'去幫忍者換裝備吧！', 1000, ()=>{
+    const n=pickStage();
+    if(n<0){ renderShop(); show('sc-shop'); }
+    else startStage(n);
+  });
+}
+
+const cv=document.getElementById('cv'); const ctx=cv.getContext('2d');
+function resize(){
+  const r=cv.getBoundingClientRect(); const dpr=window.devicePixelRatio||1;
+  cv.width=Math.floor(r.width*dpr); cv.height=Math.floor(r.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#e65c00'; ctx.lineWidth=6;
+}
+function clearCanvas(){ strokes=0; const r=cv.getBoundingClientRect(); ctx.clearRect(0,0,r.width||720,r.height||480); }
+function pos(e){ const r=cv.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left,y:t.clientY-r.top}; }
+function startDraw(e){ if(lock)return; e.preventDefault(); drawing=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }
+function moveDraw(e){ if(!drawing||lock)return; e.preventDefault(); const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); strokes++; }
+function endDraw(){ drawing=false; }
+cv.addEventListener('mousedown',startDraw); cv.addEventListener('mousemove',moveDraw); cv.addEventListener('mouseup',endDraw); cv.addEventListener('mouseleave',endDraw);
+cv.addEventListener('touchstart',startDraw,{passive:false}); cv.addEventListener('touchmove',moveDraw,{passive:false}); cv.addEventListener('touchend',endDraw);
+
+function renderShop(){
+  const g=document.getElementById('shopGrid');
+  g.innerHTML=SHOP.map(it=>{
+    const owned=state.owned.includes(it.id);
+    return `<div class="shop-item ${owned?'owned':''}"><div style="font-size:2rem">${it.ico}</div><div style="font-weight:900;margin:6px 0">${it.name}</div><div style="opacity:.8;margin-bottom:8px">${owned?'已擁有':'⭐ '+it.cost}</div><button class="btn ${owned?'btn-ghost':'btn-main'}" data-id="${it.id}" ${owned?'disabled':''} style="width:100%">${owned?'✓':'換取'}</button></div>`;
+  }).join('');
+  g.querySelectorAll('button[data-id]').forEach(b=>{
+    b.onclick=()=>{
+      const it=SHOP.find(x=>x.id===b.dataset.id);
+      if(!it||state.owned.includes(it.id)) return;
+      if(state.stars<it.cost){ alert('查克拉星不足！'); return; }
+      state.stars-=it.cost; state.owned.push(it.id); save(); updateHub(); renderShop(); applyGear();
+    };
+  });
+}
+
+document.getElementById('btnGo').onclick=()=>{
+  const n=pickStage();
+  if(n<0){ state.done={}; save(); updateHub(); startStage(pickStage()); }
+  else startStage(n);
+};
+document.getElementById('btnShopHub').onclick=()=>{ renderShop(); show('sc-shop'); };
+document.getElementById('shopBack').onclick=()=>{ updateHub(); show('sc-hub'); };
+document.getElementById('playBack').onclick=()=>{ if(timerId){clearInterval(timerId);timerId=null;} updateHub(); show('sc-hub'); };
+document.getElementById('btnClear').onclick=clearCanvas;
+document.getElementById('btnCast').onclick=finishOk;
+document.getElementById('btnReset').onclick=()=>{
+  try{localStorage.removeItem(SAVE);}catch(e){}
+  state={stars:0,done:{},owned:[]}; save(); updateHub(); show('sc-hub');
+};
+window.addEventListener('resize',()=>{ if(document.getElementById('sc-play').classList.contains('active')) resize(); });
+updateHub();
+</script>
+</body>
+</html>
