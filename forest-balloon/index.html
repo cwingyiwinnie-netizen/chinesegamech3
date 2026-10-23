@@ -181,23 +181,161 @@ body{
 .dart-line.fly{animation:dartFly .28s ease-out forwards}
 @keyframes dartFly{0%{opacity:1;transform:scaleX(0)}70%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1)}}
 
+/* ===== REWARD OVERLAY (mock left: ribbon + burst + ornate box) ===== */
 .reward{
   display:none;position:fixed;inset:0;z-index:100;
-  background:rgba(20,30,20,.88);align-items:center;justify-content:center;
-  flex-direction:column;color:#fff;text-align:center;padding:24px;
+  align-items:center;justify-content:center;
+  flex-direction:column;color:#fff;text-align:center;padding:16px 18px 22px;
+  overflow:hidden;
 }
 .reward.on{display:flex}
-.reward .frame{
-  background:linear-gradient(180deg,#5a3a1a,#3a2410);
-  border:4px solid #d4a017;border-radius:20px;padding:28px 36px;
-  box-shadow:0 0 40px rgba(255,200,80,.35), inset 0 0 20px rgba(0,0,0,.3);
-  max-width:92%;
+.reward-bg{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:#2d6b3a center/cover no-repeat;
+  background-image:var(--bg-img),
+    linear-gradient(180deg,#87CEEB 0%,#6bb8e8 22%,#5aaa4a 55%,#2d6b3a 100%);
+  filter:saturate(1.08) brightness(.92);
+  transform:scale(1.06);
 }
-.reward .big{font-size:4.5rem;line-height:1;margin-bottom:6px;animation:pop .45s ease}
-.reward .ttl{font-size:clamp(2rem,8vw,2.8rem);font-weight:900;margin:6px 0;color:#ffe566;
-  text-shadow:0 2px 12px rgba(0,0,0,.5)}
-.reward .subr{font-size:1.25rem;font-weight:800;opacity:.95;margin-top:6px;color:#fff}
+.reward-bg::after{
+  content:'';position:absolute;inset:0;
+  background:
+    linear-gradient(180deg,rgba(255,140,40,.28),rgba(40,18,8,.55)),
+    rgba(20,30,20,.35);
+  backdrop-filter:blur(2px);
+}
+.reward-inner{
+  position:relative;z-index:2;width:min(420px,96%);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  animation:pop .45s ease;
+}
+/* Brown ribbon banner */
+.reward-ribbon{
+  position:relative;margin:4px auto 2px;padding:10px 42px 12px;
+  background:linear-gradient(180deg,#6b3a1a,#4a2410 55%,#3a1a08);
+  border:3px solid #c9a227;border-radius:6px;
+  box-shadow:0 6px 18px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,220,140,.35);
+  min-width:min(78%,280px);
+}
+.reward-ribbon::before,.reward-ribbon::after{
+  content:'';position:absolute;top:50%;width:18px;height:70%;
+  background:linear-gradient(180deg,#5a3010,#3a1808);
+  border:2px solid #a88820;transform:translateY(-50%);
+  clip-path:polygon(0 0,100% 12%,100% 88%,0 100%);
+}
+.reward-ribbon::before{left:-14px;clip-path:polygon(100% 0,0 18%,0 82%,100% 100%)}
+.reward-ribbon::after{right:-14px}
+.reward-ribbon h2{
+  margin:0;font-size:clamp(1.45rem,6.5vw,1.95rem);font-weight:900;
+  color:#fff8e8;letter-spacing:.14em;
+  text-shadow:0 2px 0 #2a1200, 0 3px 10px rgba(0,0,0,.45);
+}
+/* Celebration stage */
+.reward-stage{
+  position:relative;width:100%;min-height:168px;
+  display:flex;align-items:center;justify-content:center;
+  margin:2px 0 4px;
+}
+.reward-chibi{
+  position:absolute;left:2%;bottom:4%;
+  width:clamp(72px,22vw,110px);height:auto;
+  filter:drop-shadow(0 6px 12px rgba(0,0,0,.4));
+  animation:ninjaBob 2.4s ease-in-out infinite;
+  pointer-events:none;z-index:2;
+}
+.reward-burst{
+  position:relative;width:clamp(140px,42vw,200px);height:clamp(140px,42vw,200px);
+  display:flex;align-items:center;justify-content:center;z-index:1;
+}
+.reward-burst .rays{
+  position:absolute;inset:-8%;
+  background:
+    conic-gradient(from 0deg,
+      transparent 0 8%,#ffd36a 8% 12%,transparent 12% 20%,
+      #ff9a2e 20% 24%,transparent 24% 33%,
+      #ffe566 33% 37%,transparent 37% 45%,
+      #ffb347 45% 49%,transparent 49% 58%,
+      #ffd36a 58% 62%,transparent 62% 71%,
+      #ff9a2e 71% 75%,transparent 75% 83%,
+      #ffe566 83% 87%,transparent 87% 100%);
+  border-radius:50%;opacity:.85;
+  animation:spinSlow 8s linear infinite;
+  filter:blur(.3px);
+}
+.reward-burst .balloon-pop{
+  position:relative;z-index:2;width:78%;aspect-ratio:1;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(3.2rem,14vw,4.6rem);line-height:1;
+  filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));
+  animation:burstPulse .7s ease;
+}
+.reward-burst .impact{
+  position:absolute;inset:8%;z-index:1;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,220,80,.9) 0%,rgba(255,120,40,.55) 42%,transparent 70%);
+  animation:impactFlash .6s ease;
+}
+.reward-stars{
+  position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden;
+}
+.reward-stars span{
+  position:absolute;font-size:clamp(.85rem,3.5vw,1.25rem);
+  animation:twinkle 1.4s ease-in-out infinite;
+  filter:drop-shadow(0 0 4px rgba(255,220,80,.8));
+}
+.reward-stars span:nth-child(1){top:8%;left:18%;animation-delay:0s}
+.reward-stars span:nth-child(2){top:14%;right:16%;animation-delay:.2s;font-size:1.1em}
+.reward-stars span:nth-child(3){top:42%;left:6%;animation-delay:.35s}
+.reward-stars span:nth-child(4){top:38%;right:4%;animation-delay:.5s}
+.reward-stars span:nth-child(5){bottom:18%;left:22%;animation-delay:.15s}
+.reward-stars span:nth-child(6){bottom:12%;right:20%;animation-delay:.4s}
+.reward-stars span:nth-child(7){top:22%;left:42%;animation-delay:.25s;opacity:.85}
+.reward-stars span:nth-child(8){bottom:28%;right:38%;animation-delay:.55s}
+/* Ornate reward box + shop shortcut row */
+.reward-row{
+  display:flex;align-items:stretch;justify-content:center;gap:12px;
+  width:100%;flex-wrap:wrap;margin-top:4px;
+}
+.reward-box{
+  flex:1;min-width:160px;max-width:260px;
+  background:linear-gradient(180deg,#4a2e14,#2a1808);
+  border:4px solid #d4a017;border-radius:16px;
+  padding:14px 18px 16px;
+  box-shadow:0 0 28px rgba(255,200,80,.3), inset 0 0 18px rgba(0,0,0,.35),
+    0 6px 16px rgba(0,0,0,.35);
+  position:relative;
+}
+.reward-box::before{
+  content:'';position:absolute;inset:5px;border:1px solid rgba(212,160,23,.45);
+  border-radius:10px;pointer-events:none;
+}
+.reward-box .got{
+  font-size:clamp(1.05rem,4vw,1.25rem);font-weight:900;color:#ffe566;
+  letter-spacing:.08em;margin-bottom:8px;
+  text-shadow:0 2px 6px rgba(0,0,0,.5);
+}
+.reward-box .amt{
+  font-size:clamp(1.45rem,6vw,1.85rem);font-weight:900;color:#fff;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  text-shadow:0 2px 8px rgba(0,0,0,.45);
+}
+.reward-shop{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;min-width:88px;padding:8px 10px;
+  background:linear-gradient(180deg,#5a3a1c,#3a2410);
+  border:3px solid #c9a227;border-radius:50%;
+  width:88px;height:88px;cursor:pointer;font-family:inherit;
+  box-shadow:0 4px 14px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,220,140,.25);
+  color:#fff8e8;flex-shrink:0;
+}
+.reward-shop:active{transform:scale(.95)}
+.reward-shop .ico{font-size:1.65rem;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}
+.reward-shop .lbl{font-size:.72rem;font-weight:900;letter-spacing:.06em;margin-top:2px}
 @keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes burstPulse{0%{transform:scale(.55);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes impactFlash{0%{opacity:0;transform:scale(.4)}40%{opacity:1;transform:scale(1.1)}100%{opacity:.75;transform:scale(1)}}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+@keyframes twinkle{0%,100%{opacity:.45;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
 
 /* ===== WRITE SCREEN (mock-matched) ===== */
 #sc-write .ui{max-width:920px}
@@ -215,15 +353,23 @@ body{
 }
 .write-banner{
   align-self:center;display:flex;align-items:center;gap:10px;
-  margin:2px auto 8px;padding:8px 22px;
-  background:linear-gradient(180deg,#2a6a78,#1a4a58);
-  border:2px solid #7ec8d4;border-radius:999px;
-  box-shadow:0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.25);
+  margin:2px auto 8px;padding:10px 28px 12px;
+  background:linear-gradient(180deg,#f5e6c8,#e8d4a8 40%,#d4b888);
+  border:3px solid #8b6914;border-radius:8px 8px 12px 12px;
+  box-shadow:0 4px 16px rgba(0,0,0,.28), inset 0 2px 0 rgba(255,255,255,.45);
+  position:relative;max-width:92%;
 }
-.write-banner .wind{font-size:1.1rem;opacity:.85;color:#b8f0f8}
+.write-banner::before,.write-banner::after{
+  content:'';position:absolute;top:50%;width:14px;height:70%;
+  background:linear-gradient(90deg,#c4a060,#8b6914);border-radius:4px;
+  transform:translateY(-50%);box-shadow:0 2px 4px rgba(0,0,0,.25);
+}
+.write-banner::before{left:-8px}
+.write-banner::after{right:-8px}
+.write-banner .wind{font-size:1.05rem;opacity:.9;color:#c45c00}
 .write-banner h2{
-  margin:0;font-size:clamp(1.15rem,4vw,1.45rem);font-weight:900;color:#fff;
-  letter-spacing:.12em;text-shadow:0 2px 6px rgba(0,0,0,.35);
+  margin:0;font-size:clamp(1.15rem,4vw,1.45rem);font-weight:900;color:#1a3a6e;
+  letter-spacing:.12em;text-shadow:0 1px 0 rgba(255,255,255,.45);
 }
 .canvas-wrap{
   background:
@@ -356,7 +502,7 @@ body{
     <p class="sub">聽詞 → 射氣球 → 出招畫氣 → 收集查克拉星</p>
     <button class="btn btn-orange" id="btnStart">開始練功</button>
     <button class="btn btn-main" id="btnCoverShop" style="min-width:70%">⚔️ 忍具店 · 升級手裏劍</button>
-    <div class="teacher">老師用 · v0.2.3 森林練功·飛鏢氣球 · 9詞 · 存檔 forestBalloon_v01 · 學生介面禁溫習／默寫／練習／複習 · 美術升級預覽</div>
+    <div class="teacher">老師用 · v0.2.4 森林練功·飛鏢氣球 · 9詞 · 存檔 forestBalloon_v01 · 學生介面禁溫習／默寫／練習／複習 · 美術升級預覽</div>
   </div>
 </div>
 
@@ -461,10 +607,31 @@ body{
 </div>
 
 <div class="reward" id="reward">
-  <div class="frame">
-    <div class="big" id="rewardBig">🎯</div>
-    <div class="ttl" id="rewardTitle">命中！</div>
-    <div class="subr" id="rewardSub">查克拉星＋2</div>
+  <div class="reward-bg" id="rewardBg" aria-hidden="true"></div>
+  <div class="reward-inner">
+    <div class="reward-ribbon"><h2 id="rewardTitle">出招成功！</h2></div>
+    <div class="reward-stage">
+      <img class="reward-chibi" id="rewardChibi" alt="" draggable="false">
+      <div class="reward-burst" aria-hidden="true">
+        <div class="rays"></div>
+        <div class="impact"></div>
+        <div class="balloon-pop" id="rewardBig">🎈✦</div>
+      </div>
+      <div class="reward-stars" aria-hidden="true">
+        <span>⭐</span><span>✨</span><span>⭐</span><span>✦</span>
+        <span>✨</span><span>⭐</span><span>✦</span><span>✨</span>
+      </div>
+    </div>
+    <div class="reward-row">
+      <div class="reward-box">
+        <div class="got">獲得獎勵！</div>
+        <div class="amt" id="rewardAmt">⭐ × 2</div>
+      </div>
+      <button type="button" class="reward-shop" id="btnRewardShop" aria-label="忍具店">
+        <span class="ico" aria-hidden="true">⚔️</span>
+        <span class="lbl">忍具店</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -497,7 +664,7 @@ let strokes = 0;
 
 function applyArt(){
   document.documentElement.style.setProperty('--bg-img', 'url("'+BG_DATA+'")');
-  ['bgCover','bgPlay','bgWrite','bgShop','bgDone'].forEach(id=>{
+  ['bgCover','bgPlay','bgWrite','bgShop','bgDone','rewardBg'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){
       el.style.backgroundImage = 'url("'+BG_DATA+'")';
@@ -507,6 +674,8 @@ function applyArt(){
   });
   const dn=document.getElementById('doneNinja');
   if(dn) dn.src = CHAR_DATA;
+  const rc=document.getElementById('rewardChibi');
+  if(rc) rc.src = CHAR_DATA;
 }
 
 function load(){
@@ -595,17 +764,27 @@ if(window.speechSynthesis){
   speechSynthesis.onvoiceschanged=function(){ speechSynthesis.getVoices(); };
 }
 
-function showReward(big, title, sub, ms, then){
+let rewardThen = null;
+function showReward(big, title, starAmt, ms, then){
   const el=document.getElementById('reward');
-  document.getElementById('rewardBig').textContent=big;
+  document.getElementById('rewardBig').textContent=big || '🎈✦';
   document.getElementById('rewardTitle').textContent=title;
-  document.getElementById('rewardSub').textContent=sub||'';
+  document.getElementById('rewardAmt').textContent='⭐ × '+starAmt;
+  rewardThen = then || null;
   el.classList.add('on');
   if(rewardTimer) clearTimeout(rewardTimer);
   rewardTimer=setTimeout(()=>{
     el.classList.remove('on');
-    if(then) then();
+    const fn=rewardThen; rewardThen=null;
+    if(fn) fn();
   }, ms);
+}
+function dismissReward(runThen){
+  const el=document.getElementById('reward');
+  if(rewardTimer){ clearTimeout(rewardTimer); rewardTimer=null; }
+  el.classList.remove('on');
+  const fn=rewardThen; rewardThen=null;
+  if(runThen && fn) fn();
 }
 
 function renderDots(){
@@ -713,7 +892,7 @@ function onBalloonTap(e){
     updatePills();
     setTimeout(()=>{
       stopBalloons();
-      showReward('🎯','命中！','查克拉星＋'+HIT_STARS, 900, ()=>{
+      showReward('🎈✦','命中！', HIT_STARS, 900, ()=>{
         startWrite();
       });
     }, 280);
@@ -812,7 +991,7 @@ function finishWrite(){
   stars += WRITE_STARS;
   save();
   updatePills();
-  showReward('⭐','出招成功！','查克拉星＋'+WRITE_STARS, 1000, ()=>{
+  showReward('🎈✦','出招成功！', WRITE_STARS, 1100, ()=>{
     idx++;
     if(idx>=order.length){
       document.getElementById('doneSub').textContent='九詞全部命中！去忍具店升級手裏劍吧！';
@@ -891,6 +1070,15 @@ document.getElementById('btnUpgrade').onclick=upgradeShuriken;
 document.getElementById('btnDoneShop').onclick=()=>openShop('sc-done');
 document.getElementById('btnReplay').onclick=()=>startRound();
 document.getElementById('btnDoneHome').onclick=()=>show('sc-cover');
+document.getElementById('btnRewardShop').onclick=()=>{
+  // Advance round first (hit→write / write→next), then open shop so player is not stuck
+  dismissReward(true);
+  let from='sc-cover';
+  if(document.getElementById('sc-play').classList.contains('active')) from='sc-play';
+  else if(document.getElementById('sc-write').classList.contains('active')) from='sc-write';
+  else if(document.getElementById('sc-done').classList.contains('active')) from='sc-done';
+  openShop(from);
+};
 
 window.addEventListener('resize', ()=>{
   if(document.getElementById('sc-write').classList.contains('active')) resizeCanvas();
