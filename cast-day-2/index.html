@@ -206,17 +206,17 @@ h1 span{color:#e65c00}
 </div>
 
 <div class="teacher">
-  <strong>老師用</strong>· v0.1.0 出招日 · 週二（NCS Art 日二）· 新詞：四周、原來、必須。
-  教學：新詞出招循環（翻牌砌詞 → 畫氣 → 查克拉星 → 忍具店）＋寫字搶星混合詞（日二新詞＋舊晨讀五：暗救醫生鏡子成功；可加日一複習）。
-  學生介面禁溫習／默寫／練習／訓練。存檔 morningCh8_day2_v01｜寫字搶星 morningCh8_day2_write_v01。
+  <strong>老師用</strong>· v0.1.0 出招日 · 週二（NCS Art 日二）· 新詞：幾盞、四周、原來。
+  教學：新詞出招循環（翻牌砌詞 → 畫氣 → 查克拉星 → 忍具店）＋寫字搶星混合詞（日二新詞＋舊晨讀五：暗救醫生鏡子成功；可加日一複習／必須）。
+  學生介面禁溫習／默寫／練習／訓練。存檔 morningCh8_day2_v02｜寫字搶星 morningCh8_day2_write_v02。
 </div>
 
 <script>
 /* ===== Morning loop (day 2 new words) ===== */
 const WORDS = [
+  {w:'幾盞', m:'幾盞（燈的數量）'},
   {w:'四周', m:'周圍'},
-  {w:'原來', m:'事先不知道，現在才明白'},
-  {w:'必須', m:'一定要'}
+  {w:'原來', m:'事先不知道，現在才明白'}
 ];
 const SHOP = [
   {id:'kunai', name:'苦無', ico:'🗡️', cost:2},
@@ -226,7 +226,7 @@ const SHOP = [
   {id:'shuriken', name:'手裏劍', ico:'✶', cost:2},
   {id:'gourd', name:'查克拉壺', ico:'🏺', cost:5}
 ];
-const SAVE='morningCh8_day2_v01';
+const SAVE='morningCh8_day2_v02';
 let state = load();
 let cur = null;
 let flipLock=false;
@@ -482,9 +482,9 @@ document.getElementById('btnMorningRestart').onclick=function(){
 
 /* ===== 寫字搶星 mix: day2 new + old morning five (+ optional day1 review) ===== */
 const WS_WORDS = [
+  {w:'幾盞', tag:'new'},
   {w:'四周', tag:'new'},
   {w:'原來', tag:'new'},
-  {w:'必須', tag:'new'},
   {w:'暗', tag:'old'},
   {w:'救', tag:'old'},
   {w:'醫生', tag:'old'},
@@ -492,7 +492,8 @@ const WS_WORDS = [
   {w:'成功', tag:'old'},
   {w:'打滾', tag:'rev'},
   {w:'手術', tag:'rev'},
-  {w:'一位', tag:'rev'}
+  {w:'一位', tag:'rev'},
+  {w:'必須', tag:'rev'}
 ];
 const WS_SHOP = [
   {id:'kunai',name:'苦無',ico:'🗡️',cost:2,cls:'gear-kunai'},
@@ -508,7 +509,7 @@ const WS_AVATARS = [
   {name:'銀牙', ico:'🐺'},
   {name:'紫風', ico:'🌪️'}
 ];
-const WS_SAVE='morningCh8_day2_write_v01';
+const WS_SAVE='morningCh8_day2_write_v02';
 let wsState = wsLoad();
 let wsCur=0, wsLeft=15, wsTimerId=null, wsStrokes=0, wsDrawing=false, wsLock=false, wsAvatarIdx=0;
 
