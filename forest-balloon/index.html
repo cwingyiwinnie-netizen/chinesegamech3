@@ -199,20 +199,105 @@ body{
 .reward .subr{font-size:1.25rem;font-weight:800;opacity:.95;margin-top:6px;color:#fff}
 @keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
 
+/* ===== WRITE SCREEN (mock-matched) ===== */
+#sc-write .ui{max-width:920px}
+.write-stage{
+  flex:1;display:flex;flex-direction:column;min-height:0;
+  background:linear-gradient(180deg,rgba(40,90,100,.55),rgba(25,55,65,.7));
+  border:3px solid rgba(180,220,220,.35);border-radius:22px;
+  padding:10px 12px 12px;margin-top:4px;
+  box-shadow:inset 0 0 40px rgba(0,0,0,.2), 0 8px 28px rgba(0,0,0,.3);
+  position:relative;
+}
+.write-stage::before{
+  content:'🏮';position:absolute;top:-6px;right:10px;font-size:1.6rem;
+  filter:drop-shadow(0 2px 6px rgba(255,80,40,.5));pointer-events:none;opacity:.9;
+}
+.write-banner{
+  align-self:center;display:flex;align-items:center;gap:10px;
+  margin:2px auto 8px;padding:8px 22px;
+  background:linear-gradient(180deg,#2a6a78,#1a4a58);
+  border:2px solid #7ec8d4;border-radius:999px;
+  box-shadow:0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.write-banner .wind{font-size:1.1rem;opacity:.85;color:#b8f0f8}
+.write-banner h2{
+  margin:0;font-size:clamp(1.15rem,4vw,1.45rem);font-weight:900;color:#fff;
+  letter-spacing:.12em;text-shadow:0 2px 6px rgba(0,0,0,.35);
+}
 .canvas-wrap{
-  background:linear-gradient(180deg,#fffef8,#f5edd8);
-  border:4px solid #8b6914;border-radius:18px;overflow:hidden;
-  touch-action:none;position:relative;flex:1;min-height:240px;margin:8px 0;
-  box-shadow:0 6px 24px rgba(0,0,0,.28), inset 0 0 30px rgba(139,105,20,.08);
+  background:
+    radial-gradient(ellipse at 20% 15%,rgba(255,255,255,.55),transparent 45%),
+    linear-gradient(180deg,#fbf6e8,#f0e4c4 55%,#e8d7b0);
+  border:5px solid #3d5a62;border-radius:20px;overflow:hidden;
+  touch-action:none;position:relative;flex:1;min-height:220px;margin:4px 0 8px;
+  box-shadow:
+    0 8px 24px rgba(0,0,0,.35),
+    inset 0 0 0 2px #c4a878,
+    inset 0 0 50px rgba(139,105,20,.06);
 }
-#writeCanvas{width:100%;height:100%;display:block;min-height:240px;background:transparent;position:relative;z-index:1}
+.canvas-wrap::before,.canvas-wrap::after{
+  content:'';position:absolute;width:28px;height:28px;z-index:2;pointer-events:none;
+  border:3px solid #8b6914;opacity:.55;
+}
+.canvas-wrap::before{top:8px;left:8px;border-right:none;border-bottom:none;border-radius:8px 0 0 0}
+.canvas-wrap::after{bottom:8px;right:8px;border-left:none;border-top:none;border-radius:0 0 8px 0}
+#writeCanvas{width:100%;height:100%;display:block;min-height:220px;background:transparent;position:relative;z-index:1}
 .write-model{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;
-  font-size:clamp(2.6rem,13vw,5.2rem);font-weight:900;color:rgba(60,50,30,.18);
-  pointer-events:none;letter-spacing:.1em;z-index:0;padding:12px;
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:clamp(2.8rem,14vw,5.4rem);font-weight:900;color:rgba(70,60,40,.2);
+  pointer-events:none;letter-spacing:.12em;z-index:0;padding:16px;
+  text-shadow:0 0 1px rgba(0,0,0,.05);
 }
-.write-model .swirl{font-size:clamp(1.5rem,6vw,2.4rem);opacity:.5;margin-left:4px;color:rgba(230,92,0,.4)}
-#fbWrite{min-height:24px;text-align:center;font-weight:800;margin:4px 0;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+.write-model .swirl{
+  font-size:clamp(1.6rem,7vw,2.6rem);opacity:.55;margin-left:2px;
+  color:rgba(230,92,0,.42);filter:grayscale(.15);
+}
+#fbWrite{min-height:22px;text-align:center;font-weight:800;margin:2px 0 4px;color:#e8fff8;text-shadow:0 1px 4px rgba(0,0,0,.45);font-size:.95rem}
+
+/* Shop preview strip under canvas (mock) */
+.write-foot{
+  display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin-top:2px;
+}
+.write-preview{
+  flex:1;min-width:180px;
+  background:linear-gradient(180deg,#2a3a42,#1a282e);
+  border:2px solid #5a7a82;border-radius:16px;padding:10px 12px;
+  color:#e8f4f8;display:flex;flex-direction:column;justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+}
+.write-preview .pv-label{font-size:.78rem;font-weight:800;opacity:.9;margin-bottom:6px;letter-spacing:.04em}
+.write-preview .pv-row{display:flex;align-items:center;gap:10px}
+.write-preview .pv-sh{
+  font-size:1.55rem;width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+}
+.write-preview .pv-sh.gold{
+  background:radial-gradient(circle at 35% 30%,#ffe9a0,#f0b429 60%,#c47a00);
+  border-color:#ffd700;box-shadow:0 0 12px rgba(255,200,60,.45);color:#4a2e00;
+}
+.write-preview .pv-arrow{opacity:.7;font-weight:900}
+.write-preview .pv-stars{margin-left:auto;font-weight:900;font-size:1.05rem;color:#ffe566}
+.write-actions{display:flex;flex-direction:column;gap:6px;min-width:140px;flex:0 1 200px}
+.write-actions .btn-clear-sm{
+  padding:8px 12px;font-size:.95rem;margin:0;border-radius:14px;
+}
+.write-actions .btn-finish{
+  flex:1;margin:0;padding:16px 18px;font-size:1.35rem;border-radius:18px;
+  background:linear-gradient(180deg,#ffb347,#ff6b00);color:#1a1a2e;
+  border:none;border-bottom:5px solid #b34800;
+  box-shadow:0 6px 18px rgba(255,100,0,.4), inset 0 1px 0 rgba(255,255,255,.45);
+  font-weight:900;font-family:inherit;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.write-actions .btn-finish:active{transform:scale(.97);border-bottom-width:2px}
+@media (max-width:520px){
+  .write-foot{flex-direction:column}
+  .write-actions{flex-direction:row;min-width:0;width:100%}
+  .write-actions .btn-finish{flex:1.4}
+  .write-actions .btn-clear-sm{flex:.7}
+}
 
 .shop-card{
   background:linear-gradient(180deg,#fffaf0,#f0e4c8);
@@ -271,7 +356,7 @@ body{
     <p class="sub">聽詞 → 射氣球 → 出招畫氣 → 收集查克拉星</p>
     <button class="btn btn-orange" id="btnStart">開始練功</button>
     <button class="btn btn-main" id="btnCoverShop" style="min-width:70%">⚔️ 忍具店 · 升級手裏劍</button>
-    <div class="teacher">老師用 · v0.2.2 森林練功·飛鏢氣球 · 9詞 · 存檔 forestBalloon_v01 · 學生介面禁溫習／默寫／練習／複習 · 美術升級預覽</div>
+    <div class="teacher">老師用 · v0.2.3 森林練功·飛鏢氣球 · 9詞 · 存檔 forestBalloon_v01 · 學生介面禁溫習／默寫／練習／複習 · 美術升級預覽</div>
   </div>
 </div>
 
@@ -301,18 +386,36 @@ body{
   <div class="forest-bg warm dim" id="bgWrite"></div>
   <div class="ui">
     <div class="top">
-      <div class="scroll-title" style="margin:0;padding:6px 18px"><h1 style="font-size:1.15rem">出招畫氣</h1></div>
       <div class="pill" id="writeStars">⭐ 0</div>
+      <div class="pill" id="writeShuriken">手裏劍 Lv.1</div>
     </div>
-    <div class="hint" id="writeHint">用手指沿著淡字畫氣出招！</div>
-    <div class="canvas-wrap">
-      <div class="write-model" id="writeModel"></div>
-      <canvas id="writeCanvas" width="720" height="320"></canvas>
-    </div>
-    <div id="fbWrite"></div>
-    <div class="row">
-      <button class="btn btn-ghost" id="btnClear">清空</button>
-      <button class="btn btn-orange" id="btnFinishWrite">完成</button>
+    <div class="write-stage">
+      <div class="write-banner">
+        <span class="wind" aria-hidden="true">༄</span>
+        <h2>出招畫氣</h2>
+        <span class="wind" aria-hidden="true">༄</span>
+      </div>
+      <div class="hint" id="writeHint" style="margin:0 0 6px">用手指沿著淡字畫氣出招！</div>
+      <div class="canvas-wrap">
+        <div class="write-model" id="writeModel"></div>
+        <canvas id="writeCanvas" width="720" height="320"></canvas>
+      </div>
+      <div id="fbWrite"></div>
+      <div class="write-foot">
+        <div class="write-preview" id="writePreview">
+          <div class="pv-label" id="pvHint">忍具店：手裏劍 升級預覽</div>
+          <div class="pv-row">
+            <div class="pv-sh" id="pvShFrom">✶</div>
+            <span class="pv-arrow">→</span>
+            <div class="pv-sh gold" id="pvShTo">✦</div>
+            <div class="pv-stars" id="pvStars">⭐ 0</div>
+          </div>
+        </div>
+        <div class="write-actions">
+          <button class="btn btn-ghost btn-clear-sm" id="btnClear" type="button">清空</button>
+          <button class="btn-finish" id="btnFinishWrite" type="button">完成 <span aria-hidden="true">✦</span></button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -442,6 +545,20 @@ function updatePills(){
   const sh='手裏劍 Lv.'+shuriken;
   const cs=document.getElementById('coverShuriken');
   if(cs) cs.textContent=sh;
+  const ws=document.getElementById('writeShuriken');
+  if(ws) ws.textContent=sh;
+  const pvStars=document.getElementById('pvStars');
+  if(pvStars) pvStars.textContent='⭐ '+stars;
+  const pvFrom=document.getElementById('pvShFrom');
+  const pvTo=document.getElementById('pvShTo');
+  const pvHint=document.getElementById('pvHint');
+  const tierIco=['✶','✦','★','★'];
+  if(pvFrom) pvFrom.textContent=tierIco[Math.min(shuriken-1,2)];
+  if(pvTo) pvTo.textContent=tierIco[Math.min(shuriken,3)];
+  if(pvHint){
+    // Locked copy: 忍具店：手裏劍 升級預覽
+    pvHint.textContent = shuriken>=3 ? '忍具店：手裏劍 已滿級' : '忍具店：手裏劍 升級預覽';
+  }
   const sl=document.getElementById('shopLv');
   if(sl) sl.textContent='目前等級：'+shuriken;
   const ico=document.getElementById('shopIco');
@@ -634,12 +751,14 @@ function startWrite(){
   document.getElementById('fbWrite').textContent='';
   document.getElementById('writeHint').textContent='用手指沿著淡字畫氣出招！';
   const model=document.getElementById('writeModel');
+  // Ghost = target word glyphs (氣影)；團團轉 may add small swirl tip beside characters
   if(target==='團團轉'){
     model.innerHTML='<span>團團轉</span><span class="swirl" aria-hidden="true">🌀</span>';
   } else {
     model.textContent=target;
   }
   show('sc-write');
+  updatePills();
   clearCanvas();
   resizeCanvas();
 }
