@@ -271,7 +271,7 @@ body{
     <p class="sub">聽詞 → 射氣球 → 出招畫氣 → 收集查克拉星</p>
     <button class="btn btn-orange" id="btnStart">開始練功</button>
     <button class="btn btn-main" id="btnCoverShop" style="min-width:70%">⚔️ 忍具店 · 升級手裏劍</button>
-    <div class="teacher">老師用 · v0.2.1 森林練功·飛鏢氣球 · 9詞 · 存檔 forestBalloon_v01 · 學生介面禁溫習／默寫／練習／複習 · 美術升級預覽</div>
+    <div class="teacher">老師用 · v0.2.2 森林練功·飛鏢氣球 · 9詞 · 存檔 forestBalloon_v01 · 學生介面禁溫習／默寫／練習／複習 · 美術升級預覽</div>
   </div>
 </div>
 
@@ -717,8 +717,17 @@ function refreshShopTier(){
   if(ico) ico.textContent = shuriken>=3 ? '✦✦✦' : (shuriken===2 ? '✦✦' : '✦');
 }
 
+function pauseBalloonAnim(){
+  if(animId){ cancelAnimationFrame(animId); animId=null; }
+}
+function resumeBalloonAnim(){
+  if(document.getElementById('sc-play').classList.contains('active') && balloons.length && !animId){
+    animId=requestAnimationFrame(tickBalloons);
+  }
+}
 function openShop(from){
   shopReturn=from||'sc-cover';
+  if(from==='sc-play') stopBalloons();
   document.getElementById('shopMsg').textContent='';
   document.getElementById('shopMsg').classList.remove('err');
   updatePills();
@@ -758,7 +767,7 @@ document.getElementById('playBack').onclick=()=>{
 document.getElementById('btnSpeak').onclick=()=>speak(target);
 document.getElementById('btnClear').onclick=clearCanvas;
 document.getElementById('btnFinishWrite').onclick=finishWrite;
-document.getElementById('shopBack').onclick=()=>show(shopReturn);
+document.getElementById('shopBack').onclick=()=>{ show(shopReturn); if(shopReturn==='sc-play' && target) spawnBalloons(); };
 document.getElementById('btnUpgrade').onclick=upgradeShuriken;
 document.getElementById('btnDoneShop').onclick=()=>openShop('sc-done');
 document.getElementById('btnReplay').onclick=()=>startRound();
